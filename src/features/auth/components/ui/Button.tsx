@@ -1,16 +1,32 @@
 import SosImage from "../../../../assets/17d8bcd8-f778-4161-8007-f5649967999a.png"
 
 interface ButtonProps{
-  title: string
-  onClick?: ()=>void
+ type?: "button" | "submit" | "reset";
+  onClick?: () => void;
+  imageSrc?: string;          // nếu có ảnh thì hiển thị
+  children?: React.ReactNode;
+  disabled?: boolean
+  className?: string
 }
 
-export const Button = ({title, onClick} :ButtonProps) => {
+export const Button = ({type,imageSrc, children,onClick,disabled=false, className=""} :ButtonProps) => {
   return (
-   <button className="w-60 h-60 absolute left-14 top-1/2 -translate-y-1/2"
-   onClick={onClick}>
-    <img src={SosImage} alt="Sos"></img>
-   </button>
+   <button className={className}
+   onClick={onClick}
+   type={type}
+   disabled={disabled}
+  
+   >
+   {imageSrc ? (
+        <img
+          src={imageSrc}
+          alt="button-icon"
+          className="w-[400px] absolute left-14 top-1/2 -translate-y-1/2"
+        />
+      ) : (
+        <span className="text-lg font-bold ">{children}</span>
+      )}
+    </button>
   
   )
 }

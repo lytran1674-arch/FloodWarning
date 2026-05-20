@@ -1,24 +1,27 @@
 import React from "react";
 
 
-import { Button } from "./ui/Button";
+import { FormQMK } from "./FormQMK";
 
 const LoginPage: React.FC = () => {
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // TODO: xử lý đăng nhập
-    console.log("Đăng nhập...");
-  };
-
   return (
-   
-      <div className="flex flex-col md:flex-row gap-8 items-center">
-        <Button title=""  />
-        <div className="bg-blue-50 w-60">
-          
-          </div>    
-      </div>
+    <div
+      className="
+        min-h-screen
+        flex
+        items-center
+        justify-center
+        p-4
+      "
+    >
  
+
+  
+
+        {/* LOGIN FORM */}
+        <FormQMK />
+      </div>
+
   );
 };
 
