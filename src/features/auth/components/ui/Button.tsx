@@ -1,4 +1,4 @@
-import SosImage from "../../../../assets/17d8bcd8-f778-4161-8007-f5649967999a.png"
+
 
 interface ButtonProps{
  type?: "button" | "submit" | "reset";
