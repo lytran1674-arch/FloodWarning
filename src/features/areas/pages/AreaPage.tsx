@@ -1,3 +1,4 @@
+import { Header } from "../../../components/sidebar/header"
 import { AreaTable } from "../components/AreaTable"
 import { AreaTree } from "../components/AreaTree"
 
@@ -15,6 +16,8 @@ export const AreaPage = () => {
   }
 
   return (
+    <div className="w-full">
+      <Header title="HỆ THỐNG CẢNH BÁO VÀ CỨU HỘ LŨ LỤT" bgColor="bg-[#1E4DAF]" textColor="text-white"/>
     <div className="grid grid-cols-12 gap-4">
       <div className="col-span-3">
         <AreaTree areas={treeData} />
@@ -25,6 +28,7 @@ export const AreaPage = () => {
 
         <AreaTable data={areas} />
       </div>
+    </div>
     </div>
   )
 }

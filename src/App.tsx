@@ -1,8 +1,8 @@
-import  LoginPage  from "./features/auth/components/LoginPage"
+import { AreaPage } from "./features/areas/pages/AreaPage"
 //import AppRoutes from "./routes/approutes"
 
 function App() {
-  return /*<AppRoutes />*/<LoginPage />
+  return /*<AppRoutes />*/<AreaPage />
   
 }
 

@@ -16,13 +16,6 @@ export function StepperSuccess({
       </div>
       <h3 className="text-base font-medium text-gray-900 mb-1.5">Hoàn tất!</h3>
       <p className="text-sm text-gray-500 mb-6 max-w-xs">{message}</p>
-      <button
-        type="button"
-        onClick={onReset}
-        className="text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline transition-colors"
-      >
-        Thử lại từ đầu
-      </button>
     </div>
   );
 }
