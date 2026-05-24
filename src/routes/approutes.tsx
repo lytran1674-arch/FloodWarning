@@ -1,16 +1,18 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import {AreaPage} from "../features/areas/pages/AreaPage"
 
+import { Area } from "../features/areas/pages/Area"
+
 const AppRoutes = () => {
   return (
-    <BrowserRouter>
       <Routes>
+        <Route path="/"      element={<AreaPage />} />
         <Route
-          path="/areas"
-          element={<AreaPage />}
+          path="/quanlyareas"
+          element={<Area />}
         />
       </Routes>
-    </BrowserRouter>
+
   )
 }
 

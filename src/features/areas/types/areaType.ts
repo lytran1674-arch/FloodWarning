@@ -1,6 +1,6 @@
 export type AreaLevel= 1 | 2 | 3 | 4 
 export interface Area{
-    area_id: string
+    id: string
     tenkhuvuc: string
     mota: string
     parent_id: string | null
@@ -20,11 +20,12 @@ export interface CreateAreaPayLoad{
     level: AreaLevel
     lat: number
     lon: number
+    
 }
 
 export interface UpdateAreaPayLoad
     extends CreateAreaPayLoad{
-    area_id: string
+    id: string
 }
 
 export interface AreaFilter{

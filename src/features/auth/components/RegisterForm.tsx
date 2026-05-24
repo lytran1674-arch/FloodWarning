@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import imageLogin from "../../../assets/08f04e73-4e01-4b21-8e8d-0aa7e30f7ac0.png";
+import imageLogin from "../../../assets/nenlogin.png";
 import { Input } from "./ui/Input";
+import { motion } from "framer-motion";
 
 export const RegisterForm : React.FC = () => {
   const [hoten,setHoTen]=useState("");
@@ -27,8 +28,24 @@ export const RegisterForm : React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center overflow-hidden p-0 m-0">
-      <div className="overflow-hidden bg-white border border-blue-500 rounded-lg w-full max-w-md p-3 shadow-lg">
+    <motion.div
+  initial={{
+    opacity: 0,
+    y: 50,
+    scale: 0.9,
+  }}
+  animate={{
+    opacity: 1,
+    y: 0,
+    scale: 1,
+  }}
+  transition={{
+    duration: 0.6,
+    ease: "easeOut",
+  }}
+  className="flex items-center justify-center overflow-hidden p-0 m-0"
+>
+      <div className="overflow-hidden bg-white border border-blue-500 rounded-lg w-full max-w-md p-3 shadow-lg mt-5">
         <img
           src={imageLogin}
           className="w-full h-auto rounded-lg"
@@ -111,7 +128,7 @@ export const RegisterForm : React.FC = () => {
           </h5>
         </form>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

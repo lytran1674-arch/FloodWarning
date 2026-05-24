@@ -14,7 +14,7 @@ export const TreeNode = ({ area }: Props) => {
           <div className="ml-4 border-l pl-4">
             {area.children.map((child) => (
               <TreeNode
-                key={child.area_id}
+                key={child.id}
                 area={child}
               />
             ))}

@@ -10,7 +10,7 @@ export const AreaTree = ({ areas }: Props) => {
   return (
     <div>
       {areas.map((area) => (
-        <TreeNode key={area.area_id} area={area} />
+        <TreeNode key={area.id} area={area} />
       ))}
     </div>
   )

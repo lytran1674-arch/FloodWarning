@@ -1,17 +1,13 @@
-import type { Area } from "../types/areas"
-
-export interface AreaTreeNode extends Area {
-  children: AreaTreeNode[]
-}
+import type { AreaTree } from "../features/areas/"  // ← đổi import đúng file
 
 export const buildTree = (
-  areas: Area[],
+  areas: AreaTree[],
   parentId: string | null = null
-): AreaTreeNode[] => {
+): AreaTree[] => {
   return areas
     .filter((item) => item.parent_id === parentId)
     .map((item) => ({
       ...item,
-      children: buildTree(areas, item.area_id),
+      children: buildTree(areas, item.id),  // ← đổi area_id → id
     }))
 }

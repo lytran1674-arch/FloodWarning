@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react"
-import type { Area } from "../features/areas/types/areaType"
+import type { Area, AreaTree } from "../features/areas/types/areaType"
 import { areaService } from "../features/areas/services/areaService"
 
 
 export const useArea = () => {
-  const [areas, setAreas] = useState<Area[]>([])
+  const [areas, setAreas] = useState<AreaTree[]>([])
   const [loading, setLoading] = useState(false)
 
   const fetchAreas = async () => {
