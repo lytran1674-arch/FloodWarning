@@ -8,5 +8,6 @@ export const useAuth = ()=>{
     return {
         user,
         isAuthenticated: !! user,
+        role: user?.role ?? null,
     }
 }

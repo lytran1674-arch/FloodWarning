@@ -1,13 +1,12 @@
-import { AreaTable } from "../components/AreaTable";
-import { AreaTree } from "../components/AreaTree";
-import { useArea } from "../hooks/useArea";
+import { AreaTable } from "../components/AreaTable"
+import { AreaTree } from "../components/AreaTree"
+import { useArea } from "../hooks/useArea"
 
-export const Area = () => {
+export const AreaPage = () => {
   const { areas, loading } = useArea();
 
   if (loading) return <div className="p-4">Loading...</div>;
 
-  // ← bỏ buildTree, dùng thẳng areas
   return (
     <div className="grid grid-cols-12 gap-4 p-4">
       <div className="col-span-12 md:col-span-3 bg-white rounded shadow p-3">
