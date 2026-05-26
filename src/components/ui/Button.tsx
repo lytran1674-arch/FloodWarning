@@ -3,10 +3,11 @@
 interface ButtonProps{
  type?: "button" | "submit" | "reset";
   onClick?: () => void;
-  imageSrc?: string;          // nếu có ảnh thì hiển thị
+  imageSrc?: string;         
   children?: React.ReactNode;
   disabled?: boolean
   className?: string
+
 }
 
 export const Button = ({type,imageSrc, children,onClick,disabled=false, className=""} :ButtonProps) => {
@@ -15,6 +16,8 @@ export const Button = ({type,imageSrc, children,onClick,disabled=false, classNam
    onClick={onClick}
    type={type}
    disabled={disabled}
+ 
+
   
    >
    {imageSrc ? (

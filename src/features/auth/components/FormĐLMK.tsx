@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { FaArrowLeft, FaClock } from 'react-icons/fa'
-import { OTPInput } from './ui/OTPInput'
-import { Button } from './ui/Button'
+import { OTPInput } from '../../../components/ui/OTPInput'
+import { Button } from '../../../components/ui/Button'
 import { MdSecurity } from 'react-icons/md'
-import { Input } from './ui/Input'
+import { Input } from '../../../components/ui/Input'
 
 interface FormĐLMKProps{
     onNext:()=>void

@@ -3,8 +3,8 @@ import { FaArrowLeft, FaLock } from "react-icons/fa";
 import { MdSecurity } from "react-icons/md";
 import { ShieldCheckIcon } from "lucide-react";
 
-import { Input } from "./ui/Input";
-import { Button } from "./ui/Button";
+import { Input } from "../../../components/ui/Input";
+import { Button } from "../../../components/ui/Button";
 
 export const FormQMK = () => {
   const [email, setEmail] = useState("");

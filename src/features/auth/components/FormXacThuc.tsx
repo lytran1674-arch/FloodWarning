@@ -3,9 +3,9 @@ import { FaArrowLeft, FaLock, FaVoicemail } from "react-icons/fa";
 import { MdEmail, MdSecurity } from "react-icons/md";
 import { ShieldCheckIcon } from "lucide-react";
 
-import { Input } from "./ui/Input";
-import { Button } from "./ui/Button";
-import { OTPInput } from "./ui/OTPInput";
+import { Input } from "../../../components/ui/Input";
+import { Button } from "../../../components/ui/Button";
+import { OTPInput } from "../../../components/ui/OTPInput";
 
 interface FrormXacThucProps{
     onNext:()=>void;

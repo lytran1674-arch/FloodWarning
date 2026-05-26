@@ -5,7 +5,7 @@ const API_URL =
   "/api/area/list"
 
 export const areaApi = {
-  async getAll(): Promise<AreaTree[]> {
+  async getAll(): Promise<Area[]> {
     const response = await axios.get<Area[]>(API_URL)
 
     return response.data

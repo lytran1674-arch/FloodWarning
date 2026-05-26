@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import ImageLogin from "../../../assets/nenlogin.png"
-import { Input } from './ui/Input';
+import { Input } from '../../../components/ui/Input';
 import { useDispatch } from 'react-redux';
 
 import { useNavigate } from 'react-router-dom';

@@ -1,41 +1,47 @@
-import type { AreaTree } from "../types/areaType"
+import { useNavigate } from "react-router-dom";
+import type { AreaTree } from "../types/areaType";
+import { Table } from "../../../components/ui/Table";
 
 interface Props {
-  data: AreaTree[]  // ← đổi Area[] → AreaTree[]
+  data: AreaTree[];
 }
 
 const flattenAreas = (areas: AreaTree[]): AreaTree[] => {
-  return areas.flatMap((area) => [area, ...flattenAreas(area.children ?? [])])
-}
+  return areas.flatMap((area) => [
+    area,
+    ...flattenAreas(area.children ?? []),
+  ]);
+};
 
 export const AreaTable = ({ data }: Props) => {
-  const flatData = flattenAreas(data)
+  const navigate = useNavigate();
+
+  const flatData = flattenAreas(data);
+
+  const columns = [
+    {
+      title: "Tên khu vực",
+      key: "tenkhuvuc" as keyof AreaTree,
+      render: (item: AreaTree) => (
+        <div
+          style={{
+            paddingLeft: `${(item.level - 1) * 24}px`,
+          }}
+        >
+          {item.tenkhuvuc}
+        </div>
+      ),
+    },
+    { title: "Cấp độ", key: "level" as keyof AreaTree },
+    { title: "Vĩ độ", key: "lat" as keyof AreaTree },
+    { title: "Kinh độ", key: "lon" as keyof AreaTree },
+  ];
 
   return (
-    <table className="w-full border">
-      <thead>
-        <tr>
-          <th className="border p-2">Tên</th>
-          <th className="border p-2">Cấp độ</th>
-          <th className="border p-2">Vĩ độ</th>
-          <th className="border p-2">Kinh độ</th>
-        </tr>
-      </thead>
-      <tbody>
-        {flatData.map((area) => (
-          <tr key={area.id} className={area.level === 1 ? "bg-blue-50 font-semibold" : "bg-white"}>
-            <td
-              className="border p-2"
-              style={{ paddingLeft: `${(area.level - 1) * 24 + 8}px` }} 
-            >
-              {area.tenkhuvuc}
-            </td>
-            <td className="border p-2">{area.level}</td>
-            <td className="border p-2">{area.lat ?? "—"}</td>
-            <td className="border p-2">{area.lon ?? "—"}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )
-}
+    <Table<AreaTree>
+      columns={columns}
+      data={flatData}
+      onRowClick={(item) => navigate(`/weather-data/${item.id}`)}
+    />
+  );
+};
