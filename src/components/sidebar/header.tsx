@@ -17,7 +17,7 @@ export const Header = ({ title, bgColor, textColor,openMenu,
 
 
   return (
-    <div className={`w-full p-2 flex items-center justify-between ${bgColor}`}>
+    <div className={`w-full p-2 flex items-center justify-between ${bgColor} fixed`}>
       <FaBars onClick={()=>setOpenMenu(!openMenu)} 
       className="text-sm lg:ml-40 sm:text-sm lg:text-3xl  cursor-pointer text-white " />
       <p className={`text-sm sm:text-xs lg:text-2xl font-bold m-1 ${textColor}`}>{title}</p>

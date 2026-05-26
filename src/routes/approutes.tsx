@@ -1,16 +1,17 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
-import {AreaPage} from "../features/areas/pages/AreaPage"
-
+import { MainLayout } from "../layouts/MainLayout"
 import { Area } from "../features/areas/pages/Area"
+import { LoginForm } from "../features/auth/components/LoginForm"
 
 const AppRoutes = () => {
   return (
       <Routes>
-        <Route path="/"      element={<AreaPage />} />
-        <Route
-          path="/quanlyareas"
-          element={<Area />}
-        />
+        <Route path="/" element={<LoginForm />} />
+
+        <Route element={<MainLayout />}>          
+          <Route path="/areas-management" element={<Area />} />
+          <Route path="/weather-data" />
+        </Route>
       </Routes>
 
   )

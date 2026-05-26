@@ -2,7 +2,7 @@ import { AreaTable } from "../components/AreaTable"
 import { AreaTree } from "../components/AreaTree"
 import { useArea } from "../hooks/useArea"
 
-export const AreaPage = () => {
+export const Area = () => {
   const { areas, loading } = useArea();
 
   if (loading) return <div className="p-4">Loading...</div>;

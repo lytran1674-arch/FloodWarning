@@ -15,7 +15,6 @@ export const AreaTable = ({ data }: Props) => {
     <table className="w-full border">
       <thead>
         <tr>
-          <th className="border p-2">Mã khu vực</th>
           <th className="border p-2">Tên</th>
           <th className="border p-2">Cấp độ</th>
           <th className="border p-2">Vĩ độ</th>
@@ -25,10 +24,9 @@ export const AreaTable = ({ data }: Props) => {
       <tbody>
         {flatData.map((area) => (
           <tr key={area.id} className={area.level === 1 ? "bg-blue-50 font-semibold" : "bg-white"}>
-            <td className="border p-2 text-xs">{area.id}</td>
             <td
               className="border p-2"
-              style={{ paddingLeft: `${(area.level - 1) * 24 + 8}px` }}  // ← thụt lề theo cấp
+              style={{ paddingLeft: `${(area.level - 1) * 24 + 8}px` }} 
             >
               {area.tenkhuvuc}
             </td>

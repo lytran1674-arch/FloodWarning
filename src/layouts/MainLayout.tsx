@@ -9,9 +9,14 @@ export const MainLayout = () => {
   const [openMenu, setOpenMenu] = useState(false)
   const { user, isAuthenticated } = useAuth()
 
-  if (!isAuthenticated) return <Navigate to="/" />  // ✅ thêm />
+  console.log("isAuthenticated:", isAuthenticated)
+  console.log("user:", user)
+  console.log("user.role:", user?.role)
+
+  if (!isAuthenticated) return <Navigate to="/" />
 
   const config = roleConfig[user?.role as string] ?? defaultConfig
+  console.log("config:", config)
 
   return (
     <div className="w-full min-h-screen bg-gray-100">

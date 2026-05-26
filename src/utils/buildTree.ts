@@ -1,4 +1,5 @@
-import type { AreaTree } from "../features/areas/"  // ← đổi import đúng file
+import type { AreaTree } from "../features/areas/components/AreaTree"  // ← đổi import đúng file
+import type { AreaTree } from "../features/areas/types/areaType"
 
 export const buildTree = (
   areas: AreaTree[],
@@ -8,6 +9,6 @@ export const buildTree = (
     .filter((item) => item.parent_id === parentId)
     .map((item) => ({
       ...item,
-      children: buildTree(areas, item.id),  // ← đổi area_id → id
+      children: buildTree(areas, item.id),  
     }))
 }

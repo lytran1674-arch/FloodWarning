@@ -1,29 +1,51 @@
 import React, { useState } from 'react'
-import imageLogin from "../../../assets/08f04e73-4e01-4b21-8e8d-0aa7e30f7ac0.png"
+import ImageLogin from "../../../assets/nenlogin.png"
 import { Input } from './ui/Input';
+import { useDispatch } from 'react-redux';
+
+import { useNavigate } from 'react-router-dom';
+import { authAPI } from '../api/authApi';
+import { setCredentials } from '../store/authSlice';
+import type { AppDispatch } from '../../../app/store';
 
 export const LoginForm: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        
-        // Validation
-        if (!email || !password) {
-            alert("Vui lòng nhập đầy đủ email và mật khẩu!");
-            return;
-        }
-
-        setIsLoading(true);
-        console.log("Đăng nhập với:", { email, password });
-        
-        // Giả lập API call
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 1000);
+    const [error,setError]=useState("")
+    const dispatch=useDispatch<AppDispatch>();
+    const navigate=useNavigate();
+   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!email || !password) {
+      setError("Vui lòng nhập đầy đủ email và mật khẩu!")
+      return
     }
+
+    try {
+      setIsLoading(true)
+      setError("")
+
+      const res = await authAPI.login({ email, password })
+    //  const { user, accessToken } = res.data
+        const data=res.data
+      // ← lưu vào Redux
+      dispatch(setCredentials({ user:data, accessToken:"" }))
+
+      // ← navigate theo role
+      switch (data?.role) {
+        case "admin":   navigate("/areas-management"); break
+        case "rescuer": navigate("/home");             break
+        case "user":    navigate("/home");             break
+        default:        navigate("/")
+      }
+
+    } catch (err: any) {
+      setError(err.response?.data?.message ?? "Email hoặc mật khẩu không đúng!")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
     return (
         // Container cha: full màn hình, flex để canh giữa
@@ -34,7 +56,7 @@ export const LoginForm: React.FC = () => {
                 
                 {/* Ảnh login - sửa: h-auto để ảnh tự động theo kích thước thật */}
                 <img 
-                    src={imageLogin} 
+                     src={ImageLogin}
                     className="w-full h-auto rounded-lg " 
                     alt="Login"
                 />
