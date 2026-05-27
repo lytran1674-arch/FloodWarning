@@ -1,35 +1,39 @@
-
-
-interface ButtonProps{
- type?: "button" | "submit" | "reset";
+interface ButtonProps {
+  type?: "button" | "submit" | "reset";
   onClick?: () => void;
-  imageSrc?: string;         
+  imageSrc?: string;
   children?: React.ReactNode;
-  disabled?: boolean
-  className?: string
-
+  disabled?: boolean;
+  className?: string;
 }
 
-export const Button = ({type,imageSrc, children,onClick,disabled=false, className=""} :ButtonProps) => {
+export const Button = ({
+  type = "button",
+  imageSrc,
+  children,
+  onClick,
+  disabled = false,
+  className = "",
+}: ButtonProps) => {
   return (
-   <button className={className}
-   onClick={onClick}
-   type={type}
-   disabled={disabled}
- 
-
-  
-   >
-   {imageSrc ? (
+    <button
+      className={`
+        flex items-center justify-center gap-2
+        ${className}
+      `}
+      onClick={onClick}
+      type={type}
+      disabled={disabled}
+    >
+      {imageSrc && (
         <img
           src={imageSrc}
           alt="button-icon"
-          className="w-[400px] absolute left-14 top-1/2 -translate-y-1/2"
+          className="w-5 h-5 object-contain"
         />
-      ) : (
-        <span className="text-lg font-bold ">{children}</span>
       )}
+
+      {children}
     </button>
-  
-  )
-}
+  );
+};

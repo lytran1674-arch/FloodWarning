@@ -11,6 +11,7 @@ const AppRoutes = () => {
         <Route element={<MainLayout />}>          
           <Route path="/areas-management" element={<Area />} />
           <Route path="/weather-data/:area_id"/>
+          <Route path="/home" element={<Area />} />
         </Route>
       </Routes>
 

@@ -13,7 +13,7 @@ type TableProps<T>={
 
 export function Table<T>({columns,data,onRowClick}:TableProps<T>){
     return (
-       <div className="overflow-x-auto rounded-lg border">
+       <div className="overflow-x-auto rounded-lg border border-[#E5E7EB]">
       <table className="w-full border-collapse">
         <thead className="bg-gray-100">
           <tr>

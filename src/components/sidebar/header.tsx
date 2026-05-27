@@ -1,33 +1,106 @@
-import { FaBars, FaChevronUp } from "react-icons/fa";
+// src/components/sidebar/Header.tsx
+import { FaBars, FaChevronDown } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../app/store";
-import { useState } from "react";
+import { roleConfig, defaultConfig } from "../../layouts/menuItem";
 
 type Props = {
-  title: string;
-  bgColor?: string;
-  textColor?: string;
   openMenu: boolean;
   setOpenMenu: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export const Header = ({ title, bgColor, textColor,openMenu,
-  setOpenMenu }: Props) => {
-  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
-
-
-  return (
-    <div className={`w-full p-2 flex items-center justify-between ${bgColor} fixed`}>
-      <FaBars onClick={()=>setOpenMenu(!openMenu)} 
-      className="text-sm lg:ml-40 sm:text-sm lg:text-3xl  cursor-pointer text-white " />
-      <p className={`text-sm sm:text-xs lg:text-2xl font-bold m-1 ${textColor}`}>{title}</p>
-
-      <div className="flex items-center gap-2">
-        {isAuthenticated && user && (
-          <p className={`${textColor} font`}>{user.hoten}</p>
-        )}
-        <FaChevronUp className={`${textColor} text-sm sm:text-sm lg:text-xl`} />
+// ════════════════════════════════════
+// ADMIN HEADER
+// ════════════════════════════════════
+const AdminHeader = ({ openMenu, setOpenMenu, user }: any) => (
+  <div className="w-full px-4 py-3 flex items-center justify-between bg-[#1E4DAF] fixed shadow-md">
+    <div className="flex items-center gap-3 ">
+      <FaBars
+        onClick={() => setOpenMenu(!openMenu)}
+         className="text-sm lg:ml-40 sm:text-sm lg:text-3xl  cursor-pointer text-white " />
+      <span className="text-white font-bold text-sm sm:text-sm lg:text-2xl tracking-wide">
+         HỆ THỐNG QUẢN TRỊ LŨ LỤT
+      </span>
+    </div>
+    <div className="flex items-center gap-3">
+      <div className="text-right">
+        <p className="text-white text-sm font-semibold">{user?.hoten ?? "Admin"}</p>
+        <p className="text-blue-200 text-xs">Quản trị viên</p>
+      </div>
+      <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-[#1E4DAF] font-bold text-sm">
+        {user?.hoten?.[0] ?? "A"}
       </div>
     </div>
-  );
+  </div>
+);
+
+// ════════════════════════════════════
+// RESCUER HEADER
+// ════════════════════════════════════
+const RescuerHeader = ({ openMenu, setOpenMenu, user }: any) => (
+  <div className="w-full px-4 py-3 flex items-center justify-between bg-[#020f40] fixed shadow-md">
+    <div className="flex items-center gap-3 ">
+      <FaBars
+        onClick={() => setOpenMenu(!openMenu)}
+         className="text-sm lg:ml-40 sm:text-sm lg:text-3xl  cursor-pointer text-white " />
+      <span className="text-white font-bold text-sm sm:text-sm lg:text-2xl tracking-wide">
+         HỆ THỐNG QUẢN TRỊ LŨ LỤT
+      </span>
+    </div>
+    <div className="flex items-center gap-3">
+      <div className="text-right">
+        <p className="text-white text-sm font-semibold">{user?.hoten ?? "Admin"}</p>
+        <p className="text-white text-xs">Lực lượng cứu hộ </p>
+      </div>
+      <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-[#111B3F] font-bold text-sm">
+        {user?.hoten?.[0] ?? "A"}
+      </div>
+    </div>
+  </div>
+);
+
+
+// ════════════════════════════════════
+// CITIZEN HEADER
+// ════════════════════════════════════
+const CitizenHeader = ({ openMenu, setOpenMenu, user }: any) => (
+  <div className="w-full px-4 py-3 flex items-center justify-between bg-[#1E4DAF] fixed shadow-md">
+    <div className="flex items-center gap-3 ">
+      <FaBars
+        onClick={() => setOpenMenu(!openMenu)}
+         className="text-sm lg:ml-40 sm:text-sm lg:text-3xl  cursor-pointer text-white " />
+      <span className="text-white font-bold text-sm sm:text-sm lg:text-2xl tracking-wide">
+         HỆ THỐNG QUẢN TRỊ LŨ LỤT
+      </span>
+    </div>
+    <div className="flex items-center gap-3">
+      <div className="text-right">
+        <p className="text-white text-sm font-semibold">{user?.hoten ?? "Admin"}</p>
+        <p className="text-blue-200 text-xs">Người dân</p>
+      </div>
+      <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-[#1E4DAF] font-bold text-sm">
+        {user?.hoten?.[0] ?? "A"}
+      </div>
+    </div>
+  </div>
+);
+
+
+// ════════════════════════════════════
+// MAIN HEADER — tự chọn theo role
+// ════════════════════════════════════
+export const Header = ({ openMenu, setOpenMenu }: Props) => {
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+  if (!isAuthenticated || !user) return null;
+
+  const props = { openMenu, setOpenMenu, user }
+
+  // ✅ Render đúng header theo role
+  switch (user.role as string) {
+    case "ADMIN":   return <AdminHeader   {...props} />
+    case "RESCUER": return <RescuerHeader {...props} />
+    case "CITIZEN": return <CitizenHeader {...props} />
+    default:        return <AdminHeader   {...props} />
+  }
 };

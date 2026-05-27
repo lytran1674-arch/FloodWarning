@@ -19,21 +19,17 @@ export const MainLayout = () => {
   console.log("config:", config)
 
   return (
-    <div className="w-full min-h-screen bg-gray-100">
+    <div className="w-full min-h-screen ">
       <Header
-        title="HỆ THỐNG CẢNH BÁO VÀ CỨU HỘ LŨ LỤT"
-        bgColor={config.bgColor}
-        textColor="text-white"
         openMenu={openMenu}
         setOpenMenu={setOpenMenu}
       />
       <Menu
-        textColor="text-white"
         bgColor={config.bgColor}
-        activeColor={config.activeColor}
         hover={config.hover}
-        openMenu={openMenu}
         items={config.menu}
+        openMenu={openMenu}
+        bgStyle={config.bgStyle}
       />
       <div className="lg:ml-[240px]">
         <Outlet />

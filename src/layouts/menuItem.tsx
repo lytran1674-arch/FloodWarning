@@ -1,9 +1,12 @@
 import { Calendar, FileQuestion, Files, FileText, Home, MapPin, PieChart, Snowflake, User, Users } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
+import MenuRescuer from "../assets/menurescuer.png"
+import type { CSSProperties } from "react"
+import IconRescuer from "../assets/rescuer.png"
 
 export type MenuItem = {
   text: string
-  icon: LucideIcon
+  icon: LucideIcon | string
   path: string
 }
 
@@ -17,6 +20,7 @@ export const adminMenu: MenuItem[] = [
 ]
 
 export const rescuerMenu: MenuItem[] = [
+  {text: "RESCUER     Lực Lượng Cứu Hộ", icon: IconRescuer,path:"/home" },
   { text: "Trang chủ",              icon: PieChart, path: "/home"       },
   { text: "Danh sách yêu cầu",      icon: Files,    path: "/requests-list" },
   { text: "Yêu cầu đã nhận",      icon: Files,    path: "/received-requests" },
@@ -35,29 +39,35 @@ export const userMenu: MenuItem[] = [
 export type RoleConfig={
     menu:MenuItem[]
     bgColor:string
-    activeColor: string 
     hover: string 
+    textColor:string
+    bgStyle?:CSSProperties  // thêm inline style
 }
 
 export const roleConfig: Record<string,RoleConfig>={
-    admin:{
+    ADMIN:{
         menu:adminMenu,
         bgColor:"bg-[#1E4DAF]",
-        activeColor:"bg-[#1D3178]",
-        hover:"bg-[#1D3178]",
+        hover:"hover:bg-[#1D3178]",
+        textColor:"text-white"
     },
-    rescuer:{
+    RESCUER:{
         menu:rescuerMenu,
-        bgColor:"bg-[url('images/menurescuer.png')",
-        activeColor:"bg-[#1160FD]",
-        hover: "bg-[#1160FD]"
-
+        bgColor:"",
+        bgStyle: {
+      backgroundImage: `url(${MenuRescuer})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
     },
-    user:{
+        hover: "hover:bg-[#1160FD]",
+        textColor:"text-white"
+    },
+    CITIZEN:{
         menu:userMenu,
         bgColor:"bg-white",
-        activeColor:"bg-[#F5ACAC]",
-        hover:"bg-[#F5ACAC]"
+        hover:"hover:bg-[#F5ACAC]",
+        textColor:"text-black"
     },
 
 }
@@ -65,6 +75,6 @@ export const roleConfig: Record<string,RoleConfig>={
 export const defaultConfig:RoleConfig={
     menu:[],
     bgColor:"bg-white",
-        activeColor:"bg-[#F5ACAC]",
-        hover:"bg-[#F5ACAC]"
+        hover:"bg-white",
+        textColor:"text-black"
 }

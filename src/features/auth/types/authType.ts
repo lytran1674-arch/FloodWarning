@@ -1,6 +1,6 @@
 
 type TrangThai= ''
- export type Role= "admin" | " rescuer" | "citizen"
+ export type Role= "ADMIN" | " RESCUER" | "CITIZEN"
 
 export interface User{
     id:string
@@ -19,8 +19,8 @@ export interface User{
 }
 
 export interface LoginPayLoad{
-    email: string 
-    matkhau: string
+    loginInfo: string 
+    password: string
 }
 
 export interface RegisterPayLoad{
@@ -34,8 +34,13 @@ export interface RegisterPayLoad{
 }
 
 export interface LoginResponse{
-    user: User
-    access_token: string
+   code: number
+  result: {
+    token: string
+    role: Role
+    authenticated: boolean
+    hoten:string 
+  }
 }
 
 export interface RegisterResponse{
