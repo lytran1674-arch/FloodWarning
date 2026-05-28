@@ -1,8 +1,7 @@
-import { Import, MapIcon } from "lucide-react";
+import { Import, MapIcon, Search } from "lucide-react";
 import { FaPlus } from "react-icons/fa";
 import { IoReload } from "react-icons/io5";
 import { useState } from "react";
-
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { AreaTable } from "../components/AreaTable";
@@ -63,13 +62,14 @@ export const Area = () => {
           <AreaTree areas={areas} />
         </div>
 
-        <div className="flex-1 bg-white rounded shadow p-3 border-[#E5E7EB]">
+        <div className="flex-1 bg-white rounded shadow p-3 border-[#c2c3c5]">
          <Input
             type="text"
+            icon={Search}
             placeholder="Tìm kiếm khu vực..."
             value={search}
             onChange={setSearch}
-            className="w-full border rounded-sm px-4 py-2 outline-none focus:border-blue-500"
+            className="w-full border rounded-md px-4 py-2 outline-none focus:border-blue-500"
           />
           <AreaTable data={filteredAreas} />
         </div>

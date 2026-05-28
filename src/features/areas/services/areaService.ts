@@ -1,8 +1,14 @@
 import { areaApi } from "../api/areaApi"
-import type { AreaTree } from "../types/areaType"
+import type { Area, AreaTree } from "../types/areaType"
 
 export const areaService = {
-  async getAreas(): Promise<AreaTree[]> {  // ← thêm return type
+  async getAreas(): Promise<AreaTree[]> {  
     return await areaApi.getAll()
+  },
+
+   
+
+  async getFilterChildren(parent_id: string):Promise<Area[]>{
+    return await areaApi.getChildren(parent_id);
   },
 }
