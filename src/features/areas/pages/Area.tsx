@@ -36,15 +36,6 @@ export const Area = () => {
             <FaPlus />
             Thêm khu vực
           </Button>
-
-          <Button
-            type="button"
-            className="border border-[#31D239] bg-[#B1FBB5] p-1 rounded-md text-black font-medium w-30 h-8 sm:text-sm text-xs lg:text-xl"
-          >
-            <Import />
-            Import excel
-          </Button>
-
           <Button
             onClick={() => window.location.reload()}
             type="button"
