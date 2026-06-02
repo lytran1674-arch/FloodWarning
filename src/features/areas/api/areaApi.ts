@@ -1,5 +1,5 @@
 import axios from "axios"
-import type { Area, AreaTree } from "../types/areaType"
+import type { Area } from "../types/areaType"
 
 const API_URL =
   "/api/area"

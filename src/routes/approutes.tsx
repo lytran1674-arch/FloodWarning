@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import {  Routes, Route } from "react-router-dom"
 import { MainLayout } from "../layouts/MainLayout"
 import { Area } from "../features/areas/pages/Area"
 import { LoginForm } from "../features/auth/components/LoginForm"

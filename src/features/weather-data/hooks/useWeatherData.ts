@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import  { useEffect, useState } from 'react'
 import type { Weather_datas } from '../types/weatherdataType'
 import { weatherdataService } from '../services/weatherdataservice';
 import { useParams } from 'react-router-dom';

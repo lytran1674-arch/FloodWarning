@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { FaArrowLeft, FaLock } from "react-icons/fa";
 import { MdSecurity } from "react-icons/md";
 import { ShieldCheckIcon } from "lucide-react";

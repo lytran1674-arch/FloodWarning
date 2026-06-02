@@ -1,8 +1,7 @@
 // src/components/sidebar/Header.tsx
-import { FaBars, FaChevronDown } from "react-icons/fa";
+import { FaBars } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../app/store";
-import { roleConfig, defaultConfig } from "../../layouts/menuItem";
 
 type Props = {
   openMenu: boolean;
@@ -13,7 +12,7 @@ type Props = {
 // ADMIN HEADER
 // ════════════════════════════════════
 const AdminHeader = ({ openMenu, setOpenMenu, user }: any) => (
-  <div className="w-full px-4 py-3 flex items-center justify-between bg-[#1E4DAF] fixed shadow-md">
+  <div className="w-full px-4 py-3 flex items-center justify-between bg-[#1E4DAF] fixed shadow-md z-[2000]">
     <div className="flex items-center gap-3 ">
       <FaBars
         onClick={() => setOpenMenu(!openMenu)}
@@ -38,7 +37,7 @@ const AdminHeader = ({ openMenu, setOpenMenu, user }: any) => (
 // RESCUER HEADER
 // ════════════════════════════════════
 const RescuerHeader = ({ openMenu, setOpenMenu, user }: any) => (
-  <div className="w-full px-4 py-3 flex items-center justify-between bg-[#020f40] fixed shadow-md">
+  <div className="w-full px-4 py-3 flex items-center justify-between bg-[#020f40] fixed shadow-md z-[2000]">
     <div className="flex items-center gap-3 ">
       <FaBars
         onClick={() => setOpenMenu(!openMenu)}
@@ -64,7 +63,7 @@ const RescuerHeader = ({ openMenu, setOpenMenu, user }: any) => (
 // CITIZEN HEADER
 // ════════════════════════════════════
 const CitizenHeader = ({ openMenu, setOpenMenu, user }: any) => (
-  <div className="w-full px-4 py-3 flex items-center justify-between bg-[#1E4DAF] fixed shadow-md">
+  <div className="w-full px-4 py-3 flex items-center justify-between bg-[#1E4DAF] fixed shadow-md z-[2000]">
     <div className="flex items-center gap-3 ">
       <FaBars
         onClick={() => setOpenMenu(!openMenu)}

@@ -1,4 +1,4 @@
-import { Import, MapIcon, Search } from "lucide-react";
+import { MapIcon, Search } from "lucide-react";
 import { FaPlus } from "react-icons/fa";
 import { IoReload } from "react-icons/io5";
 import { useState } from "react";
@@ -7,6 +7,7 @@ import { Input } from "../../../components/ui/Input";
 import { AreaTable } from "../components/AreaTable";
 import { AreaTree } from "../components/AreaTree";
 import { useArea } from "../hooks/useArea";
+import GeoMap from "../../map/components/GeoMap";
 
 export const Area = () => {
   const { areas, loading } = useArea();
@@ -53,8 +54,9 @@ export const Area = () => {
           <AreaTree areas={areas} />
         </div>
 
-        <div className="flex-1 bg-white rounded shadow p-3 border-[#c2c3c5]">
+        <div className="flex-1 bg-white rounded shadow p-3 border-[#c2c3c5] ">
          <Input
+         id="search"
             type="text"
             icon={Search}
             placeholder="Tìm kiếm khu vực..."
@@ -63,7 +65,12 @@ export const Area = () => {
             className="w-full border rounded-md px-4 py-2 outline-none focus:border-blue-500"
           />
           <AreaTable data={filteredAreas} />
+            <GeoMap defaultCenter={[10.7769, 106.7009]} defaultZoom={15} height="500px" />
         </div>
+      
+      </div>
+      <div>
+      
       </div>
     </>
   );

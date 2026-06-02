@@ -1,6 +1,5 @@
-import React, { useState } from 'react'
+import  { useState } from 'react'
 import { FaArrowLeft, FaClock } from 'react-icons/fa'
-import { OTPInput } from '../../../components/ui/OTPInput'
 import { Button } from '../../../components/ui/Button'
 import { MdSecurity } from 'react-icons/md'
 import { Input } from '../../../components/ui/Input'
@@ -10,7 +9,7 @@ interface FormĐLMKProps{
     onBack:()=>void
 }
 
-export const FormĐLMK = ({onNext,onBack}:FormĐLMKProps) => {
+export const FormĐLMK = ({onNext/*,onBack*/}:FormĐLMKProps) => {
     const [matkhau,setMatKhau]=useState("");
     const [confirmmatkhau,setConfirmMatKhau]=useState("")
   return (

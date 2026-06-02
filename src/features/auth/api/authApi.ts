@@ -1,22 +1,18 @@
 import axios from "axios";
+import type { LoginPayLoad } from "../types/authType";
 
+const API_URL = "/api/auth";
 
-const API_URL="/api/auth"
+export const authAPI = {
+  login(data: LoginPayLoad) {
+    return axios.post(`${API_URL}/token`, data);
+  },
 
-export const authAPI={
-    login (loginInfo:string, password:string){
-        return axios.post(`${API_URL}/token`,{
-            loginInfo,
-            password,
-        });
-        },
-    
+  register(data: any) {
+    return axios.post(`${API_URL}/register`, data);
+  },
 
-    register(data:any){
-        return axios.post(`${API_URL}/register`,data)
-    },
-
-    forgotPassword(email:string){
-        return axios.post(`${API_URL}/forgotpwd`,{email})
-    }
-}
+  forgotPassword(email: string) {
+    return axios.post(`${API_URL}/forgotpwd`, { email });
+  },
+};

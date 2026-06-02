@@ -1,25 +1,26 @@
-import type { AreaTreeNode } from "../../utils/buildTree"
+// import type { AreaTree } from "../../features/areas/types/areaType"
 
-interface Props {
-  data: AreaTreeNode[]
-}
 
-const AreaTree = ({ data }: Props) => {
-  return (
-    <div>
-      {data.map((item) => (
-        <div key={item.area_id} className="ml-4">
-          <div className="py-1">
-            {item.tenkhuvuc}
-          </div>
+// interface Props {
+//   data: AreaTree[]
+// }
 
-          {item.children.length > 0 && (
-            <AreaTree data={item.children} />
-          )}
-        </div>
-      ))}
-    </div>
-  )
-}
+// const AreaTree = ({ data }: Props) => {
+//   return (
+//     <div>
+//       {data.map((item) => (
+//         <div key={item.id} className="ml-4">
+//           <div className="py-1">
+//             {item.tenkhuvuc}
+//           </div>
 
-export default AreaTree
+//          {item.children && item.children.length > 0 && (
+//   <AreaTree data={item.children} />
+//           )}
+//         </div>
+//       ))}
+//     </div>
+//   )
+// }
+
+// export default AreaTree

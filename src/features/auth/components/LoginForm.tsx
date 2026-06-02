@@ -29,7 +29,10 @@ export const LoginForm: React.FC = () => {
       setError("")
 
       // ✅ Gửi đúng field name mà API yêu cầu
-      const res = await authAPI.login(email, password)
+      const res = await authAPI.login({
+  loginInfo: email,
+  password,
+})
 
       // ✅ Lấy đúng từ res.data.result theo response Postman
       const { token, role, authenticated,hoten } = res.data.result

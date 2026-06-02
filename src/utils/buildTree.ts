@@ -1,4 +1,4 @@
-import type { AreaTree } from "../features/areas/components/AreaTree"  // ← đổi import đúng file
+
 import type { AreaTree } from "../features/areas/types/areaType"
 
 export const buildTree = (

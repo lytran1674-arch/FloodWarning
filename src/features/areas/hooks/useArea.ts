@@ -1,4 +1,4 @@
-import type { Area, AreaTree } from "../types/areaType";
+import type { AreaTree } from "../types/areaType";
 import { areaService } from "../services/areaService";
 import { useEffect, useState } from "react";
 

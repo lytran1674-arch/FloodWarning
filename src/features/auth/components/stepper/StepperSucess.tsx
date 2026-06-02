@@ -6,7 +6,6 @@ interface StepperSuccessProps {
 }
 
 export function StepperSuccess({
-  onReset,
   message = 'Thao tác đã hoàn thành thành công!',
 }: StepperSuccessProps) {
   return (

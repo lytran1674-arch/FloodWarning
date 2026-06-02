@@ -1,9 +1,7 @@
-import React, { useState } from "react";
-import { FaArrowLeft, FaLock, FaVoicemail } from "react-icons/fa";
-import { MdEmail, MdSecurity } from "react-icons/md";
-import { ShieldCheckIcon } from "lucide-react";
 
-import { Input } from "../../../components/ui/Input";
+import { FaArrowLeft } from "react-icons/fa";
+import { MdEmail, MdSecurity } from "react-icons/md";
+
 import { Button } from "../../../components/ui/Button";
 import { OTPInput } from "../../../components/ui/OTPInput";
 
@@ -11,7 +9,7 @@ interface FrormXacThucProps{
     onNext:()=>void;
 }
 export const FormXacThuc = ({onNext}:FrormXacThucProps) => {
-  const [email, setEmail] = useState("");
+ /* const [email, setEmail] = useState("");*/
 
   return (
     <div
