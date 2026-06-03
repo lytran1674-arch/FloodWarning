@@ -15,6 +15,7 @@ const GeoMap = ({
   defaultZoom = 13,
   height = "350px",
 }: GeoMapProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
   const circleRef = useRef<L.Circle | null>(null);
@@ -24,17 +25,21 @@ const GeoMap = ({
 
   // Init map
   useEffect(() => {
-    const map = L.map("map").setView(defaultCenter, defaultZoom);
+    if (!containerRef.current) return;
+
+    const map = L.map(containerRef.current).setView(defaultCenter, defaultZoom);
     mapRef.current = map;
 
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
-      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution:
+        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
     return () => {
       map.remove();
       mapRef.current = null;
+      zoomedRef.current = false;
     };
   }, []);
 
@@ -52,9 +57,9 @@ const GeoMap = ({
     if (!zoomedRef.current) {
       map.fitBounds(circleRef.current.getBounds());
       zoomedRef.current = true;
+    } else {
+      map.setView([lat, lng]);
     }
-
-    map.setView([lat, lng]);
   }, [lat, lng, accuracy]);
 
   return (
@@ -67,7 +72,7 @@ const GeoMap = ({
           {error}
         </div>
       )}
-      <div id="map" style={{ height }} className="w-full rounded-lg" />
+      <div ref={containerRef} style={{ height }} className="w-full rounded-lg" />
     </div>
   );
 };
