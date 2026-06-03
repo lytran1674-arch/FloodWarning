@@ -1,10 +1,13 @@
 export interface Weather_datas{
     madulieu: string
-    rain: number
-    temp: number
+    rainfall: number
+    temperature: number
     humidity: number
     pressure: number
-    cloud: number
+    dewpoint: number
+    evapotranspiration:number
+    wind_speed:number
+    wind_direction:number
     thoigian: Date
     area_id: string
 }

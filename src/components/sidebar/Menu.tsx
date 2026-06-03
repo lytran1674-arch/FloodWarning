@@ -39,6 +39,7 @@ export const Menu = ({
         ${openMenu ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0
         mt-[60px] w-[150px]
+        z-[2000]
       `}
     >
       <ul className="mt-3 space-y-2 sm:space-y-3 lg:space-y-4">

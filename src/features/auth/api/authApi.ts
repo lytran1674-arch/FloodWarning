@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { LoginPayLoad } from "../types/authType";
 
-const API_URL = "/api/auth";
+const API_URL = "https://api-lulut.io.vn/auth";
 
 export const authAPI = {
   login(data: LoginPayLoad) {

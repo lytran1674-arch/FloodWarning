@@ -16,7 +16,7 @@ export function Table<T>({columns,data,onRowClick}:TableProps<T>){
        <div className="overflow-x-auto rounded-lg border border-[#E5E7EB]">
       <table className="w-full border-collapse">
         <thead className="bg-gray-100">
-          <tr>
+          <tr >
             {columns.map((col) => (
               <th
                 key={String(col.key)}

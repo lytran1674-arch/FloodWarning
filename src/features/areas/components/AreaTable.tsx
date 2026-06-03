@@ -4,6 +4,8 @@ import { usePagination } from "../../../hooks/usePagination";
 
 interface Props {
   data: AreaTree[];
+  onRowClick?:(area:AreaTree)=>void;
+  
 }
 
 const flattenAreas = (areas: AreaTree[]): AreaTree[] => {
@@ -13,7 +15,7 @@ const flattenAreas = (areas: AreaTree[]): AreaTree[] => {
   ]);
 };
 
-export const AreaTable = ({ data }: Props) => {
+export const AreaTable = ({ data,onRowClick }: Props) => {
   const flatData = flattenAreas(data);
   const { page, setPage, totalPages, paginated } = usePagination(flatData, 5);
 
@@ -103,7 +105,7 @@ export const AreaTable = ({ data }: Props) => {
 
   return (
     <div>
-      <Table<AreaTree> columns={columns} data={paginated} />
+      <Table<AreaTree> columns={columns} data={paginated} onRowClick={onRowClick}/>
 
       <div className="flex items-center justify-between px-3 py-2 border-t mt-2">
         <span className="text-xs text-slate-400">

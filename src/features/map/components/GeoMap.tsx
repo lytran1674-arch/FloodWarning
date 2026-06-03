@@ -1,78 +1,42 @@
-// src/components/GeoMap.tsx
-import { useEffect, useRef } from "react";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import useGeolocation from "../hooks/useGeolocation";
+import { CurrentLocationLayer } from "./CurrentLocationLayer";
+import { AreaPolygonLayer } from "./AreaPolygonLayer";
+import { useLeafletMap } from "../hooks/useLeafletMap";
 
 interface GeoMapProps {
   defaultCenter?: [number, number];
   defaultZoom?: number;
   height?: string;
+  selectedGeometry?: any;
+  selectedName?: string;
+  showCurrentLocation?: boolean;
 }
 
 const GeoMap = ({
   defaultCenter = [16.0471, 108.2068],
   defaultZoom = 13,
   height = "350px",
+  selectedGeometry,
+  selectedName,
+  showCurrentLocation = true,
 }: GeoMapProps) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
-  const markerRef = useRef<L.Marker | null>(null);
-  const circleRef = useRef<L.Circle | null>(null);
-  const zoomedRef = useRef(false);
-
-  const { lat, lng, accuracy, error, loading } = useGeolocation();
-
-  // Init map
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    const map = L.map(containerRef.current).setView(defaultCenter, defaultZoom);
-    mapRef.current = map;
-
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution:
-        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(map);
-
-    return () => {
-      map.remove();
-      mapRef.current = null;
-      zoomedRef.current = false;
-    };
-  }, []);
-
-  // Update marker khi vị trí thay đổi
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || lat === null || lng === null || accuracy === null) return;
-
-    if (markerRef.current) map.removeLayer(markerRef.current);
-    if (circleRef.current) map.removeLayer(circleRef.current);
-
-    markerRef.current = L.marker([lat, lng]).addTo(map);
-    circleRef.current = L.circle([lat, lng], { radius: accuracy }).addTo(map);
-
-    if (!zoomedRef.current) {
-      map.fitBounds(circleRef.current.getBounds());
-      zoomedRef.current = true;
-    } else {
-      map.setView([lat, lng]);
-    }
-  }, [lat, lng, accuracy]);
+  const { containerRef, mapRef } = useLeafletMap(defaultCenter, defaultZoom);
 
   return (
     <div className="w-full">
-      {loading && (
-        <div className="mb-2 text-sm text-gray-500">Getting location...</div>
-      )}
-      {error && (
-        <div className="mb-2 rounded bg-red-100 px-4 py-2 text-sm text-red-700">
-          {error}
-        </div>
-      )}
       <div ref={containerRef} style={{ height }} className="w-full rounded-lg" />
+
+      {showCurrentLocation && (
+        <CurrentLocationLayer
+          map={mapRef.current}
+          disabledAutoZoom={Boolean(selectedGeometry)}
+        />
+      )}
+
+      <AreaPolygonLayer
+        map={mapRef.current}
+        geometry={selectedGeometry}
+        name={selectedName}
+      />
     </div>
   );
 };

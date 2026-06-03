@@ -12,24 +12,39 @@ import GeoMap from "../../map/components/GeoMap";
 export const Area = () => {
   const { areas, loading } = useArea();
   const [search, setSearch] = useState("");
+  const [selectedArea, setSelectedArea] = useState<any>(null);
 
   const filteredAreas = areas.filter((area) =>
     area.tenkhuvuc.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleSelectArea = async (area: any) => {
+  try {
+    const res = await fetch(`/api/area/polygon-by-id?id=${area.id}`);
+    const polygon = await res.json();
+
+    setSelectedArea({
+      ...area,
+      geometry: polygon.geometry,
+    });
+  } catch (error) {
+    console.error("Lỗi lấy polygon:", error);
+  }
+};
 
   if (loading) return <div className="p-4">Loading...</div>;
 
   return (
     <>
       <div className="flex w-full justify-between">
-        <div className="flex justify-start gap-2 font-medium lg:mt-20 sm:ml-5 sm:mt-28 mt-24 ml-4">
+        <div className="flex justify-start gap-2 font-medium lg:mt-10 sm:ml-5 sm:mt-28 mt-10 ml-4">
           <MapIcon className="text-[#20458E] sm:text-sm text-xs lg:text-xl" />
           <p className="text-black text-sm sm:text-sm lg:text-xl font-medium">
             Quản lý khu vực
           </p>
         </div>
 
-        <div className="flex justify-end gap-2 lg:mr-3 mt-24 mr-6">
+        <div className="flex justify-end gap-2 lg:mr-3 mt-10 mr-6">
           <Button
             type="button"
             className="border bg-[#FFC44A] p-1 rounded-md text-black font-medium sm:text-sm text-xs lg:text-xl w-30 h-8"
@@ -37,6 +52,7 @@ export const Area = () => {
             <FaPlus />
             Thêm khu vực
           </Button>
+
           <Button
             onClick={() => window.location.reload()}
             type="button"
@@ -49,14 +65,12 @@ export const Area = () => {
 
       <div className="flex justify-start gap-4 p-4">
         <div className="w-[278px] bg-white rounded shadow p-3">
-         
-
           <AreaTree areas={areas} />
         </div>
 
-        <div className="flex-1 bg-white rounded shadow p-3 border-[#c2c3c5] ">
-         <Input
-         id="search"
+        <div className="flex-1 bg-white rounded shadow p-3 border-[#c2c3c5]">
+          <Input
+            id="search"
             type="text"
             icon={Search}
             placeholder="Tìm kiếm khu vực..."
@@ -64,13 +78,26 @@ export const Area = () => {
             onChange={setSearch}
             className="w-full border rounded-md px-4 py-2 outline-none focus:border-blue-500"
           />
-          <AreaTable data={filteredAreas} />
-            <GeoMap defaultCenter={[10.7769, 106.7009]} defaultZoom={15} height="500px" />
+
+          <AreaTable data={filteredAreas} onRowClick={handleSelectArea} />
+
+          <p className="mt-4 mb-2 font-medium">
+            Vị trí trên bản đồ{" "}
+            {selectedArea && (
+              <span className="text-blue-600">
+                - {selectedArea.tenkhuvuc}
+              </span>
+            )}
+          </p>
+
+          <GeoMap
+  defaultCenter={[10.7769, 106.7009]}
+  defaultZoom={15}
+  height="500px"
+  selectedGeometry={selectedArea?.geometry}
+  selectedName={selectedArea?.tenkhuvuc}
+/>
         </div>
-      
-      </div>
-      <div>
-      
       </div>
     </>
   );

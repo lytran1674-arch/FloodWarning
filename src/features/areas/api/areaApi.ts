@@ -2,7 +2,7 @@ import axios from "axios"
 import type { Area } from "../types/areaType"
 
 const API_URL =
-  "/api/area"
+  "https://api-lulut.io.vn/area"
 
 export const areaApi = {
   async getAll(): Promise<Area[]> {
