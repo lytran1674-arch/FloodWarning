@@ -8,7 +8,7 @@ export interface Weather_datas{
     evapotranspiration:number
     wind_speed:number
     wind_direction:number
-    thoigian: Date
+    time: Date
     area_id: string
 }
 
@@ -18,7 +18,7 @@ export interface CreateWeatherDataPayload{
     humidity: number
     pressure: number
     cloud: number
-    thoigian: Date
+    time: Date
     area_id: string
 }
 

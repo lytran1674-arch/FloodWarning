@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -8,30 +8,44 @@ export const useLeafletMap = (
 ) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
+  const [map, setMap] = useState<L.Map | null>(null);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
-    const map = L.map(containerRef.current).setView(defaultCenter, defaultZoom);
-    mapRef.current = map;
+    const container = containerRef.current;
+
+    const leafletMap = L.map(container).setView(defaultCenter, defaultZoom);
+    mapRef.current = leafletMap;
+    setMap(leafletMap);
 
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution:
         '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(map);
+    }).addTo(leafletMap);
 
-    map.whenReady(() => {
-      setTimeout(() => {
-        map.invalidateSize();
-      }, 100);
-    });
+    const timer = window.setTimeout(() => {
+      if (!container.isConnected) return;
+      if (mapRef.current !== leafletMap) return;
+
+      leafletMap.invalidateSize({
+        pan: false,
+      });
+    }, 300);
 
     return () => {
-      map.remove();
+      window.clearTimeout(timer);
+
+      leafletMap.remove();
       mapRef.current = null;
+      setMap(null);
     };
   }, []);
 
-  return { containerRef, mapRef };
+  return {
+    containerRef,
+    map,
+    mapRef,
+  };
 };

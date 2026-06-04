@@ -20,6 +20,7 @@ export const useArea = () =>{
         }
     }
     
+    
     useEffect(()=>{
         fetchAreas()
     },[])

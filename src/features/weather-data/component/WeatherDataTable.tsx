@@ -55,7 +55,7 @@ export const WeatherDataTable = ({ data, onRowClick }: Props) => {
       title: "Thời gian ghi nhận",
       key: "time" as keyof Weather_datas,
       render: (item: Weather_datas) =>
-        new Date(item.thoigian).toLocaleString("vi-VN"),
+        new Date(item.time).toLocaleString("vi-VN"),
     },
     {
       title: "Thao tác",

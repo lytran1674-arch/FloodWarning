@@ -1,13 +1,14 @@
 import {  Routes, Route } from "react-router-dom"
 import { MainLayout } from "../layouts/MainLayout"
 import { Area } from "../features/areas/pages/Area"
-import { LoginForm } from "../features/auth/components/LoginForm"
+
 import { WeatherDataPage } from "../features/weather-data/pages/WeatherDataPage"
+import { LoginPage } from "../features/auth/pages/LoginPage"
 
 const AppRoutes = () => {
   return (
       <Routes>
-        <Route path="/" element={<LoginForm />} />
+        <Route path="/" element={<LoginPage />} />
 
         <Route element={<MainLayout />}>          
           <Route path="/areas-management" element={<Area />} />

@@ -18,7 +18,7 @@ export const Button = ({
   return (
     <button
       className={`
-        flex items-center justify-center gap-2
+        flex items-center justify-center gap-2 
         ${className}
       `}
       onClick={onClick}
@@ -29,7 +29,7 @@ export const Button = ({
         <img
           src={imageSrc}
           alt="button-icon"
-          className="w-5 h-5 object-contain"
+          className=" object-contain "
         />
       )}
 

@@ -1,26 +1,27 @@
-type Column<T>={
-    title: string
-    key: keyof T
-    render?: (item:T)=>React.ReactNode;
-}
+import type React from "react";
 
-type TableProps<T>={
-    columns:Column<T>[];
-    data: T[];
-    onRowClick?:(item:T)=>void
-}
+type Column<T> = {
+  title: string;
+  key: keyof T;
+  render?: (item: T) => React.ReactNode;
+};
 
+type TableProps<T> = {
+  columns: Column<T>[];
+  data: T[];
+  onRowClick?: (item: T) => void;
+};
 
-export function Table<T>({columns,data,onRowClick}:TableProps<T>){
-    return (
-       <div className="overflow-x-auto rounded-lg border border-[#E5E7EB]">
-      <table className="w-full border-collapse">
+export function Table<T>({ columns, data, onRowClick }: TableProps<T>) {
+  return (
+    <div className="w-full overflow-x-auto rounded-lg border border-[#E5E7EB]">
+      <table className="w-full min-w-[700px] border-collapse text-xs sm:text-sm">
         <thead className="bg-gray-100">
-          <tr >
+          <tr>
             {columns.map((col) => (
               <th
                 key={String(col.key)}
-                className="border p-3 text-left"
+                className="whitespace-nowrap border p-2 text-left sm:p-3"
               >
                 {col.title}
               </th>
@@ -34,12 +35,12 @@ export function Table<T>({columns,data,onRowClick}:TableProps<T>){
               <tr
                 key={index}
                 onClick={() => onRowClick?.(item)}
-                className="hover:bg-gray-50 cursor-pointer"
+                className="cursor-pointer hover:bg-gray-50"
               >
                 {columns.map((col) => (
                   <td
                     key={String(col.key)}
-                    className="border p-3"
+                    className="whitespace-nowrap border p-2 sm:p-3"
                   >
                     {col.render
                       ? col.render(item)
@@ -61,5 +62,5 @@ export function Table<T>({columns,data,onRowClick}:TableProps<T>){
         </tbody>
       </table>
     </div>
-    )
+  );
 }

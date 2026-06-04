@@ -1,15 +1,15 @@
 import { useMemo } from "react";
-import { useArea } from "../../areas/hooks/useArea";
+import { useArea } from "./useArea";
 
 export const useAreaOptions = () => {
   const { areas } = useArea();
 
-  return useMemo(
-    () =>
-      areas.map((area) => ({
-        label: area.tenkhuvuc,
-        value: area.id,
-      })),
-    [areas]
-  );
+  return useMemo(() => {
+    return areas
+      .flatMap((area) => area.children || [])
+      .map((child) => ({
+        label: child.tenkhuvuc,
+        value: child.id,
+      }));
+  }, [areas]);
 };

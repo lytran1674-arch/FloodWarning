@@ -11,12 +11,19 @@ const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(file
 export default defineConfig({
   plugins: [react()],
 
+  // ✅ thêm đây
+  resolve: {
+    alias: {
+      "recharts": path.resolve(dirname, "node_modules/recharts/es6/index.js"),
+    },
+  },
+
   server: {
     watch: {
       usePolling: true,
       interval: 300,
     },
-    proxy: {                              // ← proxy nằm TRONG server
+    proxy: {
       "/api": {
         target: "https://api-lulut.io.vn",
         changeOrigin: true,

@@ -1,36 +1,36 @@
-import  { useEffect, useState } from 'react'
-import type { Weather_datas } from '../types/weatherdataType'
-import { weatherdataService } from '../services/weatherdataservice';
-import { useParams } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import type { Weather_datas } from "../types/weatherdataType";
+import { weatherdataService } from "../services/weatherdataservice";
 
-export const useWeatherData = () => {
+export const useWeatherData = (area_id?: string) => {
+  const [weatherdata, setWeatherData] = useState<Weather_datas[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const [weatherdata,setWeatherData]=useState<Weather_datas>();
-  const [loading,setLoading]=useState(false);
-  const {area_id}=useParams<{area_id:string}>()
-  const fetchWeatherData=async()=>{
-    if(!area_id) return 
-    try{
-        setLoading(true);
-        const data=await weatherdataService.getWeatherDataById(area_id);
-        console.log(data);
-        setWeatherData(data);
-    }catch(error){
-        console.log(error);
-
+  const fetchWeatherData = async () => {
+    if (!area_id) {
+      setWeatherData([]);
+      return;
     }
-    finally{
-        setLoading(false);
-    }
-  }
 
-  useEffect(()=>{
+    try {
+      setLoading(true);
+
+      const data = await weatherdataService.getWeatherDataById(area_id);
+
+      console.log("Dữ liệu thời tiết:", data);
+
+      setWeatherData(data);
+    } catch (error) {
+      console.log("Lỗi lấy dữ liệu thời tiết:", error);
+      setWeatherData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchWeatherData();
-  },[area_id])
+  }, [area_id]);
 
-  return{
-    weatherdata,
-    loading,
-    fetchWeatherData,
-  }
-}
+  return { weatherdata, loading, fetchWeatherData };
+};

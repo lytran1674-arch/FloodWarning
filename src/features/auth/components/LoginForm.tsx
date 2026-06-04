@@ -61,7 +61,7 @@ export const LoginForm: React.FC = () => {
   }
 
   return (
-    <div className="flex items-center justify-center overflow-hidden p-0 m-0">
+    <div className="flex items-center justify-center overflow-hidden p-0 m-10 sm:w-50 ">
       <div className="overflow-hidden bg-white border border-blue-500 rounded-lg w-full max-w-md p-5 shadow-lg">
 
         <img

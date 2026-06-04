@@ -9,17 +9,28 @@ import { useAreaOptions } from "../../areas/hooks/useAreaOption";
 import { Input } from "../../../components/ui/Input";
 import { WeatherDataTable } from "../component/WeatherDataTable";
 
-export const WeatherDataPage = () => {
-  const { weatherdata, loading } = useWeatherData();
 
-  const [selectedArea, setSelectedArea] = useState("");
+import { WeatherDataChart } from "../component/WeatherDataChart";
+
+
+export const WeatherDataPage = () => {
+
+
+  const [selectedArea, setSelectedArea] = useState(
+  () => localStorage.getItem("selectedArea") ?? ""
+);
+  const { weatherdata, loading } = useWeatherData(selectedArea);
   const [search, setSearch] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
   const areaOption = useAreaOptions();
-
+  const handleAreaChange = (value: string) => {
+  setSelectedArea(value);
+  localStorage.setItem("selectedArea", value);
+};
   if (loading) return <div className="p-4">Loading...</div>;
+
 
   return (
     <>
@@ -70,7 +81,7 @@ export const WeatherDataPage = () => {
             value={selectedArea}
             options={areaOption}
             placeholder="Chọn khu vực"
-            onChange={setSelectedArea}
+            onChange={handleAreaChange}
             containerClassName="w-full"
             labelClassName="h-5 text-sm font-medium"
             className="h-9 w-full text-sm"
@@ -145,8 +156,9 @@ export const WeatherDataPage = () => {
 
       {/* Table */}
       <div className="mx-3 sm:mx-5 mt-4">
-        <WeatherDataTable data={weatherdata ?? []} />
+        <WeatherDataTable data={weatherdata} />
       </div>
+    <WeatherDataChart  weatherdata={weatherdata}/>
     </>
   );
 };
