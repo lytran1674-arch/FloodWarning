@@ -8,19 +8,17 @@ import { Combobox } from "../../../components/ui/Combobox";
 import { useAreaOptions } from "../../areas/hooks/useAreaOption";
 import { Input } from "../../../components/ui/Input";
 import { WeatherDataTable } from "../component/WeatherDataTable";
-
-
 import { WeatherDataChart } from "../component/WeatherDataChart";
 
 
 export const WeatherDataPage = () => {
-
-
-  const [selectedArea, setSelectedArea] = useState(
+    const [selectedArea, setSelectedArea] = useState(
   () => localStorage.getItem("selectedArea") ?? ""
-);
-  const { weatherdata, loading } = useWeatherData(selectedArea);
-  const [search, setSearch] = useState("");
+);console.log("selectedArea:", selectedArea);
+    const { weatherdata, loading } = useWeatherData(selectedArea);
+
+
+
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
@@ -113,32 +111,7 @@ export const WeatherDataPage = () => {
             />
           </div>
 
-          {/* Search */}
-          <div className="flex flex-col gap-1">
-            <label className="h-5 text-sm font-medium text-transparent">Tìm kiếm</label>
-            <Input
-              id="search"
-              type="text"
-              icon={Search}
-              placeholder="Tìm kiếm khu vực..."
-              value={search}
-              onChange={setSearch}
-              containerClassName="mb-0"
-              className="h-9 w-full border border-[#C9B8B8] rounded-md px-4 py-2 outline-none focus:border-[#20458E]"
-            />
-          </div>
-
-          {/* Button tìm kiếm */}
-          <div className="flex flex-col gap-1">
-            <label className="h-5 text-sm font-medium text-transparent">Button</label>
-            <Button
-              type="button"
-              className="h-9 w-full text-sm text-white bg-[#1C5FE5] rounded-md whitespace-nowrap flex items-center justify-center"
-            >
-              Tìm kiếm
-            </Button>
-          </div>
-
+          
           {/* Button bộ lọc */}
           <div className="flex flex-col gap-1">
             <label className="h-5 text-sm font-medium text-transparent">Button</label>

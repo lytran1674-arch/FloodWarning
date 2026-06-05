@@ -4,6 +4,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { defaultConfig, roleConfig } from "./menuItem";
 import { Header } from "../components/sidebar/Header";
 import { Menu } from "../components/sidebar/Menu";
+import { AreaProvider } from "../features/areas/components/AreaContext";
 
 export const MainLayout = () => {
   const [openMenu, setOpenMenu] = useState(false);
@@ -26,7 +27,9 @@ export const MainLayout = () => {
       />
 
       <main className="pt-[60px] lg:ml-[240px] min-h-screen">
+         <AreaProvider>
         <Outlet />
+        </AreaProvider>
       </main>
     </div>
   );

@@ -11,4 +11,7 @@ export const areaService = {
   async getFilterChildren(parent_id: string):Promise<Area[]>{
     return await areaApi.getChildren(parent_id);
   },
+  async getSearchArea(keyword:string):Promise<Area[]>{
+    return await areaApi.getArea(keyword);
+  }
 }

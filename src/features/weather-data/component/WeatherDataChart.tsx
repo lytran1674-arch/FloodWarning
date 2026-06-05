@@ -7,68 +7,55 @@ interface Props {
 }
 
 const RANGE_OPTIONS = [
-  { label: "7 ngày", value: 7 },
-  { label: "14 ngày", value: 14 },
-  { label: "30 ngày", value: 30 },
+  { label: "3 ngày", value: 3 },
+  { label: "9 ngày", value: 9 },
 ];
 
 export const WeatherDataChart = ({ weatherdata = [] }: Props) => {
-  const [range, setRange] = useState(7);
+  const [range, setRange] = useState(3);
 
-  // Lọc dữ liệu theo số ngày được chọn
   const filtered = weatherdata.filter((d) => {
-    const date = new Date(d.time);
-    const now = new Date();
-    const diffDays = (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24);
+    const diffDays = (Date.now() - new Date(d.time).getTime()) / (1000 * 60 * 60 * 24);
     return diffDays <= range;
   });
 
-  const chartData = {
-    labels: filtered.map((d) => new Date(d.time).toLocaleDateString("vi-VN")),
-    datasets: [
-      {
-        label: "Nhiệt độ (°C)",
-        data: filtered.map((d) => d.temperature),
-        borderColor: "#ef4444",
-        backgroundColor: "#ef4444",
-      },
-      {
-        label: "Độ ẩm (%)",
-        data: filtered.map((d) => d.humidity),
-        borderColor: "#22c55e",
-        backgroundColor: "#22c55e",
-      },
-       {
-        label: "Lượng mưa (mm)",
-        data: filtered.map((d) => d.rainfall),
-        borderColor: "#1160FD",
-        backgroundColor: "#1160FD",
-      },
-       {
-        label: "Áp suất",
-        data: filtered.map((d) => d.pressure),
-        borderColor: "#AC14E3",
-        backgroundColor: "#AC14E3",
-      },
-       {
-        label: "Tốc độ gió",
-        data: filtered.map((d) => d.wind_speed),
-        borderColor: "#C1560A",
-        backgroundColor: "#C1560A",
-      },
-       {
-        label: "Bốc thoát hơi",
-        data: filtered.map((d) => d.evapotranspiration),
-        borderColor: "#FFC44A",
-        backgroundColor: "#FFC44A",
-      },
-       {
-        label: "Điểm sương",
-        data: filtered.map((d) => d.dewpoint),
-        borderColor: "#1E4DAF",
-        backgroundColor: "#1E4DAF",
-      },
+  // Group by ngày, lấy trung bình
+  const grouped = (() => {
+    const map = new Map<string, Weather_datas[]>();
 
+    filtered.forEach((d) => {
+      const day = new Date(d.time).toLocaleDateString("vi-VN");
+      if (!map.has(day)) map.set(day, []);
+      map.get(day)!.push(d);
+    });
+
+    return Array.from(map.entries()).map(([day, items]) => {
+      const avg = (key: keyof Weather_datas) =>
+        items.reduce((s, i) => s + Number(i[key]), 0) / items.length;
+
+      return {
+        day,
+        temperature:        avg("temperature"),
+        humidity:           avg("humidity"),
+        rainfall:           avg("rainfall"),
+        pressure:           avg("pressure"),
+        wind_speed:         avg("wind_speed"),
+        evapotranspiration: avg("evapotranspiration"),
+        dewpoint:           avg("dewpoint"),
+      };
+    });
+  })();
+
+  const chartData = {
+    labels: grouped.map((d) => d.day),
+    datasets: [
+      { label: "Nhiệt độ (°C)",  data: grouped.map((d) => +d.temperature.toFixed(1)),        borderColor: "#ef4444", backgroundColor: "#ef4444" },
+      { label: "Độ ẩm (%)",      data: grouped.map((d) => +d.humidity.toFixed(1)),            borderColor: "#22c55e", backgroundColor: "#22c55e" },
+      { label: "Lượng mưa (mm)", data: grouped.map((d) => +d.rainfall.toFixed(1)),            borderColor: "#1160FD", backgroundColor: "#1160FD" },
+      { label: "Áp suất",        data: grouped.map((d) => +d.pressure.toFixed(1)),            borderColor: "#AC14E3", backgroundColor: "#AC14E3" },
+      { label: "Tốc độ gió",     data: grouped.map((d) => +d.wind_speed.toFixed(1)),          borderColor: "#C1560A", backgroundColor: "#C1560A" },
+      { label: "Bốc thoát hơi",  data: grouped.map((d) => +d.evapotranspiration.toFixed(1)), borderColor: "#FFC44A", backgroundColor: "#FFC44A" },
+      { label: "Điểm sương",     data: grouped.map((d) => +d.dewpoint.toFixed(1)),            borderColor: "#1E4DAF", backgroundColor: "#1E4DAF" },
     ],
   };
 
@@ -82,7 +69,6 @@ export const WeatherDataChart = ({ weatherdata = [] }: Props) => {
 
   return (
     <div className="rounded-lg border bg-white p-4">
-      {/* Bộ lọc thời gian */}
       <div className="flex gap-2 mb-4">
         {RANGE_OPTIONS.map((opt) => (
           <button

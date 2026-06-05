@@ -13,6 +13,7 @@ interface InputProps {
   className?: string;
   containerClassName?: string;
   icon?: LucideIcon;
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
 }
 
 export const Input: React.FC<InputProps> = ({
@@ -22,6 +23,7 @@ export const Input: React.FC<InputProps> = ({
   placeholder,
   value,
   onChange,
+  onKeyDown,
   icon: Icon,
   required = false,
   disabled = false,
@@ -51,6 +53,7 @@ export const Input: React.FC<InputProps> = ({
           value={value}
           placeholder={placeholder}
           onChange={(e) => onChange?.(e.target.value)}
+          onKeyDown={onKeyDown}
           required={required}
           disabled={disabled}
           maxLength={30}

@@ -1,38 +1,43 @@
-import { MapIcon, Search } from "lucide-react";
+import { MapIcon } from "lucide-react";
 import { FaPlus } from "react-icons/fa";
 import { IoReload } from "react-icons/io5";
-import { useState } from "react";
 import { Button } from "../../../components/ui/Button";
-import { Input } from "../../../components/ui/Input";
 import { AreaTable } from "../components/AreaTable";
 import { AreaTree } from "../components/AreaTree";
 import { useArea } from "../hooks/useArea";
+import { areaService } from "../services/areaService";
 import GeoMap from "../../map/components/GeoMap";
+import { SearchBar } from "../../../components/ui/SearchBar";
+import { useSearch } from "../../../hooks/useSearch";
+import { useState } from "react";
 
 export const Area = () => {
-  const { areas, loading } = useArea();
-  const [search, setSearch] = useState("");
+  const { areas } = useArea(); // chỉ lấy areas gốc cho cây
   const [selectedArea, setSelectedArea] = useState<any>(null);
-
-  const filteredAreas = areas.filter((area) =>
-    area.tenkhuvuc.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const handleSelectArea = async (area: any) => {
-  try {
-    const res = await fetch(`/api/area/polygon-by-id?id=${area.id}`);
-    const polygon = await res.json();
-
-    setSelectedArea({
-      ...area,
-      geometry: polygon.geometry,
-    });
-  } catch (error) {
-    console.error("Lỗi lấy polygon:", error);
-  }
+const { keyword, setKeyword, result: tableData, searching } = useSearch(
+  areaService.getSearchArea,
+  areas,
+);
+  const handleSelectFromTree = (area: any) => {
+  //  try {
+  //   const data = await areaService.getSearchArea(area.tenkhuvuc);
+  //   const found = data.find((a) => a.id === area.id);
+  //   setTableData(found ? [found] : []);
+  //   setKeyword("");
+  // } catch {
+  //   toast.error("Lỗi tải dữ liệu");
+  // }
 };
 
-  if (loading) return <div className="p-4">Loading...</div>;
+  const handleSelectArea = async (area: any) => {
+    try {
+      const res = await fetch(`/api/area/polygon-by-id?id=${area.id}`);
+      const polygon = await res.json();
+      setSelectedArea({ ...area, geometry: polygon.geometry });
+    } catch (error) {
+      console.error("Lỗi lấy polygon:", error);
+    }
+  };
 
   return (
     <>
@@ -64,39 +69,35 @@ export const Area = () => {
       </div>
 
       <div className="flex justify-start gap-4 p-4">
+        {/* Cây dùng areas gốc, không bị ảnh hưởng bởi search */}
         <div className="w-[278px] bg-white rounded shadow p-3">
-          <AreaTree areas={areas} />
+          <AreaTree areas={areas} onSelect={handleSelectFromTree}/>
         </div>
 
         <div className="flex-1 bg-white rounded shadow p-3 border-[#c2c3c5]">
-          <Input
-            id="search"
-            type="text"
-            icon={Search}
-            placeholder="Tìm kiếm khu vực..."
-            value={search}
-            onChange={setSearch}
-            className="w-full border rounded-md px-4 py-2 outline-none focus:border-blue-500"
-          />
+          <SearchBar value={keyword} onChange={setKeyword}  />
 
-          <AreaTable data={filteredAreas} onRowClick={handleSelectArea} />
+          {searching && (
+            <p className="text-sm text-gray-400 animate-pulse py-1">Đang tìm kiếm...</p>
+          )}
+
+          {/* Bảng dùng tableData riêng */}
+          <AreaTable data={tableData ?? []} onRowClick={handleSelectArea} />
 
           <p className="mt-4 mb-2 font-medium">
             Vị trí trên bản đồ{" "}
             {selectedArea && (
-              <span className="text-blue-600">
-                - {selectedArea.tenkhuvuc}
-              </span>
+              <span className="text-blue-600">- {selectedArea.tenkhuvuc}</span>
             )}
           </p>
 
           <GeoMap
-  defaultCenter={[10.7769, 106.7009]}
-  defaultZoom={15}
-  height="500px"
-  selectedGeometry={selectedArea?.geometry}
-  selectedName={selectedArea?.tenkhuvuc}
-/>
+            defaultCenter={[10.7769, 106.7009]}
+            defaultZoom={15}
+            height="500px"
+            selectedGeometry={selectedArea?.geometry}
+            selectedName={selectedArea?.tenkhuvuc}
+          />
         </div>
       </div>
     </>
