@@ -42,7 +42,7 @@ export const Menu = ({
         z-[2000]
       `}
     >
-      <ul className="mt-3 space-y-2 sm:space-y-3 lg:space-y-4">
+      <ul className="mt-2 space-y-2 sm:space-y-3 lg:space-y-4">
         {items.map((item, index) => {
           const Icon = item.icon;
 
@@ -52,7 +52,7 @@ export const Menu = ({
               key={`${item.path}-${index}`}
               className={`
                 flex items-center gap-3
-                border-b-2 pb-5 mx-2
+                border-b-2 pb-3 mx-2
                 text-xs sm:text-sm lg:text-[18px]
                 font-medium ${textColor}
                 px-4 py-3 transition-all duration-300 cursor-pointer

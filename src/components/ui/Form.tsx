@@ -1,7 +1,7 @@
-import React from 'react'
+
 import { Label } from './Label'
 import { MapIcon } from 'lucide-react'
-import { Map } from 'leaflet'
+
 
 export const Form = () => {
   return (

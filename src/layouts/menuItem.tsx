@@ -1,8 +1,9 @@
-import { Calendar, FileQuestion, Files, FileText, Home, MapPin, PieChart, Snowflake, User, Users } from "lucide-react"
+import { Calendar, FileQuestion, Files, FileText, Home, MapPin, PieChart, Snowflake, User, Users, WavesArrowUp } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import MenuRescuer from "../assets/menurescuer.png"
 import type { CSSProperties } from "react"
 import IconRescuer from "../assets/rescuer.png"
+
 
 export type MenuItem = {
   text: string
@@ -17,6 +18,7 @@ export const adminMenu: MenuItem[] = [
   { text: "Quản lý người dùng",             icon: Users,     path: "/users-management"        },
   { text: "Quản lý khu vực",                icon: MapPin,    path: "/areas-management"        },
   { text: "Quản lý nguy cơ lũ lụt",         icon: Snowflake, path: "/flood-risk-management" },
+  {text:"Quản lý thiết bị", icon:WavesArrowUp,path:"/list-iotdevice" },
 ]
 
 export const rescuerMenu: MenuItem[] = [
