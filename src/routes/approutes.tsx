@@ -6,6 +6,8 @@ import { WeatherDataPage } from "../features/weather-data/pages/WeatherDataPage"
 import { LoginPage } from "../features/auth/pages/LoginPage"
 import { FormSos } from "../components/FormSos"
 
+import { IotDevices } from "../features/iotdevices/pages/IotDevices"
+
 const AppRoutes = () => {
   return (
       <Routes>
@@ -16,6 +18,7 @@ const AppRoutes = () => {
           <Route path="/weather-data/:area_id"/>
           <Route path="/home" element={<Area />} />
           <Route path="/weather-data" element={<WeatherDataPage/>}/>
+          <Route path="iot-device" element={<IotDevices/>}/>
          
         </Route>
       </Routes>

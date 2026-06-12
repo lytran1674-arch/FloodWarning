@@ -3,7 +3,7 @@ import type { IotDevice } from "../types/iotdeviceType";
 import { iotdeviceService } from "../services/iotdeviceService";
 
 export const useIotDevice = () => {
-  const [iotdeviceApi, setIotDevice] = useState<IotDevice[]>([]);
+  const [iotdevice, setIotDevice] = useState<IotDevice[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchIotDevice = async () => {
@@ -22,5 +22,5 @@ export const useIotDevice = () => {
     fetchIotDevice();
   }, []);
 
-  return { iotdeviceApi, loading };
+  return { iotdevice, loading };
 };

@@ -35,15 +35,15 @@ export const LoginForm: React.FC = () => {
 })
 
       // ✅ Lấy đúng từ res.data.result theo response Postman
-      const { token, role, authenticated,hoten } = res.data.result
-
+      const { token, role, authenticated,hoten,id } = res.data.result
+  console.log("LOGIN RESULT:", res.data.result);
       if (!authenticated) {
         setError("Đăng nhập thất bại!")
         return
       }
 
       // ✅ Lưu token vào Redux
-      dispatch(setCredentials({ user: { role,hoten}, accessToken: token }))
+      dispatch(setCredentials({ user: { role,hoten,id}, accessToken: token }))
 
       // ✅ Role trả về chữ HOA theo API
       switch (role) {

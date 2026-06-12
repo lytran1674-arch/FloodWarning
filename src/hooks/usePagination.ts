@@ -1,19 +1,29 @@
-// src/hooks/usePagination.ts
-import { useState, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react";
 
-export function usePagination<T>(data: T[], pageSize = 5) {
-  const [page, setPage] = useState(1)
+export const usePagination = <T,>(data: T[] = [], pageSize = 5) => {
+  const [page, setPage] = useState(1);
 
-  const totalPages = Math.ceil(data.length / pageSize)
+  const safeData = Array.isArray(data) ? data : [];
 
-  // Slice data theo trang hiện tại
+  const totalPages = Math.ceil(safeData.length / pageSize);
+
   const paginated = useMemo(() => {
-    const start = (page - 1) * pageSize
-    return data.slice(start, start + pageSize)
-  }, [data, page, pageSize])
+    const start = (page - 1) * pageSize;
+    return safeData.slice(start, start + pageSize);
+  }, [safeData, page, pageSize]);
 
-  // Reset về trang 1 khi data thay đổi
-  const reset = () => setPage(1)
+  useEffect(() => {
+    if (totalPages === 0) {
+      setPage(1);
+    } else if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
-  return { page, setPage, totalPages, paginated, reset }
-}
+  return {
+    page,
+    setPage,
+    totalPages,
+    paginated,
+  };
+};
