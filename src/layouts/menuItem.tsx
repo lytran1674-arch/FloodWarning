@@ -17,7 +17,7 @@ export const adminMenu: MenuItem[] = [
   { text: "Quản lý dữ liệu thời tiết",      icon: Calendar,  path: "/weather-data"      },
   { text: "Quản lý người dùng",             icon: Users,     path: "/users-management"        },
   { text: "Quản lý khu vực",                icon: MapPin,    path: "/areas-management"        },
-  { text: "Quản lý nguy cơ lũ lụt",         icon: Snowflake, path: "/flood-risk-management" },
+  { text: "Quản lý dữ liệu nguy cơ lũ lụt",         icon: Snowflake, path: "/flood-risk" },
   {text:"Quản lý thiết bị", icon:WavesArrowUp,path:"/iot-device" },
 ]
 

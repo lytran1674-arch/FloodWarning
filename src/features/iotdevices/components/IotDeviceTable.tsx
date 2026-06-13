@@ -19,17 +19,17 @@ export const IotDeviceTable = ({
 
   const { page, setPage, totalPages, paginated } = usePagination(safeData, 5);
 
-  const formatDate = (date?: string | null) => {
-    if (!date) return "--";
+  // const formatDate = (date?: string | null) => {
+  //   if (!date) return "--";
 
-    return new Date(date).toLocaleString("vi-VN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
+  //   return new Date(date).toLocaleString("vi-VN", {
+  //     hour: "2-digit",
+  //     minute: "2-digit",
+  //     day: "2-digit",
+  //     month: "2-digit",
+  //     year: "numeric",
+  //   });
+  // };
 
   const getStatusStyle = (status: string) => {
     switch (status) {
@@ -82,7 +82,7 @@ export const IotDeviceTable = ({
     {
       title: "Đăng ký lúc",
       key: "createdAt" as keyof IotDevice,
-      render: (item: IotDevice) => formatDate(item.createdAt),
+      render: (item: IotDevice) => item.createdAt,
     },
     {
       title: "Thao tác",

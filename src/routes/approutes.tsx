@@ -7,6 +7,7 @@ import { LoginPage } from "../features/auth/pages/LoginPage"
 import { FormSos } from "../components/FormSos"
 
 import { IotDevices } from "../features/iotdevices/pages/IotDevices"
+import { FloodRisk } from "../features/floodriskdata/pages/FloodRisk"
 
 const AppRoutes = () => {
   return (
@@ -18,8 +19,8 @@ const AppRoutes = () => {
           <Route path="/weather-data/:area_id"/>
           <Route path="/home" element={<Area />} />
           <Route path="/weather-data" element={<WeatherDataPage/>}/>
-          <Route path="iot-device" element={<IotDevices/>}/>
-         
+          <Route path="/iot-device" element={<IotDevices/>}/>
+         <Route path="/flood-risk" element={<FloodRisk/>} />
         </Route>
       </Routes>
 

@@ -6,12 +6,17 @@ import type { IotDevice } from "../types/iotdeviceType"
 
 
 export const iotdeviceApi={
-    // async getAll():Promise<IotDevice[]>{
-    //     const response= await axios.get(`${API_URL}/list-iotdevice`);
-    //     return response.data;
-    // },
-    async getAllPending():Promise<IotDevice[]>{
-        const response=await axios.get(`${API_URL}/pending`)
+    
+    async getAll():Promise<IotDevice[]>{
+        const response=await axios.get(`${API_URL}/list-device`)
+        return response.data.result
+    },
+    async patchApprove(device_id: string,adminId:string):Promise<IotDevice>{
+        const response= await axios.patch(`${API_URL}/${device_id}/approve?adminId=${adminId}`)
+        return response.data;
+    },
+    async patchPreject(device_id:string):Promise<IotDevice>{
+        const response= await axios.patch(`${API_URL}/${device_id}/reject`)
         return response.data;
     }
   
