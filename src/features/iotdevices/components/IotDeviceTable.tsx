@@ -1,3 +1,4 @@
+
 import { Table } from "../../../components/ui/Table";
 import { usePagination } from "../../../hooks/usePagination";
 import type { IotDevice } from "../types/iotdeviceType";
@@ -19,17 +20,17 @@ export const IotDeviceTable = ({
 
   const { page, setPage, totalPages, paginated } = usePagination(safeData, 5);
 
-  // const formatDate = (date?: string | null) => {
-  //   if (!date) return "--";
+  const formatDate = (date?: string | null) => {
+    if (!date) return "--";
 
-  //   return new Date(date).toLocaleString("vi-VN", {
-  //     hour: "2-digit",
-  //     minute: "2-digit",
-  //     day: "2-digit",
-  //     month: "2-digit",
-  //     year: "numeric",
-  //   });
-  // };
+    return new Date(date).toLocaleString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
 
   const getStatusStyle = (status: string) => {
     switch (status) {
@@ -43,6 +44,7 @@ export const IotDeviceTable = ({
         return "bg-slate-100 text-slate-700";
     }
   };
+
 
   const columns = [
     {
@@ -82,7 +84,7 @@ export const IotDeviceTable = ({
     {
       title: "Đăng ký lúc",
       key: "createdAt" as keyof IotDevice,
-      render: (item: IotDevice) => item.createdAt,
+      render: (item: IotDevice) => formatDate(item.createdAt),
     },
     {
       title: "Thao tác",
@@ -129,6 +131,7 @@ export const IotDeviceTable = ({
       acc.push(p);
       return acc;
     }, []);
+
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">

@@ -6,11 +6,11 @@ export const iotdeviceService={
      async getIotDevices():Promise<IotDevice[]>{
         return await iotdeviceApi.getAll();
     },
-    async patchApprove(device_id:string,adminId:string):Promise<IotDevice>{
-        return await iotdeviceApi.patchApprove(device_id,adminId);
+    async patchApprove(id:string,adminId:string):Promise<IotDevice>{
+        return await iotdeviceApi.patchApprove(id,adminId);
     },
-    async patchReject(device_id:string):Promise<IotDevice>{
-        return await iotdeviceApi.patchPreject(device_id);
+    async patchReject(id:string):Promise<IotDevice>{
+        return await iotdeviceApi.patchPreject(id);
     }
     
 }

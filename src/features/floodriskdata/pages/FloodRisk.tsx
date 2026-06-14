@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { FloodRiskTable } from '../components/FloodRiskTable'
 import { useFloodRiskData } from '../hooks/useFloodRiskData'
 

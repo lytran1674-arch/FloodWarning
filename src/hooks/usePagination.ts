@@ -20,6 +20,9 @@ export const usePagination = <T,>(data: T[] = [], pageSize = 5) => {
     }
   }, [page, totalPages]);
 
+      useEffect(() => {
+  setPage(1);
+}, [safeData]);
   return {
     page,
     setPage,

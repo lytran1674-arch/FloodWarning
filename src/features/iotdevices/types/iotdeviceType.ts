@@ -1,4 +1,4 @@
-export type TrangThai= "Warning" | "Low" | "Normal"
+export type TrangThai= "PENDING" | "ACTIVE" | "ERROR" | "REJECT"
 export interface IotDevice {
   id: string;
   device_code: string;

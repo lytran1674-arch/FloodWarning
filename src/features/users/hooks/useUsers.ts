@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react'
-import type { User } from '../../../types'
+import { useEffect, useState } from 'react'
+import type { Users } from '../types/userType'
 import { userService } from '../services/userService';
 
 export const useUsers = () => {
-    const [users,setUsers]=useState<User[]>([]);
+    const [users,setUsers]=useState<Users[]>([]);
     const [loading,setLoading]=useState(false);
 
     const fetchUsers=async()=>{

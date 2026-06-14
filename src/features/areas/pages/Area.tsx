@@ -18,7 +18,7 @@ const { keyword, setKeyword, result: tableData, searching } = useSearch(
   areaService.getSearchArea,
   areas,
 );
-  const handleSelectFromTree = (area: any) => {
+  const handleSelectFromTree = () => {
   //  try {
   //   const data = await areaService.getSearchArea(area.tenkhuvuc);
   //   const found = data.find((a) => a.id === area.id);

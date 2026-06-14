@@ -1,8 +1,8 @@
-import type { User } from "../../../types";
+import type {Users} from "../types/userType";
 import { userApi } from "../api/userApi";
 
 export const userService={
-    async getAll():Promise<User[]>{
+    async getAll():Promise<Users[]>{
         return await userApi.getAll();
     },
 

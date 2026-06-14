@@ -40,4 +40,4 @@ export const useSearch = <T>(
   }, [keyword, mode, search]);
 
   return { keyword, setKeyword, result, searching, onSearch };
-};
+}
