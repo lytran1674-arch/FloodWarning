@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Weather_datas } from "../types/weatherdataType";
 import { weatherdataService } from "../services/weatherdataservice";
 
@@ -28,9 +28,16 @@ export const useWeatherData = (area_id?: string) => {
     }
   };
 
+
   useEffect(() => {
     fetchWeatherData();
   }, [area_id]);
 
-  return { weatherdata, loading, fetchWeatherData };
+  const latestWeather=useMemo(()=>{
+    if(weatherdata.length===0)return null;
+    return weatherdata.reduce((a,b)=>
+    new Date(a.time)>new Date(b.time)? a:b);
+  },[weatherdata])
+
+  return { weatherdata, loading, fetchWeatherData,latestWeather };
 };

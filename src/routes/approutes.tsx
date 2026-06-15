@@ -8,6 +8,7 @@ import { FormSos } from "../components/FormSos"
 
 import { IotDevices } from "../features/iotdevices/pages/IotDevices"
 import { FloodRisk } from "../features/floodriskdata/pages/FloodRisk"
+import { Home } from "../features/citizen/pages/Home"
 
 const AppRoutes = () => {
   return (
@@ -21,6 +22,8 @@ const AppRoutes = () => {
           <Route path="/weather-data" element={<WeatherDataPage/>}/>
           <Route path="/iot-device" element={<IotDevices/>}/>
          <Route path="/flood-risk" element={<FloodRisk/>} />
+         {/*CITIZEN */}
+         <Route path="/dashboard" element={<Home/>}/>
         </Route>
       </Routes>
 

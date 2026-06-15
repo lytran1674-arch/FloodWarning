@@ -20,7 +20,7 @@ type Props = {
 export const Menu = ({
   items,
   bgColor = "",
-  textColor = "text-white",
+  textColor,
   openMenu,
   hover = "",
   bgStyle,
@@ -31,7 +31,7 @@ export const Menu = ({
       className={`
         ${bgColor}
         fixed left-0 z-50 h-screen
-        sm:mt-[60px] lg:mt-[61px]
+        sm:mt-[60px] lg:mt-[68px]
         sm:w-[180px] lg:w-[240px]
         sm:h-full
         sm:p-0 lg:p-3
@@ -40,24 +40,30 @@ export const Menu = ({
         lg:translate-x-0
         mt-[60px] w-[150px]
         z-[2000]
+        border
       `}
+
     >
-      <ul className="mt-2 space-y-2 sm:space-y-3 lg:space-y-4">
+      <ul className="space-y-2 sm:space-y-2 lg:space-y-3">
         {items.map((item, index) => {
           const Icon = item.icon;
 
           return (
             <NavLink
+          
               to={item.path}
               key={`${item.path}-${index}`}
               className={`
                 flex items-center gap-3
                 border-b-2 pb-3 mx-2
                 text-xs sm:text-sm lg:text-[18px]
-                font-medium ${textColor}
-                px-4 py-3 transition-all duration-300 cursor-pointer
+                font-medium 
+                rounded-md
+                px-2 py-3 transition-all duration-300 cursor-pointer
                 ${hover}
+                !${textColor}
               `}
+              
             >
               {typeof Icon === "string" ? (
                 <img

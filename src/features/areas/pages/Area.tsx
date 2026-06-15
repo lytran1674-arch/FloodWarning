@@ -9,34 +9,49 @@ import { areaService } from "../services/areaService";
 import GeoMap from "../../map/components/GeoMap";
 import { SearchBar } from "../../../components/ui/SearchBar";
 import { useSearch } from "../../../hooks/useSearch";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import useGeolocation from "../../map/hooks/useGeolocation";
+import { useAreaPolygon } from "../../map/hooks/usePolygon";
+import type { AreaTree as AreaTreeType } from "../types/areaType"; // chỉnh đúng path/type name
 
 export const Area = () => {
   const { areas } = useArea(); // chỉ lấy areas gốc cho cây
-  const [selectedArea, setSelectedArea] = useState<any>(null);
-const { keyword, setKeyword, result: tableData, searching } = useSearch(
-  areaService.getSearchArea,
-  areas,
-);
-  const handleSelectFromTree = () => {
-  //  try {
-  //   const data = await areaService.getSearchArea(area.tenkhuvuc);
-  //   const found = data.find((a) => a.id === area.id);
-  //   setTableData(found ? [found] : []);
-  //   setKeyword("");
-  // } catch {
-  //   toast.error("Lỗi tải dữ liệu");
-  // }
-};
 
-  const handleSelectArea = async (area: any) => {
-    try {
-      const res = await fetch(`/api/area/polygon-by-id?id=${area.id}`);
-      const polygon = await res.json();
-      setSelectedArea({ ...area, geometry: polygon.geometry });
-    } catch (error) {
-      console.error("Lỗi lấy polygon:", error);
-    }
+  const { keyword, setKeyword, result: tableData, searching } = useSearch(
+    areaService.getSearchArea,
+    areas,
+  );
+
+  const [areaId, setAreaId] = useState<string>("");
+  const geo = useGeolocation();
+  const { polygon } = useAreaPolygon(areaId);
+
+  // Tìm thông tin khu vực đang chọn (tenkhuvuc, lat, lon) từ areas (cây gốc)
+  const selectedArea = useMemo(() => {
+    if (!areaId || !areas) return null;
+
+    const findInTree = (nodes: AreaTreeType[]): AreaTreeType | null => {
+      for (const node of nodes) {
+        if (node.id === areaId) return node;
+        if (node.children?.length) {
+          const found = findInTree(node.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    return findInTree(areas);
+  }, [areaId, areas]);
+
+  // Khi chọn khu vực từ cây
+  const handleSelectFromTree = (area: AreaTreeType) => {
+    setAreaId(area.id);
+  };
+
+  // Khi click vào một dòng trong bảng kết quả search
+  const handleRowClick = (row: AreaTreeType) => {
+    setAreaId(row.id);
   };
 
   return (
@@ -49,19 +64,11 @@ const { keyword, setKeyword, result: tableData, searching } = useSearch(
           </p>
         </div>
 
-        <div className="flex justify-end gap-2 lg:mr-3 mt-10 mr-6">
-          <Button
-            type="button"
-            className="border bg-[#FFC44A] p-1 rounded-md text-black font-medium sm:text-sm text-xs lg:text-xl w-30 h-8"
-          >
-            <FaPlus />
-            Thêm khu vực
-          </Button>
-
+        <div className="flex justify-end gap-2 lg:mr-3 mt-10 mr-10">
           <Button
             onClick={() => window.location.reload()}
             type="button"
-            className="border border-[#E5E7EB] bg-white p-1 rounded-md text-black font-medium w-30 h-8"
+            className="border border-[#E5E7EB] bg-white p-1 rounded-md text-black font-medium w-20 h-8 "
           >
             <IoReload />
           </Button>
@@ -69,20 +76,18 @@ const { keyword, setKeyword, result: tableData, searching } = useSearch(
       </div>
 
       <div className="flex justify-start gap-4 p-4">
-        {/* Cây dùng areas gốc, không bị ảnh hưởng bởi search */}
         <div className="w-[278px] bg-white rounded shadow p-3">
-          <AreaTree areas={areas} onSelect={handleSelectFromTree}/>
+          <AreaTree areas={areas} onSelect={handleSelectFromTree} />
         </div>
 
         <div className="flex-1 bg-white rounded shadow p-3 border-[#c2c3c5]">
-          <SearchBar value={keyword} onChange={setKeyword}  />
+          <SearchBar value={keyword} onChange={setKeyword} />
 
           {searching && (
             <p className="text-sm text-gray-400 animate-pulse py-1">Đang tìm kiếm...</p>
           )}
 
-          {/* Bảng dùng tableData riêng */}
-          <AreaTable data={tableData ?? []} onRowClick={handleSelectArea} />
+          <AreaTable data={tableData ?? []} onRowClick={handleRowClick} />
 
           <p className="mt-4 mb-2 font-medium">
             Vị trí trên bản đồ{" "}
@@ -91,13 +96,17 @@ const { keyword, setKeyword, result: tableData, searching } = useSearch(
             )}
           </p>
 
-          <GeoMap
-            defaultCenter={[10.7769, 106.7009]}
-            defaultZoom={15}
-            height="500px"
-            selectedGeometry={selectedArea?.geometry}
-            selectedName={selectedArea?.tenkhuvuc}
-          />
+        <GeoMap
+  defaultCenter={
+    selectedArea && selectedArea.lat != null && selectedArea.lon != null
+      ? [selectedArea.lat, selectedArea.lon]
+      : [10.7769, 106.7009]
+  }
+  defaultZoom={selectedArea ? 9 : 6}
+ className="lg:h-[500px] sm:h-[350px] h-[300px] w-[550px] lg:w-full"
+  selectedGeometry={polygon?.geometry}
+  selectedName={selectedArea?.tenkhuvuc}
+/>
         </div>
       </div>
     </>

@@ -31,7 +31,7 @@ export const rescuerMenu: MenuItem[] = [
 ]
 
 export const userMenu: MenuItem[] = [
-  { text: "Trang chủ",         icon: Home,  path: "/home"       },
+  { text: "Trang chủ",         icon: Home,  path: "/dashboard"       },
   { text: "Gửi cứu hộ", icon: FileText, path: "/request" },
   { text: "Dữ liệu dự đoán nguy cơ lũ lụt", icon:FileQuestion , path: "/prediction" },
   { text: "Danh sách yêu cầu đã gửi", icon: FileText, path: "/sent-request" },

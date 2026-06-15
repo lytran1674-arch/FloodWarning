@@ -11,6 +11,7 @@ export const useIotDevice = () => {
   const [loading, setLoading] = useState(false);
   const [filter, setFilter]=useState<FilterStatus>("ALL");
   const [search,setSearch]=useState("");
+
   const fetchIotDevice = async () => {
     try {
       setLoading(true);
@@ -41,6 +42,8 @@ export const useIotDevice = () => {
     toast.error(error.response?.data?.message || "Phê duyệt thiết bị thất bại");
   }
   }
+  
+
 
 const handleReject = async (id: string) => {
   try {
@@ -84,14 +87,16 @@ const filteredData = useMemo(() => {
   );
 }, [iotdevice, search]);
 
+
 // Data cuối cùng đưa ra bảng: nếu có search thì ưu tiên search, không thì dùng statusFiltered
 const displayData = search.trim() !== "" ? searchResult ?? [] : filteredData;
 
   useEffect(() => {
     fetchIotDevice();
+   
   }, []);
 
-
+  
 
   return {
     iotdevice: displayData,

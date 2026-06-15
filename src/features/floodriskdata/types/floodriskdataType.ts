@@ -1,5 +1,6 @@
-import type { TrangThai } from "../../iotdevices/types/iotdeviceType"
 
+
+export type TrangThai= "LOW" | "MEDIUM" | "HIGH" ;
 export interface FloodRiskData{
     area_id: string
     tenKhuVuc: string 

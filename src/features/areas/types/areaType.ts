@@ -7,6 +7,10 @@ export interface Area{
     level: AreaLevel
     lat?: number
     lon?: number
+    geometry?: {
+        type: "Polygon" | "MultiPolygon"
+        coordinates: number[][][] | number[][][][]
+    }
 
 }
 
