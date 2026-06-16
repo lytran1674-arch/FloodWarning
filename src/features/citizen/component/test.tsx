@@ -207,7 +207,7 @@ const fetchPredictions = async () => {
   return response.json();
 };
 
-export const WeatherandMap = () => {
+export const Test = () => {
   const { areas } = useArea();
   const [areaId, setAreaId] = useState('');
   const [features, setFeatures] = useState<any[]>([]);

@@ -4,7 +4,7 @@ import React from "react";
 interface InputProps {
   id?: string;
   label?: string;
-  type?: "text" | "password" | "email" | "number" | "date";
+  type?: "text" | "password" | "email" | "number" | "date" | "checkbox";
   placeholder?: string;
   value: string;
   onChange?: (value: string) => void;
@@ -13,12 +13,14 @@ interface InputProps {
   className?: string;
   containerClassName?: string;
   icon?: LucideIcon;
+  checked?:boolean
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
 }
 
 export const Input: React.FC<InputProps> = ({
   id,
   label,
+  checked,
   type = "text",
   placeholder,
   value,
@@ -54,6 +56,7 @@ export const Input: React.FC<InputProps> = ({
           placeholder={placeholder}
           onChange={(e) => onChange?.(e.target.value)}
           onKeyDown={onKeyDown}
+          checked={checked}
           required={required}
           disabled={disabled}
           maxLength={30}

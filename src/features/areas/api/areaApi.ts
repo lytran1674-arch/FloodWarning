@@ -26,5 +26,10 @@ async getArea(keyword: string): Promise<Area[]> {
   return res.data.content ?? res.data; 
 },
 
-
+async getByIdArea(areaId:string):Promise<Area>{
+  const res=await axios.get(`${API_URL}/area`,{
+    params:{areaId}
+  })
+  return res.data
+}
 }

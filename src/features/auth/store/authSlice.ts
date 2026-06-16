@@ -1,62 +1,108 @@
-  import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-  import type { User } from "../types/authType";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import type { User } from "../types/authType";
 
-  interface AuthState {
-    user: Partial<User> | null;
-    accessToken: string | null;
-    isAuthenticated: boolean;
-  }
+// ==============================
+// TYPE STATE
+// ==============================
+interface AuthState {
+  user: Partial<User> | null;
+  accessToken: string | null;
+  isAuthenticated: boolean;
+}
 
-  const savedUser = localStorage.getItem("user");
-  const savedToken = localStorage.getItem("accessToken");
+// ==============================
+// LOCAL STORAGE
+// ==============================
+const savedUser = localStorage.getItem("user");
+const savedToken = localStorage.getItem("accessToken");
 
-  const initialState: AuthState = {
-    user: savedUser ? JSON.parse(savedUser) : null,
-    accessToken: savedToken,
-    isAuthenticated: !!savedToken,
-  };
+// ==============================
+// INITIAL STATE
+// ==============================
+const initialState: AuthState = {
+  user: savedUser ? JSON.parse(savedUser) : null,
+  accessToken: savedToken || null,
+  isAuthenticated: !!savedToken,
+};
 
-  interface SetCredentialsPayload {
-    user: Partial<User> | null;
-    accessToken: string;
-  }
+// ==============================
+// PAYLOAD LOGIN
+// ==============================
+interface SetCredentialsPayload {
+  user: Partial<User> | null;
+  accessToken: string;
+}
 
-  const authSlice = createSlice({
-    name: "auth",
+// ==============================
+// SLICE
+// ==============================
+const authSlice = createSlice({
+  name: "auth",
 
-    initialState,
+  initialState,
 
-    reducers: {
-      setCredentials: (
-        state,
-        action: PayloadAction<SetCredentialsPayload>
-      ) => {
-        state.user = action.payload.user;
-        state.accessToken = action.payload.accessToken;
-        state.isAuthenticated = true;
+  reducers: {
+    // LOGIN
+    setCredentials: (
+      state,
+      action: PayloadAction<SetCredentialsPayload>
+    ) => {
+      state.user = action.payload.user;
+      state.accessToken = action.payload.accessToken;
+      state.isAuthenticated = true;
+
+      // lưu localStorage
+      localStorage.setItem(
+        "user",
+        JSON.stringify(action.payload.user)
+      );
+
+      localStorage.setItem(
+        "accessToken",
+        action.payload.accessToken
+      );
+    },
+
+    // UPDATE USER
+    updateUser: (
+      state,
+      action: PayloadAction<Partial<User>>
+    ) => {
+      if (state.user) {
+        state.user = {
+          ...state.user,
+          ...action.payload,
+        };
 
         localStorage.setItem(
           "user",
-          JSON.stringify(action.payload.user)
+          JSON.stringify(state.user)
         );
-
-        localStorage.setItem(
-          "accessToken",
-          action.payload.accessToken
-        );
-      },
-
-      logout: (state) => {
-        state.user = null;
-        state.accessToken = null;
-        state.isAuthenticated = false;
-
-        localStorage.removeItem("user");
-        localStorage.removeItem("accessToken");
-      },
+      }
     },
-  });
 
-  export const { setCredentials, logout } = authSlice.actions;
+    // LOGOUT
+    logout: (state) => {
+      state.user = null;
+      state.accessToken = null;
+      state.isAuthenticated = false;
 
-  export default authSlice.reducer;
+      localStorage.removeItem("user");
+      localStorage.removeItem("accessToken");
+    },
+  },
+});
+
+// ==============================
+// EXPORT ACTIONS
+// ==============================
+export const {
+  setCredentials,
+  updateUser,
+  logout,
+} = authSlice.actions;
+
+// ==============================
+// EXPORT REDUCER
+// ==============================
+export default authSlice.reducer;
