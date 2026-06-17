@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowRight, CloudRain, Droplets, Gauge, GlassWater, Thermometer, WavesHorizontal } from 'lucide-react'
+import { AlertTriangle, ArrowRight } from 'lucide-react'
 import { Button } from '../../../components/ui/Button'
 
 

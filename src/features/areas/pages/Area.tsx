@@ -1,5 +1,4 @@
 import { MapIcon } from "lucide-react";
-import { FaPlus } from "react-icons/fa";
 import { IoReload } from "react-icons/io5";
 import { Button } from "../../../components/ui/Button";
 import { AreaTable } from "../components/AreaTable";
@@ -10,12 +9,15 @@ import GeoMap from "../../map/components/GeoMap";
 import { SearchBar } from "../../../components/ui/SearchBar";
 import { useSearch } from "../../../hooks/useSearch";
 import { useState, useMemo } from "react";
-import useGeolocation from "../../map/hooks/useGeolocation";
-import { useAreaPolygon } from "../../map/hooks/usePolygon";
-import type { AreaTree as AreaTreeType } from "../types/areaType"; // chỉnh đúng path/type name
+import { useGeoLocation } from "../../map/hooks/useGeolocation";
+//import { useAreaPolygon } from "../../map/hooks/usePolygon";
+import type { AreaTree as AreaTreeType } from "../types/areaType";
 
 export const Area = () => {
-  const { areas } = useArea(); // chỉ lấy areas gốc cho cây
+  const { areas } = useArea();
+
+  // ✅ Chỉ gọi 1 lần, dùng đúng tên lat/lon
+  const { lat, lon } = useGeoLocation();
 
   const { keyword, setKeyword, result: tableData, searching } = useSearch(
     areaService.getSearchArea,
@@ -23,10 +25,8 @@ export const Area = () => {
   );
 
   const [areaId, setAreaId] = useState<string>("");
-  const geo = useGeolocation();
-  const { polygon } = useAreaPolygon(areaId);
+  //const { polygon } = useAreaPolygon(areaId);
 
-  // Tìm thông tin khu vực đang chọn (tenkhuvuc, lat, lon) từ areas (cây gốc)
   const selectedArea = useMemo(() => {
     if (!areaId || !areas) return null;
 
@@ -44,12 +44,10 @@ export const Area = () => {
     return findInTree(areas);
   }, [areaId, areas]);
 
-  // Khi chọn khu vực từ cây
   const handleSelectFromTree = (area: AreaTreeType) => {
     setAreaId(area.id);
   };
 
-  // Khi click vào một dòng trong bảng kết quả search
   const handleRowClick = (row: AreaTreeType) => {
     setAreaId(row.id);
   };
@@ -68,7 +66,7 @@ export const Area = () => {
           <Button
             onClick={() => window.location.reload()}
             type="button"
-            className="border border-[#E5E7EB] bg-white p-1 rounded-md text-black font-medium w-20 h-8 "
+            className="border border-[#E5E7EB] bg-white p-1 rounded-md text-black font-medium w-20 h-8"
           >
             <IoReload />
           </Button>
@@ -96,16 +94,12 @@ export const Area = () => {
             )}
           </p>
 
-        <GeoMap
-  defaultCenter={
-    selectedArea && selectedArea.lat != null && selectedArea.lon != null
-      ? [selectedArea.lat, selectedArea.lon]
-      : [10.7769, 106.7009]
-  }
-  defaultZoom={selectedArea ? 9 : 6}
- className="lg:h-[500px] sm:h-[350px] h-[300px] w-[550px] lg:w-full"
-  selectedGeometry={polygon?.geometry}
-  selectedName={selectedArea?.tenkhuvuc}
+    <GeoMap
+  currentLat={selectedArea?.lat ?? lat}
+  currentLon={selectedArea?.lon ?? lon}
+  showCurrentPin={true}
+  centerOnUser={true}
+  className="lg:h-[500px] sm:h-[350px] h-[300px] w-[550px] lg:w-full"
 />
         </div>
       </div>

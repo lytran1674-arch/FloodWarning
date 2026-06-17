@@ -32,7 +32,7 @@ export const rescuerMenu: MenuItem[] = [
 
 export const userMenu: MenuItem[] = [
   { text: "Trang chủ",         icon: Home,  path: "/dashboard"       },
-  { text: "Gửi cứu hộ", icon: FileText, path: "/request" },
+  { text: "Gửi cứu hộ", icon: FileText, path: "/request-sos" },
   { text: "Dữ liệu dự đoán nguy cơ lũ lụt", icon:FileQuestion , path: "/prediction" },
   { text: "Danh sách yêu cầu đã gửi", icon: FileText, path: "/sent-request" },
   { text: "Tài khoản", icon: User, path: "/account" },
@@ -69,7 +69,7 @@ export const roleConfig: Record<string,RoleConfig>={
         menu:userMenu,
         bgColor:"bg-white",
         hover:"hover:bg-[#F5ACAC]",
-        textColor:"text-black"
+        textColor:"text-black",
     },
 
 }
@@ -78,5 +78,5 @@ export const defaultConfig:RoleConfig={
     menu:[],
     bgColor:"bg-white",
         hover:"bg-white",
-        textColor:"text-black"
+        textColor:"text-black",
 }

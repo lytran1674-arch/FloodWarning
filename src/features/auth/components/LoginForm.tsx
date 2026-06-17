@@ -35,7 +35,7 @@ export const LoginForm: React.FC = () => {
 })
 
       // ✅ Lấy đúng từ res.data.result theo response Postman
-      const { token, role, authenticated,hoten,id } = res.data.result
+      const { token, role, authenticated,hoten,id ,areaId} = res.data.result
   console.log("LOGIN RESULT:", res.data.result);
       if (!authenticated) {
         setError("Đăng nhập thất bại!")
@@ -43,7 +43,7 @@ export const LoginForm: React.FC = () => {
       }
 
       // ✅ Lưu token vào Redux
-      dispatch(setCredentials({ user: { role,hoten,id}, accessToken: token }))
+      dispatch(setCredentials({ user: { role,hoten,id,areaId}, accessToken: token }))
 
       // ✅ Role trả về chữ HOA theo API
       switch (role) {
@@ -60,6 +60,9 @@ export const LoginForm: React.FC = () => {
     }
   }
 
+  const handleOnClick=()=>{
+    navigate("/dashboard")
+  }
   return (
     <div className="flex items-center justify-center overflow-hidden p-0 m-10 sm:w-50 ">
       <div className="overflow-hidden bg-white border border-blue-500 rounded-lg w-full max-w-md p-5 shadow-lg">
@@ -119,7 +122,7 @@ export const LoginForm: React.FC = () => {
 
           <h5 className="mt-1 text-xl font-medium text-black flex justify-center gap-1">
             Chưa có tài khoản?
-            <u className="text-[#1C5FE5] cursor-pointer">Đăng ký</u>
+            <span className="text-[#1C5FE5] cursor-pointer" onClick={handleOnClick}>Đăng ký</span>
           </h5>
         </form>
 

@@ -1,5 +1,5 @@
 import { authAPI } from "../api/authApi";
-import type { LoginPayLoad, LoginResponse, RegisterPayLoad, RegisterResponse } from "../types/authType";
+import type { LoginPayLoad, LoginResponse, RegisterPayload, RegisterResponse } from "../types/authType";
 
 export const authService={
     async login(data:LoginPayLoad):Promise<LoginResponse>{
@@ -7,7 +7,7 @@ export const authService={
         return response.data;
     },
     
-    async register(data:RegisterPayLoad):Promise<RegisterResponse>{
+    async register(data:RegisterPayload):Promise<RegisterResponse>{
         const response=await authAPI.register(data);
         return response.data;
     },

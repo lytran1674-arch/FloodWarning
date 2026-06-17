@@ -17,7 +17,7 @@ export const Label: React.FC<LabelProps> = ({
       {...props}
       className={`flex items-center gap-2 text-sm font-medium text-[#EE0F0F] ${className}`}
     >
-      {Icon && <Icon className="lg:size-8" />}
+      {Icon && <Icon className="lg:size-6" />}
       <span>{children}</span>
     </label>
   );

@@ -13,7 +13,7 @@ export interface User{
     role: Role
     trangthai: TrangThai
     ghichu: string
-    area_id:string
+    areaId:string
     created_at: string
     updated_at: string
 }
@@ -21,16 +21,6 @@ export interface User{
 export interface LoginPayLoad{
     loginInfo: string 
     password: string
-}
-
-export interface RegisterPayLoad{
-    hoten: string
-    email: string 
-    sodt: string
-    ngaysinh: string 
-    diachi: string
-    gioitinh: boolean
-    matkhau: string
 }
 
 export interface LoginResponse{
@@ -41,9 +31,26 @@ export interface LoginResponse{
     authenticated: boolean
     hoten:string 
     id: string 
+    areaId:string
   }
 }
 
 export interface RegisterResponse{
     message: string
+}
+
+export interface RegisterPayload {
+  hoten: string;
+  sodt: string;
+  email: string;
+  matkhau: string;
+  tinh_id: string;
+  tinh_ten: string;
+  phuong_xa_id: string;
+  phuong_xa_ten: string;
+  so_nha: string;
+}
+export interface Option {
+  value: string;
+  label: string;
 }

@@ -1,73 +1,91 @@
 // features/map/hooks/useProvinceMap.ts
-// ============================================================
-// Hook lấy toàn bộ polygon + risk level của các khu vực
-// trong 1 tỉnh để render lên map
-// ============================================================
-import { useEffect, useState } from "react"
-import {areaService} from "../../areas/services/areaService"
-import mapService from "../services/mapService"
-import type { AreaWithRisk } from "../types/mapType"
+import { useEffect, useState } from "react";
+import { areaService } from "../../areas/services/areaService";
+import mapService from "../services/mapService";
+import type { AreaWithRisk } from "../types/mapType";
+import type { Area } from "../../areas/types/areaType";
 
 interface ProvinceMapState {
-  areas: AreaWithRisk[]
-  loading: boolean
-  error: string | null
+  areas: AreaWithRisk[];
+  loading: boolean;
+  error: string | null;
 }
 
-export const useProvinceMap = (provinceId: string | null) => {
+const getAllLeafAreas = async (parentId: string): Promise<Area[]> => {
+  const children = await areaService.getFilterChildren(parentId);
+  if (!children || children.length === 0) return [];
+
+  const nested = await Promise.all(
+    children.map(async (child) => {
+      const grandChildren = await areaService.getFilterChildren(child.id);
+      if (!grandChildren || grandChildren.length === 0) return [child];
+      return getAllLeafAreas(child.id);
+    })
+  );
+
+  return nested.flat();
+};
+
+export const useProvinceMap = (
+  provinceId: string | null,
+  lead: 1 | 2 | 3 = 1          // ← thêm param
+) => {
   const [state, setState] = useState<ProvinceMapState>({
     areas: [],
     loading: false,
     error: null,
-  })
+  });
 
   useEffect(() => {
-    if (!provinceId) return
+    if (!provinceId) return;
 
     const load = async () => {
-      setState(s => ({ ...s, loading: true, error: null }))
-      try {
-        // 1. Lấy danh sách huyện/xã trong tỉnh
-        const children = await areaService.getFilterChildren(provinceId)
+      setState((s) => ({ ...s, loading: true, error: null }));
 
-        // 2. Song song: lấy polygon + risk level cho từng vùng
+      try {
+        const leafAreas = await getAllLeafAreas(provinceId);
+
         const results = await Promise.allSettled(
-          children.map(async (child) => {
-            const [polygon, risk] = await Promise.allSettled([
+          leafAreas.map(async (child) => {
+            const [polygonResult, riskResult] = await Promise.allSettled([
               mapService.getPolygonById(child.id),
-              mapService.getRiskLevel(child.id),
-            ])
+              mapService.getRiskByAreaId(child.id, lead), // ← truyền đúng
+            ]);
 
             return {
               ...child,
-              geometry: polygon.status === "fulfilled"
-                ? polygon.value?.geometry
-                : null,
-              riskLevel: risk.status === "fulfilled"
-                ? risk.value
-                : "UNKNOWN",
-            } as AreaWithRisk
+              geometry:
+                polygonResult.status === "fulfilled"
+                  ? polygonResult.value?.geometry
+                  : null,
+              riskLevel:
+                riskResult.status === "fulfilled"
+                  ? riskResult.value
+                  : "LOW",
+            } as AreaWithRisk;
           })
-        )
+        );
 
-        // Lọc những vùng có polygon
         const areas = results
-          .filter(r => r.status === "fulfilled")
-          .map(r => (r as PromiseFulfilledResult<AreaWithRisk>).value)
-          .filter(a => a.geometry != null)
+          .filter(
+            (r): r is PromiseFulfilledResult<AreaWithRisk> =>
+              r.status === "fulfilled"
+          )
+          .map((r) => r.value)
+          .filter((area) => area.geometry != null);
 
-        setState({ areas, loading: false, error: null })
+        setState({ areas, loading: false, error: null });
       } catch (err: any) {
-        setState(s => ({
+        setState((s) => ({
           ...s,
           loading: false,
-          error: err.message ?? "Lỗi tải bản đồ",
-        }))
+          error: err?.message ?? "Lỗi tải dữ liệu bản đồ",
+        }));
       }
-    }
+    };
 
-    load()
-  }, [provinceId])
+    load();
+  }, [provinceId, lead]); // ← thêm lead vào deps
 
-  return state
-}
+  return state;
+};

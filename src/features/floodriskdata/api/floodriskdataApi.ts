@@ -13,5 +13,11 @@ export const FloodRiskDataApi ={
     })
 
     return response.data.result ?? response.data
+  },
+  async getPredictById(areaId:string):Promise<FloodRiskData[]>{
+    const response=await axios.get(`${API_URL}/list-by-area`,{
+      params:(areaId)
+    })
+    return response.data;
   }
 }

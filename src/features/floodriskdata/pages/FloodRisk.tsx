@@ -2,11 +2,10 @@ import { useFloodRiskData } from '../hooks/useFloodRiskData'
 import image from "../../../assets/BCO.28c1b972-eb93-4270-878b-8ce369928a0c.png"
 import { Combobox } from '../../../components/ui/Combobox'
 import { useWeatherData } from '../../weather-data/hooks/useWeatherData'
-import { useState, useMemo } from 'react'
+import { useState, /*useMemo*/ } from 'react'
 import { useAreaOptions } from '../../areas/hooks/useAreaOption'
-import { useArea } from '../../areas/hooks/useArea'
-import GeoMap from "../../map/components/GeoMap"
-import { useAreaPolygon } from '../../map/hooks/usePolygon'
+//import { useArea } from '../../areas/hooks/useArea'
+//import { useAreaPolygon } from '../../map/hooks/usePolygon'
 import { Cloud, CloudRainWind, Droplet, Gauge, Thermometer, Timer } from 'lucide-react'
 import { FaArrowRight } from 'react-icons/fa'
 import { Button } from '../../../components/ui/Button'
@@ -14,20 +13,20 @@ import { Button } from '../../../components/ui/Button'
 export const FloodRisk = () => {
   const { loading } = useFloodRiskData()
   const areaOption = useAreaOptions()
-  const { areas } = useArea()
+  //const { areas } = useArea()
   const [areaId, setAreaId] = useState("")
-    const { polygon } = useAreaPolygon(areaId);
+   // const { polygon } = useAreaPolygon(areaId);
   const { latestWeather, loading: weatherLoading } = useWeatherData(areaId)
 
   const handleChange = (value: string) => {
     setAreaId(value)
   }
 
-  const selectedArea = useMemo(() => {
-    if (!areaId || !areas) return null;
-    const flatAreas = areas.flatMap((area) => area.children || []);
-    return flatAreas.find((child) => child.id === areaId) || null;
-  }, [areaId, areas]);
+  // const selectedArea = useMemo(() => {
+  //   if (!areaId || !areas) return null;
+  //   const flatAreas = areas.flatMap((area) => area.children || []);
+  //   return flatAreas.find((child) => child.id === areaId) || null;
+  // }, [areaId, areas]);
 
   if (loading) return <div>Đang tải dữ liệu...</div>
 

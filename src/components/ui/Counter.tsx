@@ -16,7 +16,7 @@ export default function Counter({
   return (
     <>
  
-
+      {children && <p>{children}</p>}
       <div className="flex justify-center items-center lg:gap-10 ">
         <Button onClick={onDecrease} className="border border-black rounded-md text-xl lg:w-16 sm:w-12 w-11">-</Button>
 
