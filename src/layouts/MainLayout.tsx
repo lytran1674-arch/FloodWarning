@@ -14,6 +14,10 @@ export const MainLayout = () => {
 
   const config = roleConfig[user?.role as string] ?? defaultConfig;
 
+  const handleOnClick=()=>{
+    
+  }
+
   return (
     <div className="w-full min-h-screen">
       <Header openMenu={openMenu} setOpenMenu={setOpenMenu} />

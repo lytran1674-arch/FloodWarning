@@ -11,7 +11,7 @@ import { FloodRisk } from "../features/floodriskdata/pages/FloodRisk"
 //import { Home } from "../features/citizen/pages/Home"
 import { RegisterPage } from "../features/auth/pages/RegisterPage"
 import { Home } from "../features/citizen/component/test"
-import QLRescuePage from "../features/rescue/pages/QLRescuePage"
+import {QLRescuePage} from "../features/rescue/pages/QLRescuePage"
 
 
 const AppRoutes = () => {
@@ -30,7 +30,7 @@ const AppRoutes = () => {
         <Route path="/dashboard" element={<Home/>}/> 
          <Route path="/request-sos" element={<FormSOS />}/>
 
-         <Route path="/rescuers-management" element={<QLRescuePage/>}/>
+         <Route path="/team-management" element={<QLRescuePage/>}/>
         </Route>
       </Routes>
 

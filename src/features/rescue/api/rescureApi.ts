@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { ApiResPonse, CreateTeamRequest, ImportResult, ResTeam } from "../types/rescueType";
+import type { ApiResPonse, CreateTeamRequest, ImportResult, ResCue, ResGroup, ResTeam } from "../types/rescueType";
 
 
 const API_URL = "https://api-lulut.io.vn";
@@ -34,5 +34,52 @@ async importRescuers(teamId: string, file: File) {
     console.log("DATA:", error.response?.data);
     throw error;
   }
+},
+async PickLeader(
+  teamId: string,
+  userId: string
+) {
+  const response = await axios.put(
+    `${API_URL}/res-team/${teamId}/leader`,
+    {
+      userId,
+    }
+  );
+
+  return response.data;
 }
+,
+async ListLeaderArea(areaId:string):Promise<ResTeam[]>{
+  const response=await axios.get(`${API_URL}/res-team/leader/${areaId}`)
+  return response.data.result
+},
+async CreateGroup(
+  teamId:string,
+  data:any
+):Promise<ResTeam>{
+
+
+  const response = await axios.post(
+    `${API_URL}/res-groups/team/${teamId}`,
+    data
+  );
+
+
+  return response.data.result;
+
+},
+async getTeamMembersWithoutGroup(id:string):Promise<ResCue[]>{
+  const response=await axios.get(`${API_URL}/res-groups/team/${id}/available-members`)
+  return  response.data.result;
+},
+async addMemberToGroup(userId:string):Promise<ResTeam>{
+  const response=await axios.put(`${API_URL}/res-groups/${userId}/members`)
+  return response.data.result
+}
+,
+async setGroupLeader(userId:string):Promise<ResTeam>{
+  const response=await axios.put(`${API_URL}/res-groups/${userId}/leader`)
+  return response.data.result
+}
+
 };

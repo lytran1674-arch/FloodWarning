@@ -55,7 +55,7 @@ export const areaApi = {
   // ================= Lấy con theo parent =================
   async getChildren(parentId: string): Promise<Area[]> {
     if (!parentId) return []
-
+     console.log("parentId gửi lên API:", parentId);
     const res = await axios.get(`${API_URL}/list-by-parent`, {
       params: { parentId }
     })

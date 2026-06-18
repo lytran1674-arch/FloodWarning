@@ -3,7 +3,11 @@ export interface CreateTeamRequest{
     description:string 
     areaId:string
 }
-
+export interface ResCue{
+  userId:string
+  fullName:string 
+  phone:string
+}
 
 export interface ResTeam{
   id:string
@@ -20,8 +24,21 @@ export interface ApiResPonse<T>{
     result:T
 }
 
+
 export interface ImportResult {
   success: number;
   failed: number;
   errors: string[];
+}
+
+type STATUS= "AVAILABLE"
+export interface ResGroup{
+ id:string
+ name:string
+ teamId:string
+ teamName:string
+ status:STATUS
+ hasBoat:boolean
+ hasMedical:boolean
+ notes:string
 }

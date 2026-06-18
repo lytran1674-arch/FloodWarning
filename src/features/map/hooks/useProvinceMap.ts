@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { areaService } from "../../areas/services/areaService";
 import mapService from "../services/mapService";
 import type { AreaWithRisk } from "../types/mapType";
-import type { Area } from "../../areas/types/areaType";
 
 interface ProvinceMapState {
   areas: AreaWithRisk[];
@@ -11,24 +10,9 @@ interface ProvinceMapState {
   error: string | null;
 }
 
-const getAllLeafAreas = async (parentId: string): Promise<Area[]> => {
-  const children = await areaService.getFilterChildren(parentId);
-  if (!children || children.length === 0) return [];
-
-  const nested = await Promise.all(
-    children.map(async (child) => {
-      const grandChildren = await areaService.getFilterChildren(child.id);
-      if (!grandChildren || grandChildren.length === 0) return [child];
-      return getAllLeafAreas(child.id);
-    })
-  );
-
-  return nested.flat();
-};
-
 export const useProvinceMap = (
   provinceId: string | null,
-  lead: 1 | 2 | 3 = 1          // ← thêm param
+  lead: 1 | 2 | 3 = 1
 ) => {
   const [state, setState] = useState<ProvinceMapState>({
     areas: [],
@@ -36,56 +20,100 @@ export const useProvinceMap = (
     error: null,
   });
 
+
   useEffect(() => {
     if (!provinceId) return;
 
+
     const load = async () => {
-      setState((s) => ({ ...s, loading: true, error: null }));
+      setState((s) => ({
+        ...s,
+        loading: true,
+        error: null,
+      }));
 
       try {
-        const leafAreas = await getAllLeafAreas(provinceId);
+
+        // chỉ gọi API bằng tỉnh
+        const areasByProvince =
+          await areaService.getFilterChildren(provinceId);
+
 
         const results = await Promise.allSettled(
-          leafAreas.map(async (child) => {
-            const [polygonResult, riskResult] = await Promise.allSettled([
-              mapService.getPolygonById(child.id),
-              mapService.getRiskByAreaId(child.id, lead), // ← truyền đúng
-            ]);
+          areasByProvince.map(async (area) => {
+
+            const [polygonResult, riskResult] =
+              await Promise.allSettled([
+                mapService.getPolygonById(area.id),
+                mapService.getRiskByAreaId(area.id, lead),
+              ]);
+
+
+            const geometry =
+              polygonResult.status === "fulfilled"
+                ? polygonResult.value?.geometry
+                : null;
+
+
+           const riskLevel =
+  riskResult.status === "fulfilled"
+    ? riskResult.value
+    : "LOW";
+
+            console.log("AREA MAP:", {
+              id: area.id,
+              name: area.tenkhuvuc,
+              geometry,
+              riskLevel,
+            });
+
 
             return {
-              ...child,
-              geometry:
-                polygonResult.status === "fulfilled"
-                  ? polygonResult.value?.geometry
-                  : null,
-              riskLevel:
-                riskResult.status === "fulfilled"
-                  ? riskResult.value
-                  : "LOW",
+              ...area,
+              geometry,
+              riskLevel,
             } as AreaWithRisk;
+
           })
         );
+
 
         const areas = results
           .filter(
             (r): r is PromiseFulfilledResult<AreaWithRisk> =>
               r.status === "fulfilled"
           )
-          .map((r) => r.value)
-          .filter((area) => area.geometry != null);
+          .map((r) => r.value);
 
-        setState({ areas, loading: false, error: null });
+
+        console.log("FINAL MAP AREAS:", areas);
+
+
+        setState({
+          areas,
+          loading: false,
+          error: null,
+        });
+
+
       } catch (err: any) {
-        setState((s) => ({
-          ...s,
+
+        console.error(err);
+
+        setState({
+          areas: [],
           loading: false,
           error: err?.message ?? "Lỗi tải dữ liệu bản đồ",
-        }));
+        });
+
       }
     };
 
+
     load();
-  }, [provinceId, lead]); // ← thêm lead vào deps
+
+  }, [provinceId, lead]);
+
 
   return state;
 };

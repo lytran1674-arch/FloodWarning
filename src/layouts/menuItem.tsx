@@ -1,4 +1,4 @@
-import { Calendar, FileQuestion, Files, FileText, Home, MapPin, PieChart, Snowflake, User, Users, WavesArrowUp } from "lucide-react"
+import { Calendar, FileQuestion, Files, FileText, Home, List, ListMinus, MapPin, PieChart, Snowflake, User, Users, WavesArrowUp } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import MenuRescuer from "../assets/menurescuer.png"
 import type { CSSProperties } from "react"
@@ -9,11 +9,20 @@ export type MenuItem = {
   text: string
   icon: LucideIcon | string
   path: string
+  children?:MenuItem[]
 }
 
 export const adminMenu: MenuItem[] = [
   { text: "Thống kê",                       icon: PieChart,  path: "/thongke"            },
-  { text: "Quản lý lực lượng cứu hộ",       icon: Files,     path: "/rescuers-management"      },
+  { text: "Quản lý lực lượng cứu hộ",       icon: Files,     path: "/rescuers-management",
+    children:[
+      {
+        text:"Danh sách group", path:"/listgroup", icon:List
+      },
+      {text:"Danh sách đội", path:"/listteam",icon:ListMinus}
+      
+    ]
+        },
   { text: "Quản lý dữ liệu thời tiết",      icon: Calendar,  path: "/weather-data"      },
   { text: "Quản lý người dùng",             icon: Users,     path: "/users-management"        },
   { text: "Quản lý khu vực",                icon: MapPin,    path: "/areas-management"        },
@@ -27,7 +36,8 @@ export const rescuerMenu: MenuItem[] = [
   { text: "Danh sách yêu cầu",      icon: Files,    path: "/requests-list" },
   { text: "Yêu cầu đã nhận",      icon: Files,    path: "/received-requests" },
   { text: "Tài khoản ",      icon: User,    path: "/account" },
-
+  {text:"Quản lý đội cứu hội", icon:FileText ,path:"/team-management"}
+  ,{text:"Quản lý nhóm cứu hộ" ,icon:FileText, path:"/group-management"}
 ]
 
 export const userMenu: MenuItem[] = [
@@ -43,7 +53,8 @@ export type RoleConfig={
     bgColor:string
     hover: string 
     textColor:string
-    bgStyle?:CSSProperties  // thêm inline style
+    bgStyle?:CSSProperties  
+    children?:MenuItem[];
 }
 
 export const roleConfig: Record<string,RoleConfig>={

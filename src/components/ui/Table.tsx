@@ -1,8 +1,8 @@
 import type React from "react";
 
-type Column<T> = {
+export type Column<T> = {
   title: string;
-  key: keyof T;
+  key: string;
   render?: (item: T) => React.ReactNode;
 };
 
@@ -12,16 +12,20 @@ type TableProps<T> = {
   onRowClick?: (item: T) => void;
 };
 
-export function Table<T>({ columns, data, onRowClick }: TableProps<T>) {
+export function Table<T>({
+  columns,
+  data,
+  onRowClick,
+}: TableProps<T>) {
   return (
-    <div className="w-full overflow-x-auto rounded-lg border border-[#E5E7EB]">
+    <div className="w-full overflow-x-auto rounded-lg border border-slate-200">
       <table className="w-full min-w-[700px] border-collapse text-xs sm:text-sm">
-        <thead className="bg-gray-100">
+        <thead className="bg-slate-100">
           <tr>
-            {columns.map((col) => (
+            {columns.map((col, index) => (
               <th
-                key={String(col.key)}
-                className="whitespace-nowrap border p-2 text-left sm:p-3"
+                key={`${col.key}-${index}`}
+                className="whitespace-nowrap border p-2 text-left font-semibold sm:p-3"
               >
                 {col.title}
               </th>
@@ -31,20 +35,26 @@ export function Table<T>({ columns, data, onRowClick }: TableProps<T>) {
 
         <tbody>
           {data.length > 0 ? (
-            data.map((item, index) => (
+            data.map((item, rowIndex) => (
               <tr
-                key={index}
+                key={rowIndex}
                 onClick={() => onRowClick?.(item)}
-                className="cursor-pointer hover:bg-gray-50"
+                className={`${
+                  onRowClick ? "cursor-pointer" : ""
+                } hover:bg-slate-50`}
               >
-                {columns.map((col) => (
+                {columns.map((col, colIndex) => (
                   <td
-                    key={String(col.key)}
+                    key={`${col.key}-${colIndex}`}
                     className="whitespace-nowrap border p-2 sm:p-3"
                   >
                     {col.render
                       ? col.render(item)
-                      : String(item[col.key] ?? "—")}
+                      : String(
+                          (item as Record<string, unknown>)[
+                            col.key
+                          ] ?? "—"
+                        )}
                   </td>
                 ))}
               </tr>
@@ -53,7 +63,7 @@ export function Table<T>({ columns, data, onRowClick }: TableProps<T>) {
             <tr>
               <td
                 colSpan={columns.length}
-                className="p-4 text-center text-gray-500"
+                className="p-4 text-center text-slate-500"
               >
                 Không có dữ liệu
               </td>

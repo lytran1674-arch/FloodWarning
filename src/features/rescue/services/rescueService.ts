@@ -1,5 +1,5 @@
 import { rescueApi } from "../api/rescureApi";
-import type { CreateTeamRequest } from "../types/rescueType";
+import type { CreateTeamRequest, ResCue, ResGroup } from "../types/rescueType";
 
 
 export const rescueService = {
@@ -18,4 +18,7 @@ export const rescueService = {
 
     return team;
   },
+  async getTeamMembersWithoutGroup(id:string):Promise<ResCue[]>{
+    return await rescueApi.getTeamMembersWithoutGroup(id);
+  }
 };
