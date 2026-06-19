@@ -11,6 +11,7 @@ export interface AreaPolygon {
 export interface AreaWithRisk extends Area {
   geometry: GeoJSON.MultiPolygon | GeoJSON.Polygon
   riskLevel: RiskLevel
+  
 }
 
 // features/map/types/mapType.ts

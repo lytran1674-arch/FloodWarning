@@ -9,20 +9,14 @@ export type MenuItem = {
   text: string
   icon: LucideIcon | string
   path: string
-  children?:MenuItem[]
+
 }
 
 export const adminMenu: MenuItem[] = [
   { text: "Thống kê",                       icon: PieChart,  path: "/thongke"            },
-  { text: "Quản lý lực lượng cứu hộ",       icon: Files,     path: "/rescuers-management",
-    children:[
-      {
-        text:"Danh sách group", path:"/listgroup", icon:List
-      },
-      {text:"Danh sách đội", path:"/listteam",icon:ListMinus}
-      
-    ]
-        },
+  { text: "Quản lý lực lượng cứu hộ",       icon: Files,     path: "/rescue-management"},
+   
+   
   { text: "Quản lý dữ liệu thời tiết",      icon: Calendar,  path: "/weather-data"      },
   { text: "Quản lý người dùng",             icon: Users,     path: "/users-management"        },
   { text: "Quản lý khu vực",                icon: MapPin,    path: "/areas-management"        },

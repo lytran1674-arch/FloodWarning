@@ -1,14 +1,12 @@
 import type { LucideIcon } from "lucide-react";
 import type { CSSProperties } from "react";
 import { NavLink } from "react-router-dom";
-import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 
 type MenuItem = {
   text: string;
   icon: LucideIcon | string;
   path: string;
-  children?: MenuItem[];
 };
 
 type Props = {
@@ -50,75 +48,32 @@ export const Menu = ({
         {items.map((item, index) => {
           const Icon = item.icon;
 
-          const hasChildren = item.text === "Quản lý lực lượng cứu hộ" && item.children;
-
           return (
             <li key={`${item.path}-${index}`}>
-              <div
+              <NavLink
+                to={item.path}
                 className={`
-                  flex items-center justify-between
-                  mx-2 pb-3 border-b-2
-                  rounded-md  py-3
+                  flex items-center gap-3
+                  mx-2 border-b-2
+                  rounded-md py-3
                   text-xs sm:text-sm lg:text-[18px]
                   font-medium
                   transition-all duration-300
                   cursor-pointer
                   ${hover} ${textColor}
                 `}
-                onClick={() =>
-                  hasChildren
-                    ? setOpenSubmenu(openSubmenu === item.text ? null : item.text)
-                    : null
-                }
               >
-                <div className="flex items-center gap-3">
-                  {typeof Icon === "string" ? (
-                    <img
-                      src={Icon}
-                      alt={item.text}
-                      className="w-6 sm:w-6 lg:w-8 object-contain"
-                    />
-                  ) : (
-                    <Icon className="w-6 sm:w-6 lg:w-8 text-current" />
-                  )}
-                  <span className={textColor}>{item.text}</span>
-                </div>
-
-                {hasChildren && <ChevronDown className="w-8 h-8 text-current" />}
-              </div>
-
-              {hasChildren && openSubmenu === item.text && (
-                <ul className="ml-6 mt-1 space-y-1">
-                  {item.children?.map((child, i) => {
-                    const ChildIcon = child.icon;
-                    return (
-                      <NavLink
-                        key={`${child.path}-${i}`}
-                        to={child.path}
-                        className={`
-                          flex items-center gap-2
-                          px-2 py-2
-                          text-xs sm:text-sm lg:text-[16px]
-                          transition-all duration-300
-                          cursor-pointer
-                          ${hover} ${textColor}
-                        `}
-                      >
-                        {typeof ChildIcon === "string" ? (
-                          <img
-                            src={ChildIcon}
-                            alt={child.text}
-                            className="w-4 sm:w-4 lg:w-6 object-contain"
-                          />
-                        ) : (
-                          <ChildIcon className="w-4 sm:w-4 lg:w-6 text-current" />
-                        )}
-                        <span>{child.text}</span>
-                      </NavLink>
-                    );
-                  })}
-                </ul>
-              )}
+                {typeof Icon === "string" ? (
+                  <img
+                    src={Icon}
+                    alt={item.text}
+                    className="w-6 sm:w-6 lg:w-8 object-contain"
+                  />
+                ) : (
+                  <Icon className="w-6 sm:w-6 lg:w-8 text-current" />
+                )}
+                <span className={textColor}>{item.text}</span>
+              </NavLink>
             </li>
           );
         })}

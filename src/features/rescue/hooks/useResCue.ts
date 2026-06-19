@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react"
 import { rescueService } from "../services/rescueService";
-import { type ResGroup } from "../types/rescueType";
+import { type ResCue } from "../types/rescueType";
 
 export const useResCue=(teamId:string)=>{
-    const [rescue,setResCue]=useState<ResGroup[]>([]);
+    const [rescue,setResCue]=useState<ResCue[]>([]);
     const [loading,setLoading]=useState(false);
   
     const fetchResCue=async()=>{
@@ -15,7 +15,6 @@ export const useResCue=(teamId:string)=>{
             setLoading(true);
             const data= await rescueService.getTeamMembersWithoutGroup(teamId);
            
-            console.log("Danh sách thành viên chưa có group:",data);
              setResCue(data);
 
         }catch(error){

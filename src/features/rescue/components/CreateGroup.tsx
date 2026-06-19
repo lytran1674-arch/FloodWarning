@@ -1,382 +1,319 @@
+
 import { useEffect, useState } from "react";
 import { rescueApi } from "../api/rescureApi";
 
-
 export const CreateGroup = () => {
 
+  // state
+  const [teamId, setTeamId] = useState("");
+  const [teamName, setTeamName] = useState("");
 
-  const [team,setTeam] = useState<any>(null);
+  const [groupName, setGroupName] = useState("");
+  const [status, setStatus] = useState("AVAILABLE");
 
+  const [hasBoat, setHasBoat] = useState(false);
+  const [hasMedical, setHasMedical] = useState(false);
 
-  const [groupName,setGroupName] = useState("");
-  const [status,setStatus] = useState("AVAILABLE");
+  const [notes, setNotes] = useState("");
 
-  const [hasBoat,setHasBoat] = useState(false);
-  const [hasMedical,setHasMedical] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const [notes,setNotes] = useState("");
-
-  const [loading,setLoading] = useState(false);
-
-
-
-  // lấy thông tin team từ login
-  useEffect(()=>{
+  // lấy user localStorage
+  useEffect(() => {
 
     const user = JSON.parse(
       localStorage.getItem("user") || "{}"
     );
 
+    console.log(
+      "User Local:",
+      user
+    );
 
-    setTeam(user.team);
+    // lấy teamId
+    setTeamId(user.teamId || "");
 
+    // nếu backend chưa trả teamName
+    // có thể set mặc định
+    setTeamName(
+      user.teamName || "Chưa có tên đội"
+    );
 
-  },[]);
+  }, []);
 
+  // submit
+  const handleCreateGroup = async () => {
 
-
-
-
-  const handleCreateGroup = async()=>{
-
-
-    if(!groupName.trim()){
+    // validate
+    if (!groupName.trim()) {
 
       alert("Vui lòng nhập tên nhóm");
 
       return;
     }
 
+    if (!teamId) {
 
-
-    if(!team?.id){
-
-      alert("Không tìm thấy đội cứu hộ");
+      alert("Không tìm thấy teamId");
 
       return;
     }
 
-
-
-    try{
-
+    try {
 
       setLoading(true);
 
-
-
       const payload = {
-
 
         name: groupName,
 
-
-        // lấy từ local
-        teamId: team.id,
-
-        teamName: team.name,
-
-
         status,
-
 
         hasBoat,
 
-
         hasMedical,
-
 
         notes
 
       };
 
-
-
       console.log(
-        "Create Group Payload:",
+        "Create Payload:",
         payload
       );
 
-
+      console.log(
+        "Team ID:",
+        teamId
+      );
 
       const response =
-        await rescueApi.CreateGroup(team.id,payload);
-
-
+        await rescueApi.CreateGroup(
+          teamId,
+          payload
+        );
 
       console.log(
-        "Create Group Response:",
+        "Create Response:",
         response
       );
 
-
-
-      alert(
-`Tạo nhóm thành công
-
-     ` )
-
-
+      alert("Tạo nhóm thành công");
 
       // reset
-
       setGroupName("");
       setStatus("AVAILABLE");
       setHasBoat(false);
       setHasMedical(false);
       setNotes("");
 
-
-
-    }catch(error){
-
+    } catch (error) {
 
       console.error(error);
 
       alert("Có lỗi khi tạo nhóm");
 
-
-    }finally{
-
+    } finally {
 
       setLoading(false);
 
     }
 
-
   };
 
+  return (
 
+    <div className="min-h-screen bg-slate-100 p-6">
 
+      <div className="mx-auto max-w-2xl rounded-2xl bg-white p-6 shadow-lg">
 
+        {/* title */}
+        <h1 className="mb-6 text-3xl font-bold text-slate-800">
 
-return (
+          Tạo nhóm cứu hộ
 
-<div className="min-h-screen bg-slate-50 p-6">
+        </h1>
 
+        {/* team info */}
+        <div className="mb-6 rounded-lg bg-slate-100 p-4">
 
-<div className="mx-auto max-w-xl rounded-xl bg-white p-6 shadow">
+          <p className="text-sm text-gray-600">
+            Team ID
+          </p>
 
+          <p className="font-semibold text-slate-800">
+            {teamId || "Đang tải..."}
+          </p>
 
+          <p className="mt-3 text-sm text-gray-600">
+            Tên đội
+          </p>
 
-<h1 className="mb-2 text-2xl font-bold">
+          <p className="font-semibold text-slate-800">
+            {teamName}
+          </p>
 
-Tạo nhóm cứu hộ
+        </div>
 
-</h1>
+        {/* form */}
+        <div className="space-y-5">
 
+          {/* group name */}
+          <div>
 
+            <label className="mb-2 block font-medium">
 
-<div className="mb-5 text-sm text-gray-500">
+              Tên nhóm
 
+            </label>
 
-Đội:
+            <input
+              type="text"
+              value={groupName}
+              onChange={(e) =>
+                setGroupName(e.target.value)
+              }
+              placeholder="Ví dụ: Nhóm Alpha"
+              className="
+                w-full rounded-xl border
+                border-slate-300 p-3
+                outline-none
+                focus:border-blue-500
+              "
+            />
 
-<b>
+          </div>
 
-{" "}
+          {/* status */}
+          <div>
 
-{team?.name || "Đang tải..."}
+            <label className="mb-2 block font-medium">
 
-</b>
+              Trạng thái
 
+            </label>
 
-</div>
+            <select
+              value={status}
+              onChange={(e) =>
+                setStatus(e.target.value)
+              }
+              className="
+                w-full rounded-xl border
+                border-slate-300 p-3
+                outline-none
+                focus:border-blue-500
+              "
+            >
 
+              <option value="AVAILABLE">
+                AVAILABLE
+              </option>
 
+              <option value="BUSY">
+                BUSY
+              </option>
 
+              <option value="MAINTENANCE">
+                MAINTENANCE
+              </option>
 
+            </select>
 
-<div className="space-y-4">
+          </div>
 
+          {/* checkbox */}
+          <div className="flex gap-8">
 
+            <label className="flex items-center gap-2">
 
-<label className="block">
+              <input
+                type="checkbox"
+                checked={hasBoat}
+                onChange={(e) =>
+                  setHasBoat(e.target.checked)
+                }
+              />
 
-Tên nhóm
+              Có xuồng
 
-</label>
+            </label>
 
+            <label className="flex items-center gap-2">
 
-<input
+              <input
+                type="checkbox"
+                checked={hasMedical}
+                onChange={(e) =>
+                  setHasMedical(e.target.checked)
+                }
+              />
 
-value={groupName}
+              Có y tế
 
-onChange={
-e=>setGroupName(e.target.value)
-}
+            </label>
 
-placeholder="Ví dụ: Nhóm Alpha"
+          </div>
 
-className="w-full rounded-lg border p-3"
+          {/* notes */}
+          <div>
 
-/>
+            <label className="mb-2 block font-medium">
 
+              Ghi chú
 
+            </label>
 
+            <textarea
+              rows={4}
+              value={notes}
+              onChange={(e) =>
+                setNotes(e.target.value)
+              }
+              placeholder="Ví dụ: Xuồng máy 10 chỗ"
+              className="
+                w-full rounded-xl border
+                border-slate-300 p-3
+                outline-none
+                focus:border-blue-500
+              "
+            />
 
+          </div>
 
-<label className="block">
+          {/* button */}
+          <button
 
-Trạng thái
+            onClick={handleCreateGroup}
 
-</label>
+            disabled={loading}
 
+            className="
+              w-full rounded-xl
+              bg-blue-600 p-3
+              font-semibold text-white
+              transition hover:bg-blue-700
+              disabled:cursor-not-allowed
+              disabled:opacity-50
+            "
 
+          >
 
-<select
+            {
+              loading
+                ? "Đang tạo..."
+                : "Tạo nhóm cứu hộ"
+            }
 
-value={status}
+          </button>
 
-onChange={
-e=>setStatus(e.target.value)
-}
+        </div>
 
-className="w-full rounded-lg border p-3"
+      </div>
 
->
+    </div>
 
-
-<option value="AVAILABLE">
-
-AVAILABLE
-
-</option>
-
-
-<option value="BUSY">
-
-BUSY
-
-</option>
-
-
-<option value="MAINTENANCE">
-
-MAINTENANCE
-
-</option>
-
-
-</select>
-
-
-
-
-
-<div className="flex gap-6">
-
-
-
-<label>
-
-<input
-
-type="checkbox"
-
-checked={hasBoat}
-
-onChange={
-e=>setHasBoat(e.target.checked)
-}
-
-/>
-
- Có xuồng
-
-</label>
-
-
-
-
-<label>
-
-<input
-
-type="checkbox"
-
-checked={hasMedical}
-
-onChange={
-e=>setHasMedical(e.target.checked)
-}
-
-/>
-
- Có y tế
-
-</label>
-
-
-
-</div>
-
-
-
-
-
-<textarea
-
-rows={4}
-
-value={notes}
-
-onChange={
-e=>setNotes(e.target.value)
-}
-
-placeholder="Ghi chú"
-
-className="w-full rounded-lg border p-3"
-
-/>
-
-
-
-
-
-<button
-
-
-disabled={loading}
-
-
-onClick={handleCreateGroup}
-
-
-className="
-w-full rounded-lg 
-bg-blue-600 p-3 
-text-white
-"
-
-
->
-
-
-{
-loading
-?
-"Đang tạo..."
-:
-"Tạo nhóm cứu hộ"
-}
-
-
-</button>
-
-
-
-
-</div>
-
-
-</div>
-
-
-</div>
-
-)
-
+  );
 
 };
+

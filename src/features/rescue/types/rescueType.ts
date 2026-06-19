@@ -7,6 +7,7 @@ export interface ResCue{
   userId:string
   fullName:string 
   phone:string
+  isLeader?:boolean
 }
 
 export interface ResTeam{

@@ -16,6 +16,9 @@ export interface User{
     areaId:string
     created_at: string
     updated_at: string
+    teamId?:string
+    teamName?:string
+    isLeader?:boolean
 }
 
 export interface LoginPayLoad{
@@ -32,6 +35,8 @@ export interface LoginResponse{
     hoten:string 
     id: string 
     areaId:string
+    teamId?:string
+    teamName?:string
   }
 }
 
