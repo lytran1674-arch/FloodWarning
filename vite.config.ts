@@ -12,11 +12,10 @@ export default defineConfig({
   plugins: [react()],
 
   // ✅ thêm đây
-  resolve: {
-    alias: {
-      "recharts": path.resolve(dirname, "node_modules/recharts/es6/index.js"),
-    },
+   resolve: {
+    alias: { '@': path.resolve(__dirname, './src') }
   },
+  
 
   server: {
     watch: {

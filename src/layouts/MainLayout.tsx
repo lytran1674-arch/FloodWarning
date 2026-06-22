@@ -14,9 +14,7 @@ export const MainLayout = () => {
 
   const config = roleConfig[user?.role as string] ?? defaultConfig;
 
-  const handleOnClick=()=>{
-    
-  }
+
 
   return (
     <div className="w-full min-h-screen">
@@ -28,6 +26,7 @@ export const MainLayout = () => {
         items={config.menu}
         openMenu={openMenu}
         bgStyle={config.bgStyle}
+        color={config.color}
       />
 
       <main className="pt-[60px] lg:ml-[240px] min-h-screen">

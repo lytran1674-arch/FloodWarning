@@ -1,16 +1,16 @@
-import { iotdeviceApi } from "../api/iotdeviceApi";
-import type { IotDevice } from "../types/iotdeviceType";
+import { DeviceApi } from "../api/deviceApi";
+import type {Device } from "../types/deviceType";
 
-export const iotdeviceService={
+export const DeviceService={
 
-     async getIotDevices():Promise<IotDevice[]>{
-        return await iotdeviceApi.getAll();
+     async getDevices():Promise<Device[]>{
+        return await DeviceApi.getAll();
     },
-    async patchApprove(id:string,adminId:string):Promise<IotDevice>{
-        return await iotdeviceApi.patchApprove(id,adminId);
+    async patchApprove(id:string,adminId:string):Promise<Device>{
+        return await DeviceApi.patchApprove(id,adminId);
     },
-    async patchReject(id:string):Promise<IotDevice>{
-        return await iotdeviceApi.patchPreject(id);
+    async patchReject(id:string):Promise<Device>{
+        return await DeviceApi.patchPreject(id);
     }
     
 }

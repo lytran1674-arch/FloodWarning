@@ -1,5 +1,5 @@
 export type TrangThai= "PENDING" | "ACTIVE" | "ERROR" | "REJECT"
-export interface IotDevice {
+export interface Device {
   id: string;
   device_code: string;
   area_id: string;
@@ -13,6 +13,9 @@ export interface IotDevice {
   updatedAt: string;
 }
 
+export interface IotData{
+  
+}
 export interface CreateIotDevicePayLoad{
     area_id: string 
     ten_thietbi:string

@@ -2,13 +2,17 @@ import { useFloodRiskData } from '../hooks/useFloodRiskData'
 import image from "../../../assets/BCO.28c1b972-eb93-4270-878b-8ce369928a0c.png"
 import { Combobox } from '../../../components/ui/Combobox'
 import { useWeatherData } from '../../weather-data/hooks/useWeatherData'
-import { useState, /*useMemo*/ } from 'react'
+import { useMemo, useState, /*useMemo*/ } from 'react'
 import { useAreaOptions } from '../../areas/hooks/useAreaOption'
 //import { useArea } from '../../areas/hooks/useArea'
 //import { useAreaPolygon } from '../../map/hooks/usePolygon'
 import { Cloud, CloudRainWind, Droplet, Gauge, Thermometer, Timer } from 'lucide-react'
 import { FaArrowRight } from 'react-icons/fa'
 import { Button } from '../../../components/ui/Button'
+import GeoMap from '@/features/map/components/GeoMap'
+import { useUserProvince } from '@/features/map/hooks/useUserProvince'
+import { useProvinceMap } from '@/features/map/hooks/useProvinceMap'
+import type { AreaWithRisk } from '@/features/map/types/mapType'
 
 export const FloodRisk = () => {
   const { loading } = useFloodRiskData()
@@ -21,12 +25,36 @@ export const FloodRisk = () => {
   const handleChange = (value: string) => {
     setAreaId(value)
   }
+  const { province, userArea, loading: loadingProvince } = useUserProvince()
+  
+    const [lead, setLead] = useState<1 | 2 | 3>(1)
+  
+ const { areas, loading: loadingMap } = useProvinceMap(
+  province?.id ?? null,
+  lead,
 
-  // const selectedArea = useMemo(() => {
-  //   if (!areaId || !areas) return null;
-  //   const flatAreas = areas.flatMap((area) => area.children || []);
-  //   return flatAreas.find((child) => child.id === areaId) || null;
-  // }, [areaId, areas]);
+)
+    const [selected, setSelected] = useState<AreaWithRisk | null>(null)
+
+  const statistics = useMemo(() => {
+
+  return {
+    safe: areas.filter(a => a.riskLevel === "LOW").length,
+
+    warning: areas.filter(
+      a => a.riskLevel === "MEDIUM"
+    ).length,
+
+    danger: areas.filter(
+      a => a.riskLevel === "HIGH"
+    ).length,
+
+    total: areas.length,
+  }
+
+}, [areas])
+
+
 
   if (loading) return <div>Đang tải dữ liệu...</div>
 
@@ -105,7 +133,7 @@ export const FloodRisk = () => {
               </p>
               <p className='text-[35px] lg:mt-3 
               lg:mb-3 lg:text-xl
-              sm:mt-2 sm:mb-2 mb-[2px] mt-[2px] font-bold text-black text-[15px]'>30</p>
+              sm:mt-2 sm:mb-2 mb-[2px] mt-[2px] font-bold text-black text-[15px]'>{statistics.safe}</p>
               <p className='font-bold text-[10px] lg:text-sm'>khu vực </p>
             </div>
             <div className=' flex-wrap justify-center border border-[#FBDD9F]
@@ -115,7 +143,7 @@ export const FloodRisk = () => {
               </p>
               <p className='text-[35px] lg:mt-3 
               lg:mb-3 lg:text-xl
-              sm:mt-2 sm:mb-2 mb-[2px] mt-[2px] font-bold text-black text-[15px]'>30</p>
+              sm:mt-2 sm:mb-2 mb-[2px] mt-[2px] font-bold text-black text-[15px]'>{statistics.warning}</p>
               <p className='font-bold text-[10px] lg:text-sm'>khu vực </p>
             </div>
             <div className=' flex-wrap justify-center border border-[#F69595]
@@ -125,27 +153,24 @@ export const FloodRisk = () => {
               </p>
               <p className='text-[35px] lg:mt-3 
               lg:mb-3 lg:text-xl
-              sm:mt-2 sm:mb-2 mb-[2px] mt-[2px] font-bold text-black text-[15px]'>30</p>
+              sm:mt-2 sm:mb-2 mb-[2px] mt-[2px] font-bold text-black text-[15px]'>{statistics.danger}</p>
               <p className='font-bold text-[10px] lg:text-sm'>khu vực </p>
             </div>
            </div>
            <p className='text-xs sm:text-sm lg:text-xl text-black lg:mt-5'>
-            Tổng số khu vực: 90</p>
+            Tổng số khu vực: {statistics.total}</p>
         </div>
       </div>
 
       <div className=' lg:w-[580px] sm:w-[300px] w-[250px] '>
-      {/* <GeoMap
-  defaultCenter={
-    selectedArea && selectedArea.lat != null && selectedArea.lon != null
-      ? [selectedArea.lat, selectedArea.lon]
-      : [10.7769, 106.7009]
-  }
-  defaultZoom={selectedArea ? 9 : 6}
-  className=" lg:w-[580px] sm:w-[400px] h-[350px]  "
-  selectedGeometry={polygon?.geometry}
-  selectedName={selectedArea?.tenkhuvuc}
-/> */}
+<GeoMap
+  areas={areas}
+  userAreaId={userArea?.id}
+  provinceName={province?.tenkhuvuc}
+  loading={loadingMap}
+  onAreaClick={setSelected}
+  selectedAreaId={areaId}
+/>
       </div>
       <div className='border border-[#E5E7EB] lg:p-2 rounded-md p-1'>
       <p className='font-bold lg:text-[16px] sm:text-[10px] text-black text-[7px]'>MỨC ĐỘ NGUY CƠ THEO KHU VỰC</p>

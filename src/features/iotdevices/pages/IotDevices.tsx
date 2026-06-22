@@ -1,8 +1,8 @@
 import { Button } from "antd";
 import { SearchBar } from "../../../components/ui/SearchBar";
-import { IotDeviceTable } from "../components/IotDeviceTable";
+import { DeviceTable } from "../components/IotDeviceTable";
 import { useIotDevice, type FilterStatus } from "../hooks/useIotDevice";
-import type { IotDevice } from "../types/iotdeviceType";
+import type { Device } from "../types/deviceType";
 
 import {
   Ban,
@@ -76,12 +76,12 @@ export const IotDevices = () => {
           <SearchBar value={search?? ""} placeholder="Tìm kiếm thiết bị" onChange={(e) => setSearch(e)}  />
      
       {!loading && (
-        <IotDeviceTable
+        <DeviceTable
           data={iotdevice || []}
-          onApprove={(device: IotDevice) =>
+          onApprove={(device: Device) =>
             handleApprove(device.id)
           }
-          onReject={(device: IotDevice) =>
+          onReject={(device: Device) =>
             showRejectConfirm(device.id)
           }
         />

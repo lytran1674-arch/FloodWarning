@@ -1,4 +1,4 @@
-import type { DeviceCounts, TabFilter } from "../../features/iotdevices/types/iotdeviceType";
+import type { DeviceCounts, TabFilter } from "../../features/iotdevices/types/deviceType";
 
 interface Tab{
     key:TabFilter

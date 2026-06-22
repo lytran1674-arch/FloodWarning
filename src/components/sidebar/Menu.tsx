@@ -1,7 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import type { CSSProperties } from "react";
 import { NavLink } from "react-router-dom";
-import { useState } from "react";
 
 type MenuItem = {
   text: string;
@@ -12,7 +11,7 @@ type MenuItem = {
 type Props = {
   items: MenuItem[];
   bgColor?: string;
-  textColor?: string;
+  color?: string;          // 👈 nhận hex trực tiếp
   openMenu: boolean;
   hover?: string;
   bgStyle?: CSSProperties;
@@ -21,13 +20,11 @@ type Props = {
 export const Menu = ({
   items,
   bgColor = "",
-  textColor = "text-black",
+  color = "#000000",       // 👈 mặc định đen
   openMenu,
   hover = "",
   bgStyle,
 }: Props) => {
-  const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
-
   return (
     <div
       style={bgStyle}
@@ -60,7 +57,7 @@ export const Menu = ({
                   font-medium
                   transition-all duration-300
                   cursor-pointer
-                  ${hover} ${textColor}
+                  ${hover}
                 `}
               >
                 {typeof Icon === "string" ? (
@@ -70,9 +67,9 @@ export const Menu = ({
                     className="w-6 sm:w-6 lg:w-8 object-contain"
                   />
                 ) : (
-                  <Icon className="w-6 sm:w-6 lg:w-8 text-current" />
+                  <Icon style={{ color }} className="w-6 sm:w-6 lg:w-8" />
                 )}
-                <span className={textColor}>{item.text}</span>
+                <span style={{ color }}>{item.text}</span>
               </NavLink>
             </li>
           );

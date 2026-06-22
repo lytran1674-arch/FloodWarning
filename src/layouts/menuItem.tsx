@@ -1,4 +1,4 @@
-import { Calendar, FileQuestion, Files, FileText, Home, List, ListMinus, MapPin, PieChart, Snowflake, User, Users, WavesArrowUp } from "lucide-react"
+import { Calendar, FileQuestion, Files, FileText, Home, MapPin, PieChart, Snowflake, User, Users, WavesArrowUp } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import MenuRescuer from "../assets/menurescuer.png"
 import type { CSSProperties } from "react"
@@ -46,7 +46,7 @@ export type RoleConfig={
     menu:MenuItem[]
     bgColor:string
     hover: string 
-    textColor:string
+    color:string
     bgStyle?:CSSProperties  
     children?:MenuItem[];
 }
@@ -56,7 +56,7 @@ export const roleConfig: Record<string,RoleConfig>={
         menu:adminMenu,
         bgColor:"bg-[#1E4DAF]",
         hover:"hover:bg-[#1D3178]",
-        textColor:"text-white"
+       color:"#ffffff"
     },
     RESCUER:{
         menu:rescuerMenu,
@@ -68,13 +68,13 @@ export const roleConfig: Record<string,RoleConfig>={
       backgroundRepeat: "no-repeat",
     },
         hover: "hover:bg-[#1160FD]",
-        textColor:"text-white"
+        color:"#ffffff"
     },
     CITIZEN:{
         menu:userMenu,
         bgColor:"bg-white",
         hover:"hover:bg-[#F5ACAC]",
-        textColor:"text-black",
+        color:"#f00000",
     },
 
 }
@@ -83,5 +83,5 @@ export const defaultConfig:RoleConfig={
     menu:[],
     bgColor:"bg-white",
         hover:"bg-white",
-        textColor:"text-black",
+        color:"#ff0000",
 }

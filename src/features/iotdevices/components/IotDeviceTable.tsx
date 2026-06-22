@@ -1,16 +1,16 @@
 
 import { Table } from "../../../components/ui/Table";
 import { usePagination } from "../../../hooks/usePagination";
-import type { IotDevice } from "../types/iotdeviceType";
+import type { Device } from "../types/deviceType";
 
 interface Props {
-  data?: IotDevice[];
-  onRowClick?: (iotdevice: IotDevice) => void;
-  onApprove?: (iotdevice: IotDevice) => void;
-  onReject?: (iotdevice: IotDevice) => void;
+  data?:Device[];
+  onRowClick?: (Device: Device) => void;
+  onApprove?: (Device: Device) => void;
+  onReject?: (Device: Device) => void;
 }
 
-export const IotDeviceTable = ({
+export const DeviceTable = ({
   data = [],
   onRowClick,
   onApprove,
@@ -49,23 +49,23 @@ export const IotDeviceTable = ({
   const columns = [
     {
       title: "MAC Address",
-      key: "device_code" as keyof IotDevice,
-      render: (item: IotDevice) => item.device_code || "--",
+      key: "device_code" as keyof Device,
+      render: (item: Device) => item.device_code || "--",
     },
     {
       title: "Tên thiết bị",
-      key: "ten_thietbi" as keyof IotDevice,
-      render: (item: IotDevice) => item.ten_thietbi || "--",
+      key: "ten_thietbi" as keyof Device,
+      render: (item: Device) => item.ten_thietbi || "--",
     },
     {
       title: "Khu vực",
-      key: "tenkhuvuc" as keyof IotDevice,
-      render: (item: IotDevice) => item.tenkhuvuc || "--",
+      key: "tenkhuvuc" as keyof Device,
+      render: (item: Device) => item.tenkhuvuc || "--",
     },
     {
       title: "Trạng thái",
-      key: "trang_thai" as keyof IotDevice,
-      render: (item: IotDevice) => (
+      key: "trang_thai" as keyof Device,
+      render: (item: Device) => (
         <span
           className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(
             item.trang_thai
@@ -77,19 +77,19 @@ export const IotDeviceTable = ({
     },
     {
       title: "Ngưỡng cảnh báo",
-      key: "nguong_canh_bao" as keyof IotDevice,
-      render: (item: IotDevice) =>
+      key: "nguong_canh_bao" as keyof Device,
+      render: (item: Device) =>
         item.nguong_canh_bao != null ? `${item.nguong_canh_bao} cm` : "--",
     },
     {
       title: "Đăng ký lúc",
-      key: "createdAt" as keyof IotDevice,
-      render: (item: IotDevice) => formatDate(item.createdAt),
+      key: "createdAt" as keyof Device,
+      render: (item: Device) => formatDate(item.createdAt),
     },
     {
       title: "Thao tác",
-      key: "id" as keyof IotDevice,
-      render: (item: IotDevice) => (
+      key: "id" as keyof Device,
+      render: (item: Device) => (
         <div className="flex gap-2">
           <button
             type="button"
@@ -135,7 +135,7 @@ export const IotDeviceTable = ({
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-      <Table<IotDevice>
+      <Table<Device>
         columns={columns}
         data={paginated}
         onRowClick={onRowClick}

@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import type { IotDevice } from "../types/iotdeviceType";
-import { iotdeviceService } from "../services/iotdeviceService";
+import type { Device } from "../types/deviceType";
+import { DeviceService } from "../services/iotdeviceService";
 import {Modal} from "antd";
 import { toast } from "react-toastify";
 
 
 export type FilterStatus= "ALL" | "ACTIVE" | "ERROR" | "PENDING" | "REJECT"
 export const useIotDevice = () => {
-  const [iotdevice, setIotDevice] = useState<IotDevice[]>([]);
+  const [iotdevice, setIotDevice] = useState<Device[]>([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter]=useState<FilterStatus>("ALL");
   const [search,setSearch]=useState("");
@@ -15,7 +15,7 @@ export const useIotDevice = () => {
   const fetchIotDevice = async () => {
     try {
       setLoading(true);
-      const data = await iotdeviceService.getIotDevices();
+      const data = await DeviceService.getDevices();
       setIotDevice(data);
     } catch (error) {
       console.log(error);
@@ -35,7 +35,7 @@ export const useIotDevice = () => {
     return
     }
    
-    await iotdeviceService.patchApprove(id, adminId);
+    await DeviceService.patchApprove(id, adminId);
     toast.success("Phê duyệt thiết bị thành công");
     fetchIotDevice(); 
   } catch (error: any) {
@@ -47,7 +47,7 @@ export const useIotDevice = () => {
 
 const handleReject = async (id: string) => {
   try {
-    await iotdeviceService.patchReject(id);
+    await DeviceService.patchReject(id);
     toast.success("Từ chối thiết bị thành công");
     fetchIotDevice();
   } catch (error: any) {
