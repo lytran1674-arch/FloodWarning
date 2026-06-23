@@ -66,14 +66,15 @@ export default function ResGroupPage() {
         <h1 className="text-2xl font-bold">
           Danh sách Group
         </h1>
-
-       <Button
-  onClick={() => setShowCreateModal(true)}
-  className="text-black bg-yellow-600 lg:text-xl sm:text-sm text-sm md:text-xl border border-yellow-400 h-10 p-4 rounded-md"
->
-  <Plus />
-  Thêm nhóm cứu hộ
-</Button>
+{isLeader && (
+  <Button
+    onClick={() => setShowCreateModal(true)}
+    className="text-black bg-yellow-600 lg:text-xl sm:text-sm text-sm md:text-xl border border-yellow-400 h-10 p-4 rounded-md"
+  >
+    <Plus />
+    Thêm nhóm cứu hộ
+  </Button>
+)}
       </div>
 
       {loading && (

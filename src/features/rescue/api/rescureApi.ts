@@ -73,16 +73,7 @@ async getTeamMembersWithoutGroup(id:string):Promise<ResCue[]>{
   const response=await axios.get(`${API_URL}/res-groups/team/${id}/available-members`)
   return  response.data.result;
 },
-async addMemberToGroup(userId:string):Promise<ResTeam>{
-  const response=await axios.put(`${API_URL}/res-groups/${userId}/members`)
-  return response.data.result
-}
-,
-async setGroupLeader(userId:string):Promise<ResTeam>{
-  const response=await axios.put(`${API_URL}/res-groups/${userId}/leader`)
-  return response.data.result
-}
-,
+
 async getTeamByArea(
   parent_id: string
 ): Promise<ResTeam[]> {
@@ -101,5 +92,32 @@ async getGroupByTeam(teamId:string):Promise<ResGroup[]>{
 async getMemberByGroup(groupId:string):Promise<ResCue[]>{
   const response=await axios.get(`${API_URL}/res-groups/${groupId}/members`)
    return response.data.result?.content ?? [];
-}
+},
+async addMemberToGroup(
+  groupId: string,
+  payload: {
+    userIds: string[];
+  }
+) {
+  const response = await axios.put(
+    `${API_URL}/res-groups/${groupId}/members`,
+    payload
+  );
+
+  return response.data.result;
+},
+
+async pickLeaderGroup(
+  groupId: string,
+  payload: {
+    userId: string;
+  }
+) {
+  const response = await axios.put(
+    `${API_URL}/res-groups/${groupId}/leader`,
+    payload
+  );
+
+  return response.data.result;
+},
 };

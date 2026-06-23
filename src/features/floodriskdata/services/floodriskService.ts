@@ -1,5 +1,5 @@
-import { FloodRiskDataApi } from "../api/floodriskdataApi";
-import type { FloodRiskData } from "../types/floodriskdataType";
+import { FloodRiskDataApi } from "../api/floodriskApi";
+import type { FloodRiskData } from "../types/floodriskType";
 
 
 export const FloodriskdataService = {

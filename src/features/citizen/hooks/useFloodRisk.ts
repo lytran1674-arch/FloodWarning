@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import type { FloodRiskData } from '../../floodriskdata/types/floodriskdataType'
-import { FloodriskdataService } from '../../floodriskdata/services/floodriskdataService';
+import type { FloodRiskData } from '../../floodriskdata/types/floodriskType'
+import { FloodriskdataService } from '../../floodriskdata/services/floodriskService';
 
 export const useFloodRisk = (areaId:string) => {
     const [floodrisk,setFloodRisk]=useState<FloodRiskData[]>([]);

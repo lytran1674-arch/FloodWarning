@@ -12,16 +12,22 @@ export const ResTeamPage = () => {
   const [selectedArea, setSelectedArea] = useState("");
   const [teams, setTeams] = useState<ResTeam[]>([]);
   const [loading, setLoading] = useState(false);
-  const navigate=useNavigate();
 
-  // Mặc định chọn An Giang
+  const navigate = useNavigate();
+
+  const user = JSON.parse(
+    localStorage.getItem("user") || "{}"
+  );
+
+  const role = user.role;
+  const userTeamId = user.teamId;
+
   useEffect(() => {
     if (areas.length > 0 && !selectedArea) {
-      const anGiang = areas.find(
-        (area) =>
-          area.tenkhuvuc
-            ?.toLowerCase()
-            .includes("an giang")
+      const anGiang = areas.find((area) =>
+        area.tenkhuvuc
+          ?.toLowerCase()
+          .includes("an giang")
       );
 
       if (anGiang) {
@@ -45,12 +51,23 @@ export const ResTeamPage = () => {
             selectedArea
           );
 
-        setTeams(
-          Array.isArray(result)
-            ? result
-            : []
-        );
+        const allTeams = Array.isArray(result)
+          ? result
+          : [];
 
+        // ADMIN thấy tất cả đội
+        if (role === "ADMIN") {
+          setTeams(allTeams);
+        }
+        // LEADER và MEMBER chỉ thấy đội của mình
+        else {
+          setTeams(
+            allTeams.filter(
+              (team) =>
+                team.id === userTeamId
+            )
+          );
+        }
       } catch (error) {
         console.error(error);
         setTeams([]);
@@ -60,29 +77,46 @@ export const ResTeamPage = () => {
     };
 
     fetchTeams();
-  }, [selectedArea]);
-  
- const handleOnClick=()=>{
+  }, [selectedArea, role, userTeamId]);
+
+  const handleCreateTeam = () => {
     navigate("/create-team");
- }
+  };
+
+  const handleTeamClick = (
+    teamId: string
+  ) => {
+    navigate(
+      `/res-teams/${teamId}/groups`
+    );
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-6">
       <div className="mx-auto max-w-7xl">
-        <div className="flex justify-between">
-        <div className="mb-6 ">
-          <h1 className="text-2xl font-bold">
-            Danh sách đội cứu hộ
-          </h1>
+        <div className="flex justify-between items-center">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold">
+              Danh sách đội cứu hộ
+            </h1>
 
-          <p className="text-slate-500">
-            Hiển thị các đội theo khu vực
-          </p>
+            <p className="text-slate-500">
+              Hiển thị các đội theo khu vực
+            </p>
+          </div>
+
+          {/* Chỉ ADMIN được thêm đội */}
+          {role === "ADMIN" && (
+            <Button
+              onClick={handleCreateTeam}
+              className="text-black bg-yellow-600 lg:text-xl md:text-xl text-sm border border-yellow-400 h-10 p-4 rounded-md"
+            >
+              <Plus />
+              Thêm đội cứu hộ
+            </Button>
+          )}
         </div>
-        <Button onClick={handleOnClick}
-        className="text-black bg-yellow-600 lg:text-xl sm:text-sm text-sm md:text-xl border border-yellow-400 h-10 p-4 rounded-md">
-            <Plus></Plus>Thêm đội cứu hộ</Button>
-        </div>
+
         <div className="mb-6 bg-white p-4 rounded-xl border">
           <label className="block mb-2 text-sm font-medium">
             Khu vực
@@ -91,7 +125,9 @@ export const ResTeamPage = () => {
           <select
             value={selectedArea}
             onChange={(e) =>
-              setSelectedArea(e.target.value)
+              setSelectedArea(
+                e.target.value
+              )
             }
             className="w-full md:w-96 border rounded-lg p-3"
           >
@@ -121,12 +157,10 @@ export const ResTeamPage = () => {
             {teams.map((team) => (
               <div
                 key={team.id}
-                  onClick={() =>
-    navigate(
-      `/res-teams/${team.id}/groups`
-    )
-  }
-                className="rounded-xl border bg-white p-4 shadow-sm"
+                onClick={() =>
+                  handleTeamClick(team.id)
+                }
+                className="rounded-xl border bg-white p-4 shadow-sm cursor-pointer hover:shadow-md transition"
               >
                 <div className="flex gap-3">
                   <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-700">
@@ -155,10 +189,6 @@ export const ResTeamPage = () => {
                       "Chưa phân công"}
                   </strong>
                 </p>
-
-                {/* <p className="text-sm mt-2 text-slate-500">
-                  📍 {team.areaName}
-                </p> */}
               </div>
             ))}
           </div>

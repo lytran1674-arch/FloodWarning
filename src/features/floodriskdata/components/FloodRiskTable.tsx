@@ -1,6 +1,6 @@
 import { Table } from "../../../components/ui/Table";
 import { usePagination } from "../../../hooks/usePagination";
-import type { FloodRiskData } from "../types/floodriskdataType";
+import type { FloodRiskData } from "../types/floodriskType";
 
 
 interface Props {

@@ -16,6 +16,7 @@ import ResGroupPage from "../features/rescue/pages/ResGroupPage"
 import GroupMembersPage from "../features/rescue/pages/groupMemberspage"
 import { CreateTeam } from "../features/rescue/pages/CreateTeam"
 import { HomeRescue } from "../features/rescue/pages/Home"
+import ALertHistoryPage from "@/features/floodriskdata/pages/ALertHistoryPage"
 
 
 
@@ -34,6 +35,7 @@ const AppRoutes = () => {
          {/*CITIZEN */}
         <Route path="/dashboard" element={<Home/>}/> 
          <Route path="/request-sos" element={<FormSOS />}/>
+        <Route path="/alerthistory" element={<ALertHistoryPage/>}/>
 
          <Route path="/rescue-management" element={<ResTeamPage/>}/>
         <Route path="/res-teams/:teamId/groups"element={<ResGroupPage />}/>

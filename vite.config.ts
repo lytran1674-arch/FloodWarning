@@ -11,11 +11,9 @@ const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(file
 export default defineConfig({
   plugins: [react()],
 
-  // ✅ thêm đây
-   resolve: {
+  resolve: {
     alias: { '@': path.resolve(__dirname, './src') }
   },
-  
 
   server: {
     watch: {
@@ -24,7 +22,7 @@ export default defineConfig({
     },
     proxy: {
       "/api": {
-        target: "https://api-lulut.io.vn, ",
+        target: "https://api-lulut.io.vn", // ✅ bỏ dấu phẩy và khoảng trắng thừa
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },

@@ -21,4 +21,7 @@ export const areaService = {
   async getById(areaId: string): Promise<Area> {
     return await areaApi.getByIdArea(areaId)
   },
+   async getPolygonById(areaId: string): Promise<{ geometry: GeoJSON.Geometry } | null> {
+    return await areaApi.getPolygonById(areaId)
+  },
 }

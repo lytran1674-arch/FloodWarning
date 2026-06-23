@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import type { FloodRiskData } from '../types/floodriskdataType'
-import { FloodRiskDataApi } from '../api/floodriskdataApi'
+import type { FloodRiskData } from '../types/floodriskType'
+import { FloodRiskDataApi } from '../api/floodriskApi'
 // import type { Option } from '../../../components/ui/Combobox'
 // import { areaService } from '../../areas/services/areaService'
 

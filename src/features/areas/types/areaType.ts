@@ -3,7 +3,7 @@ export interface Area{
     id: string
     tenkhuvuc: string
     mota: string
-    parent_id: string | null
+    parentId: string | null
     level: AreaLevel
     lat?: number
     lon?: number
