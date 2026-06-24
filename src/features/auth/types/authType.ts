@@ -37,6 +37,7 @@ export interface LoginResponse{
     areaId:string
     teamId?:string
     teamName?:string
+    sodt?:string
   }
 }
 

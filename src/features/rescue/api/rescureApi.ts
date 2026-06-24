@@ -1,5 +1,6 @@
-import axios from "axios";
-import type { ApiResPonse, CreateTeamRequest, ImportResult, ResCue, ResGroup, ResTeam } from "../types/rescueType";
+
+import type { CreateTeamRequest,  ResCue, ResGroup, ResTeam } from "../types/rescueType";
+import { axiosClient } from "@/api/axiosClient";
 
 
 const API_URL = "https://api-lulut.io.vn";
@@ -7,7 +8,7 @@ const API_URL = "https://api-lulut.io.vn";
 export const rescueApi = {
 createTeam: async (data: CreateTeamRequest) => {
   try {
-    const response = await axios.post(
+    const response = await axiosClient.post(
       `${API_URL}/res-team`,
       data
     );
@@ -23,9 +24,14 @@ async importRescuers(teamId: string, file: File) {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await axios.post(
+    const response = await axiosClient.post(
       `${API_URL}/res-team/${teamId}/import-rescuers`,
-      formData
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data", // ✅ override header cho request này
+        },
+      }
     );
 
     return response.data;
@@ -39,7 +45,7 @@ async PickLeader(
   teamId: string,
   userId: string
 ) {
-  const response = await axios.put(
+  const response = await axiosClient.put(
     `${API_URL}/res-team/${teamId}/leader`,
     {
       userId,
@@ -50,13 +56,13 @@ async PickLeader(
 }
 ,
 async ListLeaderArea(areaId:string):Promise<ResTeam[]>{
-  const response=await axios.get(`${API_URL}/res-team/leader/${areaId}`)
+  const response=await axiosClient.get(`${API_URL}/res-team/leader/${areaId}`)
   return response.data.result
 },
 
 async CreateGroup(teamId: string, data: any): Promise<ResGroup> {
   try {
-    const response = await axios.post(
+    const response = await axiosClient.post(
       `${API_URL}/res-groups/team/${teamId}`,
       data
     );
@@ -69,7 +75,7 @@ async CreateGroup(teamId: string, data: any): Promise<ResGroup> {
 
 ,
 async getTeamMembersWithoutGroup(id:string):Promise<ResCue[]>{
-  const response=await axios.get(`${API_URL}/res-groups/team/${id}/available-members`)
+  const response=await axiosClient.get(`${API_URL}/res-groups/team/${id}/available-members`)
   return  response.data.result;
 },
 
@@ -77,7 +83,7 @@ async getTeamByArea(
   parent_id: string
 ): Promise<ResTeam[]> {
 
-  const response = await axios.get(
+  const response = await axiosClient.get(
     `${API_URL}/res-team/area/${parent_id}`
   );
 
@@ -85,11 +91,11 @@ async getTeamByArea(
 }
 ,
 async getGroupByTeam(teamId:string):Promise<ResGroup[]>{
-  const response=await axios.get(`${API_URL}/res-team/${teamId}/group`)
+  const response=await axiosClient.get(`${API_URL}/res-team/${teamId}/group`)
    return response.data.result?.content ?? [];
 },
 async getMemberByGroup(groupId:string):Promise<ResCue[]>{
-  const response=await axios.get(`${API_URL}/res-groups/${groupId}/members`)
+  const response=await axiosClient.get(`${API_URL}/res-groups/${groupId}/members`)
    return response.data.result?.content ?? [];
 },
 async addMemberToGroup(
@@ -98,7 +104,7 @@ async addMemberToGroup(
     userIds: string[];
   }
 ) {
-  const response = await axios.put(
+  const response = await axiosClient.put(
     `${API_URL}/res-groups/${groupId}/members`,
     payload
   );
@@ -112,7 +118,7 @@ async pickLeaderGroup(
     userId: string;
   }
 ) {
-  const response = await axios.put(
+  const response = await axiosClient.put(
     `${API_URL}/res-groups/${groupId}/leader`,
     payload
   );

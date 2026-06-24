@@ -4,7 +4,7 @@ import { Area } from "../features/areas/pages/Area"
 
 import { WeatherDataPage } from "../features/weather-data/pages/WeatherDataPage"
 import { LoginPage } from "../features/auth/pages/LoginPage"
-import { FormSOS } from "../features/citizen/component/FormSOS"
+
 
 import { IotDevices } from "../features/iotdevices/pages/IotDevices"
 import { FloodRisk } from "../features/floodriskdata/pages/FloodRisk"
@@ -18,6 +18,9 @@ import { CreateTeam } from "../features/rescue/pages/CreateTeam"
 import { HomeRescue } from "../features/rescue/pages/Home"
 import ALertHistoryPage from "@/features/floodriskdata/pages/ALertHistoryPage"
 import { CreateGroupPage } from "@/features/rescue/pages/Creategrouppage"
+import { SOSRequest } from "@/features/sosrequest/components/FormSos"
+import { SentSos } from "@/features/sosrequest/components/SentSos"
+import { FormSOS } from "@/features/citizen/component/FormSOS"
 
 
 
@@ -26,6 +29,7 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage/>}/>
+        <Route path="/sos-request-anonymous" element={<FormSOS/>}/>
         <Route element={<MainLayout />}>          
           <Route path="/areas-management" element={<Area />} />
           <Route path="/weather-data/:area_id"/>
@@ -35,9 +39,9 @@ const AppRoutes = () => {
          <Route path="/flood-risk" element={<FloodRisk/>} />
          {/*CITIZEN */}
         <Route path="/dashboard" element={<Home/>}/> 
-         <Route path="/request-sos" element={<FormSOS />}/>
+         <Route path="/request-sos" element={<SOSRequest />}/>
         <Route path="/alerthistory" element={<ALertHistoryPage/>}/>
-
+        <Route path="/sent-request" element={<SentSos/>}/>
          <Route path="/rescue-management" element={<ResTeamPage/>}/>
         <Route path="/res-teams/:teamId/groups"element={<ResGroupPage />}/>
         <Route path="/res-groups/:groupId/members" element={<GroupMembersPage />}/>

@@ -1,6 +1,7 @@
 // features/map/services/mapService.ts
-import axios from "axios";
+
 import type { AreaPolygon, RiskLevel } from "../types/mapType";
+import { axiosClient } from "@/api/axiosClient";
 
 const API_URL = "https://api-lulut.io.vn";
 
@@ -9,7 +10,7 @@ const mapService = {
 
   getPolygonById: async (id: string): Promise<AreaPolygon> => {
 
-    const res = await axios.get(
+    const res = await axiosClient.get(
       `${API_URL}/area/polygon-by-id`,
       {
         params: { id }
@@ -29,7 +30,7 @@ const mapService = {
 
     try {
 
-      const res = await axios.get(
+      const res = await axiosClient.get(
         `${API_URL}/predict/list-by-area`,
         {
           params: { areaId }

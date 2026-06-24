@@ -1,10 +1,10 @@
-// hooks/usePolygon.ts
+import { axiosClient } from "@/api/axiosClient";
 import { useEffect, useState } from "react";
 
 export interface AreaPolygon {
   id: string;
   tenkhuvuc: string;
-  geometry: any; // MultiPolygon hoặc GeometryCollection
+  geometry: any;
 }
 
 export const useAreaPolygon = (areaId?: string) => {
@@ -20,15 +20,11 @@ export const useAreaPolygon = (areaId?: string) => {
     const fetchPolygon = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`https://api-lulut.io.vn/area/polygon-by-id?id=${areaId}`);
-
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-        const text = await res.text();
-        if (!text) throw new Error("Empty response");
-
-        const data = JSON.parse(text);
-        setPolygon(data);
+        // ✅ axiosClient trả về res.data trực tiếp, không cần .text() hay JSON.parse
+        const res = await axiosClient.get(`/area/polygon-by-id`, {
+          params: { id: areaId },
+        });
+        setPolygon(res.data ?? null);
       } catch (error) {
         console.log("Lỗi lấy polygon:", error);
         setPolygon(null);

@@ -6,7 +6,7 @@ import type { User } from "../types/authType";
 // ==============================
 interface AuthState {
   user: Partial<User> | null;
-  accessToken: string | null;
+  token: string | null;
   isAuthenticated: boolean;
 }
 
@@ -14,14 +14,14 @@ interface AuthState {
 // LOCAL STORAGE
 // ==============================
 const savedUser = localStorage.getItem("user");
-const savedToken = localStorage.getItem("accessToken");
+const savedToken = localStorage.getItem("token");
 
 // ==============================
 // INITIAL STATE
 // ==============================
 const initialState: AuthState = {
   user: savedUser ? JSON.parse(savedUser) : null,
-  accessToken: savedToken || null,
+  token: savedToken || null,
   isAuthenticated: !!savedToken,
 };
 
@@ -30,7 +30,7 @@ const initialState: AuthState = {
 // ==============================
 interface SetCredentialsPayload {
   user: Partial<User> | null;
-  accessToken: string;
+  token: string;
 }
 
 // ==============================
@@ -48,7 +48,7 @@ const authSlice = createSlice({
       action: PayloadAction<SetCredentialsPayload>
     ) => {
       state.user = action.payload.user;
-      state.accessToken = action.payload.accessToken;
+      state.token = action.payload.token;
       state.isAuthenticated = true;
 
       // lưu localStorage
@@ -59,7 +59,7 @@ const authSlice = createSlice({
 
       localStorage.setItem(
         "accessToken",
-        action.payload.accessToken
+        action.payload.token
       );
     },
 
@@ -84,7 +84,7 @@ const authSlice = createSlice({
     // LOGOUT
     logout: (state) => {
       state.user = null;
-      state.accessToken = null;
+      state.token = null;
       state.isAuthenticated = false;
 
       localStorage.removeItem("user");

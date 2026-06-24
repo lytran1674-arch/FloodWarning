@@ -1,4 +1,4 @@
-import { BellIcon, Calendar, FileQuestion, Files, FileText, Home, MapPin, PieChart, Snowflake, User, Users, WavesArrowUp } from "lucide-react"
+import { BellIcon, Calendar, FileQuestion, Files, FileText, Home, MapPin, PieChart, Send, Snowflake, User, Users, WavesArrowUp } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import MenuRescuer from "../assets/menurescuer.png"
 import type { CSSProperties } from "react"
@@ -38,7 +38,9 @@ export const rescuerMenu: MenuItem[] = [
 export const userMenu: MenuItem[] = [
   { text: "Trang chủ",         icon: Home,  path: "/dashboard"       },
   { text: "Gửi cứu hộ", icon: FileText, path: "/request-sos" },
+  {text:"Yêu cầu đã gửi", icon:Send, path:"/sent-request"},
   { text: "Dữ liệu dự đoán nguy cơ lũ lụt", icon:FileQuestion , path: "/prediction" },
+
   { text: "Danh sách yêu cầu đã gửi", icon: FileText, path: "/sent-request" },
   {text:"Lịch sử cảnh báo",icon:BellIcon, path:"/alerthistory"},
   { text: "Tài khoản", icon: User, path: "/account" },

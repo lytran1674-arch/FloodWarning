@@ -1,8 +1,14 @@
 import { LoginForm } from "../components/LoginForm";
 import SOSImage from "../../../assets/sos.png";
 import { Button } from "../../../components/ui/Button";
+import { useNavigate } from "react-router-dom";
 
 export const LoginPage = () => {
+  const navigate=useNavigate();
+
+  const handleOnClick=()=>{
+    navigate("/sos-request-anonymous")
+  }
   return (
     <div
       className="
@@ -19,6 +25,7 @@ export const LoginPage = () => {
       {/* Nút SOS */}
       <div className="flex justify-center -mb-8 sm:-mb-10 lg:mb-0 lg:mr-4">
         <Button
+        onClick={handleOnClick}
           imageSrc={SOSImage}
           className="
             w-44 h-44

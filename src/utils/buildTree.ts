@@ -6,7 +6,7 @@ export const buildTree = (
   parentId: string | null = null
 ): AreaTree[] => {
   return areas
-    .filter((item) => item.parent_id === parentId)
+    .filter((item) => item.parentId === parentId)
     .map((item) => ({
       ...item,
       children: buildTree(areas, item.id),  

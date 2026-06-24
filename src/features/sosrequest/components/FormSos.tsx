@@ -14,18 +14,21 @@ import {
 
 import { useAppSelector } from "../../../hooks/redux.hooks"
 import Counter from "../../../components/ui/Counter"
-import { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import ConditionSelector from "../../../components/ui/ConditionSelector"
 import { Input } from "../../../components/ui/Input"
 import GeoMap from "../../map/components/GeoMap"
 import { useGeoLocation } from "../../map/hooks/useGeolocation"
+import { toast } from "react-toastify"
+import type { SoSRequest } from "../types/sosType"
+import { useSoS } from "../hooks/useSoS"
 
-export const FormSOS = () => {
+export const SOSRequest = () => {
   const [count, setCount] = useState(1)
   const [selected, setSelected] = useState<string[]>([])
   const [phone, setPhone] = useState("")
   const [desc, setDesc] = useState("")
-
+  const {loading,createSoS}=useSoS();
   // redux user
   const user = useAppSelector(state => state.auth.user)
 
@@ -62,6 +65,53 @@ export const FormSOS = () => {
     )
   }
 
+  const handleSubmit=async(e:React.FormEvent<HTMLFormElement>)=>{
+    e.preventDefault()
+
+    if(!lat || !lon){
+        toast.warning("Vui lòng bật GPS");
+        return;
+    }
+    const payload: SoSRequest = {
+  sodt: phone,
+
+  clientDeviceId: crypto.randomUUID(),
+
+  victimCount: count,
+
+  lat,
+  lon,
+
+  accuracy: 10,
+
+  injured: selected.includes("Bị thương"),
+
+  trapped: selected.includes("Mắc kẹt"),
+
+  vulnerable: selected.includes(
+    "Có người già/trẻ em/mang thai"
+  ),
+
+  mota: desc,
+}
+   try {
+    await createSoS(payload)
+
+    toast.success("Gửi SOS thành công")
+
+    setCount(1)
+    setSelected([])
+    setDesc("")
+
+    if (!user) {
+      setPhone("")
+    }
+
+  } catch (err) {
+    console.error(err)
+  }
+  }
+
   const options = [
     "Bị thương",
     "Mắc kẹt",
@@ -71,7 +121,7 @@ export const FormSOS = () => {
 
   return (
     <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg border p-2 sm:p-6 lg:p-8 mt-5">
-      <form className="space-y-2">
+      <form className="space-y-2" onSubmit={handleSubmit}>
         <h2 className="text-center text-red-600 text-xl sm:text-2xl lg:text-3xl font-bold">
           CỨU HỘ KHẨN CẤP
         </h2>
@@ -215,6 +265,7 @@ export const FormSOS = () => {
         {/* Submit */}
         <button
           type="submit"
+          disabled={loading}
           className="w-full bg-red-600 text-white py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
         >
           <Phone />

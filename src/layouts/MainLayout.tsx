@@ -14,26 +14,24 @@ export const MainLayout = () => {
 
   const config = roleConfig[user?.role as string] ?? defaultConfig;
 
-
-
   return (
-    <div className="w-full min-h-screen">
-      <Header openMenu={openMenu} setOpenMenu={setOpenMenu} />
+    <AreaProvider> {/* ✅ wrap toàn bộ layout, không bị unmount khi navigate */}
+      <div className="w-full min-h-screen">
+        <Header openMenu={openMenu} setOpenMenu={setOpenMenu} />
 
-      <Menu
-        bgColor={config.bgColor}
-        hover={config.hover}
-        items={config.menu}
-        openMenu={openMenu}
-        bgStyle={config.bgStyle}
-        color={config.color}
-      />
+        <Menu
+          bgColor={config.bgColor}
+          hover={config.hover}
+          items={config.menu}
+          openMenu={openMenu}
+          bgStyle={config.bgStyle}
+          color={config.color}
+        />
 
-      <main className="pt-[60px] lg:ml-[240px] min-h-screen">
-         <AreaProvider>
-        <Outlet />
-        </AreaProvider>
-      </main>
-    </div>
+        <main className="pt-[60px] lg:ml-[240px] min-h-screen">
+          <Outlet />
+        </main>
+      </div>
+    </AreaProvider>
   );
 };

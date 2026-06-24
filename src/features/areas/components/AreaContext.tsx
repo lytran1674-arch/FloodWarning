@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { AreaTree } from "../types/areaType";
 import { areaService } from "../services/areaService";
+import { useAppSelector } from "../../../hooks/redux.hooks";
 
 type AreaContextType = {
   areas: AreaTree[];
@@ -13,6 +14,8 @@ const AreaContext = createContext<AreaContextType | null>(null);
 export const AreaProvider = ({ children }: { children: ReactNode }) => {
   const [areas, setAreas] = useState<AreaTree[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const token = useAppSelector(state => state.auth.token);
 
   const fetchAreas = async () => {
     try {
@@ -27,8 +30,12 @@ export const AreaProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    fetchAreas();
-  }, []);
+    if (token) {
+      fetchAreas();
+    } else {
+      setAreas([]); // clear khi logout
+    }
+  }, [token]);
 
   return (
     <AreaContext.Provider value={{ areas, loading, fetchAreas }}>
