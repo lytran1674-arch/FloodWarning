@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   Ship,
   Cross,
@@ -8,23 +8,16 @@ import {
 } from "lucide-react";
 import { rescueApi } from "../api/rescureApi";
 import { Button } from "../../../components/ui/Button";
-import { CreateGroupModal } from "../components/CreateGroupModal";
 
 export default function ResGroupPage() {
   const { teamId } = useParams();
-
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [groups, setGroups] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [showCreateModal, setShowCreateModal] =
-  useState(false);
 
-  // Lấy thông tin user đã login
-  const user = JSON.parse(
-    localStorage.getItem("user") || "{}"
-  );
-
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
   const isLeader = user?.isLeader === true;
 
   useEffect(() => {
@@ -33,10 +26,7 @@ export default function ResGroupPage() {
     const load = async () => {
       try {
         setLoading(true);
-
-        const data =
-          await rescueApi.getGroupByTeam(teamId);
-
+        const data = await rescueApi.getGroupByTeam(teamId);
         setGroups(data);
       } catch (error) {
         console.error(error);
@@ -46,11 +36,7 @@ export default function ResGroupPage() {
     };
 
     load();
-  }, [teamId]);
-
-  const handleCreateGroup = () => {
-    navigate("/create-group");
-  };
+  }, [teamId, location.key]);
 
   return (
     <div className="p-6">
@@ -63,24 +49,21 @@ export default function ResGroupPage() {
       </button>
 
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">
-          Danh sách Group
-        </h1>
-{isLeader && (
-  <Button
-    onClick={() => setShowCreateModal(true)}
-    className="text-black bg-yellow-600 lg:text-xl sm:text-sm text-sm md:text-xl border border-yellow-400 h-10 p-4 rounded-md"
-  >
-    <Plus />
-    Thêm nhóm cứu hộ
-  </Button>
-)}
+        <h1 className="text-2xl font-bold">Danh sách Group</h1>
+
+        {isLeader && (
+          <Button
+            onClick={() => navigate("/res-group/create")}
+            className="text-black bg-yellow-600 lg:text-xl sm:text-sm text-sm md:text-xl border border-yellow-400 h-10 p-4 rounded-md"
+          >
+            <Plus />
+            Thêm nhóm cứu hộ
+          </Button>
+        )}
       </div>
 
       {loading && (
-        <div className="py-10 text-center">
-          Đang tải dữ liệu...
-        </div>
+        <div className="py-10 text-center">Đang tải dữ liệu...</div>
       )}
 
       {!loading && groups.length === 0 && (
@@ -93,26 +76,11 @@ export default function ResGroupPage() {
         {groups.map((group) => (
           <div
             key={group.id}
-            onClick={() =>
-              navigate(
-                `/res-groups/${group.id}/members`
-              )
-            }
-            className="
-              cursor-pointer
-              rounded-xl
-              border
-              p-4
-              transition
-              hover:bg-slate-50
-              hover:shadow-sm
-            "
+            onClick={() => navigate(`/res-groups/${group.id}/members`)}
+            className="cursor-pointer rounded-xl border p-4 transition hover:bg-slate-50 hover:shadow-sm"
           >
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-lg">
-                {group.name}
-              </h3>
-
+              <h3 className="font-semibold text-lg">{group.name}</h3>
               <span className="rounded-full bg-slate-100 px-3 py-1 text-sm">
                 {group.status}
               </span>
@@ -125,7 +93,6 @@ export default function ResGroupPage() {
                   <span>Có xuồng</span>
                 </div>
               )}
-
               {group.hasMedical && (
                 <div className="flex items-center gap-1 text-red-600">
                   <Cross size={16} />
@@ -136,22 +103,6 @@ export default function ResGroupPage() {
           </div>
         ))}
       </div>
-      {showCreateModal && (
-  <CreateGroupModal
-    onClose={() => setShowCreateModal(false)}
-    onSuccess={async () => {
-      const data =
-        await rescueApi.getGroupByTeam(
-          teamId!
-        );
-
-      setGroups(data);
-
-      setShowCreateModal(false);
-    }}
-  />
-)}
     </div>
-    
   );
 }

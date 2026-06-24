@@ -58,6 +58,7 @@ export const CreateGroupModal = ({
         setLoading(true);
 
         const payload = {
+          teamId:teamId,
           name: groupName,
           status,
           hasBoat,
@@ -65,6 +66,8 @@ export const CreateGroupModal = ({
           notes,
         };
 
+        // rescueApi.ts hoặc handleCreateGroup
+console.log("Payload gửi lên:", JSON.stringify(payload, null, 2));
         await rescueApi.CreateGroup(
           teamId,
           payload
@@ -82,6 +85,7 @@ export const CreateGroupModal = ({
         setLoading(false);
       }
     };
+    
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">

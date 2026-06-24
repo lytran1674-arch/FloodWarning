@@ -54,18 +54,17 @@ async ListLeaderArea(areaId:string):Promise<ResTeam[]>{
   return response.data.result
 },
 
-async CreateGroup(
-  teamId: string,
-  data: any
-): Promise<ResGroup> {
-
-  const response = await axios.post(
-    `${API_URL}/res-groups/team/${teamId}`,
-    data
-  );
-
-  return response.data.result;
-
+async CreateGroup(teamId: string, data: any): Promise<ResGroup> {
+  try {
+    const response = await axios.post(
+      `${API_URL}/res-groups/team/${teamId}`,
+      data
+    );
+    return response.data.result;
+  } catch (error: any) {
+    console.log("Error response:", error.response?.data); // ← thêm dòng này
+    throw error;
+  }
 }
 
 ,
@@ -120,4 +119,5 @@ async pickLeaderGroup(
 
   return response.data.result;
 },
+
 };

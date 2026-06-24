@@ -17,6 +17,7 @@ import GroupMembersPage from "../features/rescue/pages/groupMemberspage"
 import { CreateTeam } from "../features/rescue/pages/CreateTeam"
 import { HomeRescue } from "../features/rescue/pages/Home"
 import ALertHistoryPage from "@/features/floodriskdata/pages/ALertHistoryPage"
+import { CreateGroupPage } from "@/features/rescue/pages/Creategrouppage"
 
 
 
@@ -41,7 +42,7 @@ const AppRoutes = () => {
         <Route path="/res-teams/:teamId/groups"element={<ResGroupPage />}/>
         <Route path="/res-groups/:groupId/members" element={<GroupMembersPage />}/>
         <Route path="/create-team" element={<CreateTeam />}/>
-
+        <Route path="/res-group/create" element={<CreateGroupPage />} />
         <Route path="/team-management" element={<HomeRescue />}/>
         
         </Route>
