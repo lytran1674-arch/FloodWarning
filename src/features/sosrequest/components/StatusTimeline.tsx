@@ -1,0 +1,110 @@
+interface Step {
+  key: string
+  label: string
+  description: string
+  activeColor: string
+  inactiveColor: string
+  icon: React.ReactNode
+}
+
+const CheckIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+)
+
+const AlarmIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+    <circle cx="12" cy="13" r="7" /><polyline points="12 10 12 13 14 15" />
+    <line x1="7" y1="4" x2="3" y2="8" /><line x1="17" y1="4" x2="21" y2="8" />
+  </svg>
+)
+
+const DotsIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+    <circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" />
+  </svg>
+)
+
+const steps: Step[] = [
+  {
+    key: 'pending',
+    label: 'Pending',
+    description: 'Đang chờ tiếp nhận',
+    activeColor: 'bg-green-500',
+    inactiveColor: 'bg-gray-400',
+    icon: <AlarmIcon />,
+  },
+  {
+    key: 'processing',
+    label: 'Processing',
+    description: 'Đang được xử lý',
+    activeColor: 'bg-blue-500',
+    inactiveColor: 'bg-blue-500',
+    icon: <DotsIcon />,
+  },
+  {
+    key: 'done',
+    label: 'Done',
+    description: 'Hoàn thành',
+    activeColor: 'bg-gray-600',
+    inactiveColor: 'bg-gray-600',
+    icon: <CheckIcon />,
+  },
+]
+
+export default function StatusTimeline() {
+  const currentStep = 0 // PENDING is current
+
+  return (
+    <div className="flex flex-col h-full">
+      <h2 className="text-lg font-bold text-gray-900 mb-4">Trạng thái yêu cầu</h2>
+
+      <div className="flex flex-col flex-1">
+        {steps.map((step, idx) => {
+          const isActive = idx === currentStep
+          const isLast = idx === steps.length - 1
+
+          return (
+            <div key={step.key} className="flex gap-3">
+              {/* Left: icon + connector */}
+              <div className="flex flex-col items-center">
+                <div className={`w-11 h-11 rounded-full flex items-center justify-center text-white flex-shrink-0 ${step.inactiveColor}`}>
+                  {step.icon}
+                </div>
+                {!isLast && (
+                  <div className={`w-0.5 flex-1 my-1 ${idx < currentStep ? 'bg-green-500' : 'bg-gray-300'}`} style={{ minHeight: 28 }} />
+                )}
+              </div>
+
+              {/* Right: card */}
+              <div className={`flex-1 ${!isLast ? 'pb-4' : ''}`}>
+                <div className={`rounded-xl px-3 py-2.5 border ${isActive ? 'bg-green-50 border-green-300' : 'bg-white border-gray-200'}`}>
+                  <div className="flex items-center justify-between">
+                    <span className={`font-semibold text-sm ${isActive ? 'text-green-600' : 'text-gray-700'}`}>
+                      {step.label}
+                    </span>
+                    {isActive && (
+                      <span className="text-xs bg-white border border-green-300 text-green-600 rounded-full px-2 py-0.5">
+                        Hiện tại
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-0.5">{step.description}</p>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Info box */}
+      <div className="flex items-start gap-2 bg-blue-50 rounded-lg px-3 py-2.5 mt-3">
+        <span className="text-blue-500 text-sm mt-0.5">ℹ️</span>
+        <p className="text-xs text-blue-700 leading-relaxed">
+          Bạn sẽ nhận được thông báo nếu có thông tin mới.
+        </p>
+      </div>
+    </div>
+  )
+}

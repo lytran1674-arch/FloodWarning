@@ -19,8 +19,12 @@ import { HomeRescue } from "../features/rescue/pages/Home"
 import ALertHistoryPage from "@/features/floodriskdata/pages/ALertHistoryPage"
 import { CreateGroupPage } from "@/features/rescue/pages/Creategrouppage"
 import { SOSRequest } from "@/features/sosrequest/components/FormSos"
-import { SentSos } from "@/features/sosrequest/components/SentSos"
 import { FormSOS } from "@/features/citizen/component/FormSOS"
+import {RequestListPage} from "@/features/sosrequest/pages/RequestListPage"
+import SuccessPage from "@/features/sosrequest/pages/SuccessPage"
+import { SOSASSGINPAGE} from "@/features/rescue/pages/SOSASSGINPAGE"
+
+
 
 
 
@@ -41,14 +45,15 @@ const AppRoutes = () => {
         <Route path="/dashboard" element={<Home/>}/> 
          <Route path="/request-sos" element={<SOSRequest />}/>
         <Route path="/alerthistory" element={<ALertHistoryPage/>}/>
-        <Route path="/sent-request" element={<SentSos/>}/>
          <Route path="/rescue-management" element={<ResTeamPage/>}/>
         <Route path="/res-teams/:teamId/groups"element={<ResGroupPage />}/>
         <Route path="/res-groups/:groupId/members" element={<GroupMembersPage />}/>
         <Route path="/create-team" element={<CreateTeam />}/>
         <Route path="/res-group/create" element={<CreateGroupPage />} />
         <Route path="/team-management" element={<HomeRescue />}/>
-        
+        <Route path="/sent-request" element={<RequestListPage/>}/>
+        <Route path="/success" element={<SuccessPage />} />
+        <Route path="/cuuho" element={<SOSASSGINPAGE/>}/>
         </Route>
       </Routes>
 

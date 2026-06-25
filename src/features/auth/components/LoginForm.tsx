@@ -48,7 +48,7 @@ export const LoginForm: React.FC = () => {
       // ✅ Role trả về chữ HOA theo API
       switch (role) {
         case "ADMIN":   navigate("/areas-management"); break
-        case "RESCUER": navigate("/team-management");             break
+        case "RESCUER": navigate("/cuuho");             break
         case "CITIZEN": navigate("/dashboard");             break
         default:        navigate("/")
       }

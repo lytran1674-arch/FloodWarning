@@ -26,8 +26,8 @@ export const adminMenu: MenuItem[] = [
 ]
 
 export const rescuerMenu: MenuItem[] = [
-  {text: "RESCUER     Lực Lượng Cứu Hộ", icon: IconRescuer,path:"/home" },
-  { text: "Trang chủ",              icon: PieChart, path: "/home"       },
+  {text: "RESCUER     Lực Lượng Cứu Hộ", icon: IconRescuer,path:"/cuuho" },
+  { text: "Trang chủ",              icon: PieChart, path: "/cuuho"       },
   { text: "Danh sách yêu cầu",      icon: Files,    path: "/requests-list" },
   { text: "Yêu cầu đã nhận",      icon: Files,    path: "/received-requests" },
   { text: "Tài khoản ",      icon: User,    path: "/account" },
@@ -41,7 +41,6 @@ export const userMenu: MenuItem[] = [
   {text:"Yêu cầu đã gửi", icon:Send, path:"/sent-request"},
   { text: "Dữ liệu dự đoán nguy cơ lũ lụt", icon:FileQuestion , path: "/prediction" },
 
-  { text: "Danh sách yêu cầu đã gửi", icon: FileText, path: "/sent-request" },
   {text:"Lịch sử cảnh báo",icon:BellIcon, path:"/alerthistory"},
   { text: "Tài khoản", icon: User, path: "/account" },
 ]

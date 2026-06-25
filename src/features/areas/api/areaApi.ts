@@ -33,7 +33,7 @@ export const areaApi = {
 
   async getPolygonById(id: string): Promise<{ geometry: Polygon | MultiPolygon } | null> {
     // fetch gốc không có interceptor, cần gắn token thủ công
-    const token = localStorage.getItem("accessToken")
+    const token = localStorage.getItem("token")
     const res = await fetch(`https://api-lulut.io.vn${API_URL}/polygon-by-id?id=${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,

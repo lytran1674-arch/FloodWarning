@@ -10,23 +10,34 @@ import {
   PhoneCall,
   FileText,
   Phone,
+  MapPin,
 } from "lucide-react"
 
 import { useAppSelector } from "../../../hooks/redux.hooks"
 import Counter from "../../../components/ui/Counter"
-import { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import ConditionSelector from "../../../components/ui/ConditionSelector"
 import { Input } from "../../../components/ui/Input"
 import GeoMap from "../../map/components/GeoMap"
 import { useGeoLocation } from "../../map/hooks/useGeolocation"
+import { toast } from "react-toastify"
+import type { SoSRequest } from "../../sosrequest/types/sosType"
+import { useSoS } from "../../sosrequest/hooks/useSoS"
+import { useNavigate } from "react-router-dom"
 
 export const FormSOS = () => {
+
+  const navigate = useNavigate()
+
   const [count, setCount] = useState(1)
   const [selected, setSelected] = useState<string[]>([])
   const [phone, setPhone] = useState("")
   const [desc, setDesc] = useState("")
+  const [manualLat, setManualLat] = useState("")
+  const [manualLon, setManualLon] = useState("")
 
-  // redux user
+  const { loading, createSoS, updateSoS } = useSoS()
+
   const user = useAppSelector(state => state.auth.user)
 
   const {
@@ -37,7 +48,7 @@ export const FormSOS = () => {
     getLocation,
   } = useGeoLocation()
 
-  // chống gọi GPS 2 lần
+  // chống gọi GPS nhiều lần
   const fetchedRef = useRef<boolean>(false)
 
   useEffect(() => {
@@ -45,14 +56,34 @@ export const FormSOS = () => {
 
     fetchedRef.current = true
     getLocation()
+
   }, [getLocation])
 
-  // auto fill phone khi login
+  // autofill phone
   useEffect(() => {
     if (user?.sodt) {
       setPhone(user.sodt)
     }
   }, [user])
+
+  // ưu tiên tọa độ thủ công
+  const parsedManualLat =
+    manualLat !== "" ? parseFloat(manualLat) : null
+
+  const parsedManualLon =
+    manualLon !== "" ? parseFloat(manualLon) : null
+
+  const isManualMode =
+    parsedManualLat !== null &&
+    parsedManualLon !== null &&
+    !isNaN(parsedManualLat) &&
+    !isNaN(parsedManualLon)
+
+  const effectiveLat =
+    isManualMode ? parsedManualLat : lat
+
+  const effectiveLon =
+    isManualMode ? parsedManualLon : lon
 
   const handleToggle = (value: string) => {
     setSelected(prev =>
@@ -60,6 +91,161 @@ export const FormSOS = () => {
         ? prev.filter(v => v !== value)
         : [...prev, value]
     )
+  }
+
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
+
+    e.preventDefault()
+
+    if (!effectiveLat || !effectiveLon) {
+
+      toast.warning(
+        isManualMode
+          ? "Tọa độ thủ công không hợp lệ"
+          : "Vui lòng bật GPS hoặc nhập tọa độ thủ công"
+      )
+
+      return
+    }
+
+    // deviceId cố định
+    let deviceId =
+      localStorage.getItem("deviceId")
+
+    if (!deviceId) {
+
+      deviceId = crypto.randomUUID()
+
+      localStorage.setItem(
+        "deviceId",
+        deviceId
+      )
+    }
+
+    const payload: SoSRequest = {
+
+      sodt: phone,
+
+      clientDeviceId: deviceId,
+
+      victimCount: count,
+
+      lat: effectiveLat,
+      lon: effectiveLon,
+
+      accuracy: isManualMode ? 0 : 10,
+
+      injured: selected.includes(
+        "Bị thương"
+      ),
+
+      trapped: selected.includes(
+        "Mắc kẹt"
+      ),
+
+      vulnerable: selected.includes(
+        "Có người già/trẻ em/mang thai"
+      ),
+
+      mota: desc,
+    }
+
+    try {
+
+      // =========================
+      // 1. TẠO SOS
+      // =========================
+      const response =
+        await createSoS(payload)
+
+      console.log(
+        "SOS RESPONSE:",
+        response
+      )
+
+      // =========================
+      // 2. NẾU ĐÃ TỒN TẠI -> UPDATE
+      // =========================
+      if (response?.alreadyExists) {
+
+        // backend đang trả lại id SOS cũ
+        const sosId = response.id
+
+        if (!sosId) {
+
+          toast.error(
+            "Không tìm thấy ID SOS để cập nhật"
+          )
+
+          return
+        }
+
+        // gọi update
+        await updateSoS(
+          sosId,
+          payload
+        )
+
+        toast.success(
+          "Cập nhật yêu cầu SOS thành công"
+        )
+
+        navigate(
+          "/sent-request",
+          {
+            state: {
+              updated: true,
+            },
+          }
+        )
+
+        return
+      }
+
+      // =========================
+      // 3. SOS MỚI
+      // =========================
+      toast.success(
+        "Gửi SOS thành công"
+      )
+
+      // reset form
+      setCount(1)
+      setSelected([])
+      setDesc("")
+      setManualLat("")
+      setManualLon("")
+
+      if (!user) {
+        setPhone("")
+      }
+
+      navigate("/success")
+
+    } catch (err: any) {
+
+      console.error(
+        "CREATE / UPDATE SOS ERROR:",
+        err
+      )
+
+      // backend có thể trả 401 nếu chưa login
+      if (err?.response?.status === 401) {
+
+        toast.error(
+          "Phiên đăng nhập đã hết hạn"
+        )
+
+        return
+      }
+
+      toast.error(
+        err?.response?.data?.message ||
+        "Gửi yêu cầu SOS thất bại"
+      )
+    }
   }
 
   const options = [
@@ -70,103 +256,140 @@ export const FormSOS = () => {
   ]
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg border p-2 sm:p-6 lg:p-8 mt-5">
-      <form className="space-y-2">
-        <h2 className="text-center text-red-600 text-xl sm:text-2xl lg:text-3xl font-bold">
-          CỨU HỘ KHẨN CẤP
+    <div className="w-full max-w-lg mx-auto bg-white rounded-xl shadow-md border mt-4 px-4 py-4 sm:px-5 sm:py-5">
+
+      <form
+        className="space-y-4"
+        onSubmit={handleSubmit}
+      >
+
+        <h2 className="text-center text-red-600 text-base sm:text-lg font-bold tracking-wide">
+          🚨 CỨU HỘ KHẨN CẤP
         </h2>
 
-        {/* Vị trí */}
-        <section className="space-y-3">
+        {/* VỊ TRÍ */}
+        <section className="space-y-2">
+
           <Label
             icon={Map}
-            className="text-red-600 font-semibold text-lg lg:text-xl sm:text-sm"
+            className="text-red-600 font-semibold text-sm"
           >
             Vị trí
           </Label>
 
-          <div className="relative h-56 rounded-xl overflow-hidden border border-slate-200">
-            {locLoading && (
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-50/80 gap-2">
-                <Loader className="w-6 h-6 animate-spin text-red-500" />
-                <span className="text-sm text-slate-500">
-                  Đang xác định vị trí...
-                </span>
+          <div className="grid grid-cols-2 gap-2">
+
+            <div className="space-y-0.5">
+              <label className="text-[11px] text-slate-400">
+                Latitude
+              </label>
+
+              <input
+                type="number"
+                step="0.00001"
+                value={manualLat}
+                onChange={e =>
+                  setManualLat(e.target.value)
+                }
+                className="w-full border rounded-lg px-2.5 py-1.5 text-xs"
+              />
+            </div>
+
+            <div className="space-y-0.5">
+              <label className="text-[11px] text-slate-400">
+                Longitude
+              </label>
+
+              <input
+                type="number"
+                step="0.00001"
+                value={manualLon}
+                onChange={e =>
+                  setManualLon(e.target.value)
+                }
+                className="w-full border rounded-lg px-2.5 py-1.5 text-xs"
+              />
+            </div>
+
+          </div>
+
+          <div className="relative h-40 rounded-lg overflow-hidden border">
+
+            {locLoading && !isManualMode && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80">
+                <Loader className="w-5 h-5 animate-spin text-red-500" />
               </div>
             )}
 
             <GeoMap
-              currentLat={lat}
-              currentLon={lon}
+              currentLat={effectiveLat}
+              currentLon={effectiveLon}
               showCurrentPin={true}
               centerOnUser={true}
               className="w-full h-full"
             />
+
           </div>
 
           <button
             type="button"
             onClick={getLocation}
             disabled={locLoading}
-            className={`
-              w-full flex items-center justify-center gap-2 py-2.5 rounded-xl
-              border-2 text-sm font-medium transition-all duration-200
-              ${
-                locLoading
-                  ? "border-blue-200 text-blue-400 bg-blue-50 cursor-not-allowed"
-                  : lat
-                  ? "border-green-400 text-green-600 bg-green-50 hover:bg-green-100"
-                  : "border-red-300 text-red-500 bg-red-50 hover:bg-red-100"
-              }
-            `}
+            className="w-full py-2 rounded-lg border text-xs"
           >
+
             {locLoading ? (
               <>
-                <Loader className="w-4 h-4 animate-spin" />
-                Đang lấy vị trí...
-              </>
-            ) : lat ? (
-              <>
-                <Navigation className="w-4 h-4" />
-                {lat.toFixed(5)}, {lon?.toFixed(5)} · Nhấn để cập nhật
+                <Loader className="w-3.5 h-3.5 animate-spin inline mr-1" />
+                Đang lấy GPS...
               </>
             ) : (
               <>
-                <Navigation className="w-4 h-4" />
-                Nhấn để lấy vị trí GPS của bạn
+                <Navigation className="w-3.5 h-3.5 inline mr-1" />
+                Lấy vị trí GPS
               </>
             )}
+
           </button>
 
           {locError && (
-            <p className="text-xs text-red-500 flex items-center gap-1">
-              <TriangleAlert className="w-3 h-3" />
+            <p className="text-[11px] text-red-500">
               {locError}
             </p>
           )}
+
         </section>
 
-        {/* Số người */}
-        <section className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Users className="text-red-600 size-6" />
-            <p className="text-red-600 font-semibold text-lg lg:text-xl sm:text-sm">
+        {/* SỐ NGƯỜI */}
+        <section className="space-y-2">
+
+          <div className="flex items-center gap-1.5">
+            <Users className="text-red-600 w-4 h-4" />
+            <p className="text-red-600 font-semibold text-sm">
               Số người cần cứu
             </p>
           </div>
 
           <Counter
             value={count}
-            onDecrease={() => setCount(prev => Math.max(1, prev - 1))}
-            onIncrease={() => setCount(prev => prev + 1)}
+            onDecrease={() =>
+              setCount(prev =>
+                Math.max(1, prev - 1)
+              )
+            }
+            onIncrease={() =>
+              setCount(prev => prev + 1)
+            }
           />
+
         </section>
 
-        {/* Tình trạng */}
-        <section className="space-y-3">
-          <div className="flex items-center gap-2">
-            <TriangleAlert className="text-red-600 lg:size-6" />
-            <p className="text-red-600 font-semibold text-lg lg:text-xl sm:text-sm">
+        {/* TÌNH TRẠNG */}
+        <section className="space-y-2">
+
+          <div className="flex items-center gap-1.5">
+            <TriangleAlert className="text-red-600 w-4 h-4" />
+            <p className="text-red-600 font-semibold text-sm">
               Tình trạng
             </p>
           </div>
@@ -176,13 +399,15 @@ export const FormSOS = () => {
             values={selected}
             onToggle={handleToggle}
           />
+
         </section>
 
-        {/* SĐT */}
-        <section className="space-y-3">
+        {/* PHONE */}
+        <section className="space-y-2">
+
           <Label
             icon={PhoneCall}
-            className="text-red-600 font-semibold text-lg sm:text-sm lg:text-xl"
+            className="text-red-600 font-semibold text-sm"
           >
             Số điện thoại
           </Label>
@@ -190,37 +415,52 @@ export const FormSOS = () => {
           <Input
             value={phone}
             onChange={setPhone}
-            placeholder="Nhập số điện thoại liên hệ"
-            className="w-full"
+            placeholder="Nhập số điện thoại"
+            className="w-full text-sm"
           />
+
         </section>
 
-        {/* Mô tả */}
-        <section className="space-y-3">
+        {/* MÔ TẢ */}
+        <section className="space-y-2">
+
           <Label
             icon={FileText}
-            className="text-red-600 font-semibold text-lg sm:text-sm lg:text-xl"
+            className="text-red-600 font-semibold text-sm"
           >
             Mô tả tình trạng
           </Label>
 
           <textarea
             value={desc}
-            onChange={e => setDesc(e.target.value)}
-            className="w-full border rounded-xl p-3 min-h-32 resize-none outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 transition-all"
-            placeholder="Mô tả tình trạng hiện tại..."
+            onChange={e =>
+              setDesc(e.target.value)
+            }
+            className="w-full border rounded-lg p-2.5 text-sm min-h-[80px]"
+            placeholder="Mô tả..."
           />
+
         </section>
 
-        {/* Submit */}
+        {/* SUBMIT */}
         <button
           type="submit"
-          className="w-full bg-red-600 text-white py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+          disabled={loading}
+          className="w-full bg-red-600 text-white py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2"
         >
-          <Phone />
+
+          {loading ? (
+            <Loader className="w-4 h-4 animate-spin" />
+          ) : (
+            <Phone className="w-4 h-4" />
+          )}
+
           GỬI SOS
+
         </button>
+
       </form>
+
     </div>
   )
 }

@@ -10,8 +10,9 @@ import {
   PhoneCall,
   FileText,
   Phone,
+  MapPin,
 } from "lucide-react"
-
+import { useNavigate } from "react-router-dom"
 import { useAppSelector } from "../../../hooks/redux.hooks"
 import Counter from "../../../components/ui/Counter"
 import React, { useState, useEffect, useRef } from "react"
@@ -23,12 +24,20 @@ import { toast } from "react-toastify"
 import type { SoSRequest } from "../types/sosType"
 import { useSoS } from "../hooks/useSoS"
 
-export const SOSRequest = () => {
+interface SOSRequestProps {
+  onSuccess?: () => void; // thêm
+}
+
+export const SOSRequest = ({ onSuccess }: SOSRequestProps) => {
   const [count, setCount] = useState(1)
   const [selected, setSelected] = useState<string[]>([])
   const [phone, setPhone] = useState("")
   const [desc, setDesc] = useState("")
-  const {loading,createSoS}=useSoS();
+  const [manualLat, setManualLat] = useState("")
+  const [manualLon, setManualLon] = useState("")
+
+  const { loading, createSoS,updateSoS } = useSoS()
+
   // redux user
   const user = useAppSelector(state => state.auth.user)
 
@@ -45,7 +54,6 @@ export const SOSRequest = () => {
 
   useEffect(() => {
     if (fetchedRef.current) return
-
     fetchedRef.current = true
     getLocation()
   }, [getLocation])
@@ -57,6 +65,19 @@ export const SOSRequest = () => {
     }
   }, [user])
 
+  // Logic ưu tiên: thủ công > GPS
+  const parsedManualLat = manualLat !== "" ? parseFloat(manualLat) : null
+  const parsedManualLon = manualLon !== "" ? parseFloat(manualLon) : null
+
+  const isManualMode =
+    parsedManualLat !== null &&
+    parsedManualLon !== null &&
+    !isNaN(parsedManualLat) &&
+    !isNaN(parsedManualLon)
+
+  const effectiveLat = isManualMode ? parsedManualLat : lat
+  const effectiveLon = isManualMode ? parsedManualLon : lon
+
   const handleToggle = (value: string) => {
     setSelected(prev =>
       prev.includes(value)
@@ -65,53 +86,117 @@ export const SOSRequest = () => {
     )
   }
 
-  const handleSubmit=async(e:React.FormEvent<HTMLFormElement>)=>{
-    e.preventDefault()
+const navigate = useNavigate()
 
-    if(!lat || !lon){
-        toast.warning("Vui lòng bật GPS");
-        return;
-    }
-    const payload: SoSRequest = {
-  sodt: phone,
+const handleSubmit = async (
+  e: React.FormEvent<HTMLFormElement>
+) => {
 
-  clientDeviceId: crypto.randomUUID(),
+  e.preventDefault()
 
-  victimCount: count,
+  if (!effectiveLat || !effectiveLon) {
 
-  lat,
-  lon,
+    toast.warning(
+      isManualMode
+        ? "Tọa độ thủ công không hợp lệ"
+        : "Vui lòng bật GPS hoặc nhập tọa độ thủ công"
+    )
 
-  accuracy: 10,
+    return
+  }
 
-  injured: selected.includes("Bị thương"),
+  // ✅ deviceId cố định
+  let deviceId =
+    localStorage.getItem("deviceId")
 
-  trapped: selected.includes("Mắc kẹt"),
+  if (!deviceId) {
 
-  vulnerable: selected.includes(
-    "Có người già/trẻ em/mang thai"
-  ),
+    deviceId = crypto.randomUUID()
 
-  mota: desc,
-}
-   try {
+    localStorage.setItem(
+      "deviceId",
+      deviceId
+    )
+  }
+
+  const payload: SoSRequest = {
+
+    sodt: phone,
+
+    clientDeviceId: deviceId,
+
+    victimCount: count,
+
+    lat: effectiveLat,
+    lon: effectiveLon,
+
+    accuracy: isManualMode ? 0 : 10,
+
+    injured: selected.includes(
+      "Bị thương"
+    ),
+
+    trapped: selected.includes(
+      "Mắc kẹt"
+    ),
+
+    vulnerable: selected.includes(
+      "Có người già/trẻ em/mang thai"
+    ),
+
+    mota: desc,
+  }
+try {
+
+  const response =
     await createSoS(payload)
 
-    toast.success("Gửi SOS thành công")
+  console.log(
+    "SOS RESPONSE:",
+    response
+  )
 
-    setCount(1)
-    setSelected([])
-    setDesc("")
+  // ✅ nếu đã tồn tại SOS
+  if (response?.alreadyExists) {
 
-    if (!user) {
-      setPhone("")
-    }
+    // lấy id SOS cũ
+    const sosId = response.id
 
-  } catch (err) {
-    console.error(err)
+    // gọi API update
+    await updateSoS(
+      sosId,
+      payload
+    )
+
+    toast.success(
+      "Đã cập nhật yêu cầu SOS"
+    )
+
+    navigate("/sent-request", {
+      state: {
+        updated: true,
+      },
+    })
+
+    return
   }
-  }
 
+  // ✅ SOS mới
+  toast.success(
+    "Gửi SOS thành công"
+  )
+
+  navigate("/success")
+
+} catch (err) {
+
+  console.error(err)
+
+  toast.error(
+    "Gửi SOS thất bại"
+  )
+}
+}
   const options = [
     "Bị thương",
     "Mắc kẹt",
@@ -135,8 +220,77 @@ export const SOSRequest = () => {
             Vị trí
           </Label>
 
+          {/* Nhập tọa độ thủ công */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <MapPin className="text-slate-400 w-4 h-4" />
+              <span className="text-sm text-slate-500 font-medium">
+                Nhập tọa độ thủ công (tuỳ chọn)
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-xs text-slate-400">
+                  Latitude (vĩ độ)
+                </label>
+                <input
+                  type="number"
+                  step="0.00001"
+                  value={manualLat}
+                  onChange={e => setManualLat(e.target.value)}
+                  placeholder="VD: 10.84940"
+                  className={`
+                    w-full border rounded-xl px-3 py-2 text-sm outline-none transition-all
+                    ${
+                      isManualMode
+                        ? "border-blue-400 bg-blue-50 focus:ring-2 focus:ring-blue-100"
+                        : "border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+                    }
+                  `}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-slate-400">
+                  Longitude (kinh độ)
+                </label>
+                <input
+                  type="number"
+                  step="0.00001"
+                  value={manualLon}
+                  onChange={e => setManualLon(e.target.value)}
+                  placeholder="VD: 106.77160"
+                  className={`
+                    w-full border rounded-xl px-3 py-2 text-sm outline-none transition-all
+                    ${
+                      isManualMode
+                        ? "border-blue-400 bg-blue-50 focus:ring-2 focus:ring-blue-100"
+                        : "border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+                    }
+                  `}
+                />
+              </div>
+            </div>
+
+            {/* Badge trạng thái tọa độ */}
+            {isManualMode ? (
+              <p className="text-xs text-blue-600 flex items-center gap-1 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
+                <MapPin className="w-3 h-3" />
+                Đang dùng tọa độ thủ công:{" "}
+                {parsedManualLat!.toFixed(5)},{" "}
+                {parsedManualLon!.toFixed(5)}
+              </p>
+            ) : (
+              <p className="text-xs text-slate-400 flex items-center gap-1">
+                <Navigation className="w-3 h-3" />
+                Để trống để dùng GPS tự động
+              </p>
+            )}
+          </div>
+
+          {/* Bản đồ */}
           <div className="relative h-56 rounded-xl overflow-hidden border border-slate-200">
-            {locLoading && (
+            {locLoading && !isManualMode && (
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-50/80 gap-2">
                 <Loader className="w-6 h-6 animate-spin text-red-500" />
                 <span className="text-sm text-slate-500">
@@ -146,14 +300,15 @@ export const SOSRequest = () => {
             )}
 
             <GeoMap
-              currentLat={lat}
-              currentLon={lon}
+              currentLat={effectiveLat}
+              currentLon={effectiveLon}
               showCurrentPin={true}
               centerOnUser={true}
               className="w-full h-full"
             />
           </div>
 
+          {/* Nút GPS */}
           <button
             type="button"
             onClick={getLocation}
@@ -164,6 +319,8 @@ export const SOSRequest = () => {
               ${
                 locLoading
                   ? "border-blue-200 text-blue-400 bg-blue-50 cursor-not-allowed"
+                  : isManualMode
+                  ? "border-slate-300 text-slate-400 bg-slate-50 hover:bg-slate-100"
                   : lat
                   ? "border-green-400 text-green-600 bg-green-50 hover:bg-green-100"
                   : "border-red-300 text-red-500 bg-red-50 hover:bg-red-100"
@@ -178,7 +335,10 @@ export const SOSRequest = () => {
             ) : lat ? (
               <>
                 <Navigation className="w-4 h-4" />
-                {lat.toFixed(5)}, {lon?.toFixed(5)} · Nhấn để cập nhật
+                GPS: {lat.toFixed(5)}, {lon?.toFixed(5)} · Nhấn để cập nhật
+                {isManualMode && (
+                  <span className="text-xs opacity-60">(đang bị ghi đè)</span>
+                )}
               </>
             ) : (
               <>
@@ -188,7 +348,7 @@ export const SOSRequest = () => {
             )}
           </button>
 
-          {locError && (
+          {locError && !isManualMode && (
             <p className="text-xs text-red-500 flex items-center gap-1">
               <TriangleAlert className="w-3 h-3" />
               {locError}
@@ -268,7 +428,11 @@ export const SOSRequest = () => {
           disabled={loading}
           className="w-full bg-red-600 text-white py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
         >
-          <Phone />
+          {loading ? (
+            <Loader className="w-5 h-5 animate-spin" />
+          ) : (
+            <Phone />
+          )}
           GỬI SOS
         </button>
       </form>
