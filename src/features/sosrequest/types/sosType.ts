@@ -1,4 +1,4 @@
-import type { MucDo } from "@/features/floodriskdata/types/floodriskType"
+
 
 export type SosStatus =
   | "PENDING"

@@ -28,7 +28,7 @@ interface SOSRequestProps {
   onSuccess?: () => void; // thêm
 }
 
-export const SOSRequest = ({ onSuccess }: SOSRequestProps) => {
+export const SOSRequest = ({  }: SOSRequestProps) => {
   const [count, setCount] = useState(1)
   const [selected, setSelected] = useState<string[]>([])
   const [phone, setPhone] = useState("")

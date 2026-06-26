@@ -1,4 +1,4 @@
-import { BellIcon, Calendar, FileQuestion, Files, FileText, Home, MapPin, PieChart, Send, Snowflake, User, Users, WavesArrowUp } from "lucide-react"
+import { BellIcon, Calendar, Files, FileText, GlassWater, Home, MapPin, PieChart, Send, Snowflake, User, Users, WavesArrowUp } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import MenuRescuer from "../assets/menurescuer.png"
 import type { CSSProperties } from "react"
@@ -26,9 +26,9 @@ export const adminMenu: MenuItem[] = [
 ]
 
 export const rescuerMenu: MenuItem[] = [
-  {text: "RESCUER     Lực Lượng Cứu Hộ", icon: IconRescuer,path:"/cuuho" },
-  { text: "Trang chủ",              icon: PieChart, path: "/cuuho"       },
-  { text: "Danh sách yêu cầu",      icon: Files,    path: "/requests-list" },
+  {text: "RESCUER     Lực Lượng Cứu Hộ", icon: IconRescuer,path:"/sos-assign/:sosId" },
+  { text: "Trang chủ",              icon: PieChart, path: "/sos-assign/:sosId"       },
+  { text: "Danh sách yêu cầu",      icon: Files,    path: "/team-sos" },
   { text: "Yêu cầu đã nhận",      icon: Files,    path: "/received-requests" },
   { text: "Tài khoản ",      icon: User,    path: "/account" },
   {text:"Quản lý đội cứu hội", icon:FileText ,path:"/team-management"}
@@ -39,9 +39,11 @@ export const userMenu: MenuItem[] = [
   { text: "Trang chủ",         icon: Home,  path: "/dashboard"       },
   { text: "Gửi cứu hộ", icon: FileText, path: "/request-sos" },
   {text:"Yêu cầu đã gửi", icon:Send, path:"/sent-request"},
-  { text: "Dữ liệu dự đoán nguy cơ lũ lụt", icon:FileQuestion , path: "/prediction" },
-
-  {text:"Lịch sử cảnh báo",icon:BellIcon, path:"/alerthistory"},
+ // { text: "Dữ liệu dự đoán nguy cơ lũ lụt", icon:FileQuestion , path: "/prediction" },
+  {
+    text:"Dữ liệu mực nước" ,icon: GlassWater, path:"/water-data"
+  },
+  {text:"Cảnh báo gần đây",icon:BellIcon, path:"/alerthistory"},
   { text: "Tài khoản", icon: User, path: "/account" },
 ]
 

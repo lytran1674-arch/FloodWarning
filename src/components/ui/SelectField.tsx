@@ -20,7 +20,7 @@ export const SelectField: React.FC<Props> = ({
   options,
   placeholder = "-- Chọn --",
   disabled = false,
-  required = false,
+ // required = false,
 }) => {
   return (
     <div className="mb-3">

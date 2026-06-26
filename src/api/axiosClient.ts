@@ -1,24 +1,33 @@
-import axios from "axios"
+import axios from "axios";
 
-export const axiosClient = axios.create({
-  baseURL: "https://api-lulut.io.vn",
+const BASE_URL = "https://api-lulut.io.vn";
+
+// ================= PUBLIC API =================
+export const publicApi = axios.create({
+  baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
-})
-axiosClient.interceptors.request.use((config) => {
-  const token =
-    localStorage.getItem("accessToken") ||
-    localStorage.getItem("token")
+});
 
-  if (token) {
-  const cleanToken = token.replace("Bearer ", "")
+// ================= PRIVATE API =================
+export const axiosClient = axios.create({
+  baseURL: BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-  config.headers.set(
-    "Authorization",
-    `Bearer ${cleanToken}`
-  )
-}
+// interceptor chỉ cho private
+axiosClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
 
-  return config
-})
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);

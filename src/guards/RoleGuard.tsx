@@ -1,4 +1,4 @@
-import { usePermission } from '../../shared/hooks/usePermission'
+import { usePermission } from '../hooks/usePermission'
 
 interface Props {
   require: keyof ReturnType<typeof usePermission>

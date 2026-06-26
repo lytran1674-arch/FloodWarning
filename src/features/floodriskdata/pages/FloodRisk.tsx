@@ -19,14 +19,14 @@ export const FloodRisk = () => {
 
   const [areaId, setAreaId] = useState("")
   const [userHasSelected, setUserHasSelected] = useState(false)
-  const [lead, setLead] = useState<1 | 2 | 3>(1)
-  const [selected, setSelected] = useState<AreaWithRisk | null>(null)
+  const [lead] = useState<1 | 2 | 3>(1)
+  const [, setSelected] = useState<AreaWithRisk | null>(null)
 
   // ── GPS → phường → detail → parentId → siblings → polygons ──────────────
   const {
     gpsArea,       // phường/xã hiện tại
     parentArea,    // quận/huyện cha
-    siblingAreas,  // các phường/xã cùng quận
+    //siblingAreas,  // các phường/xã cùng quận
     polygons,      // polygon của từng sibling
     currentLat,
     currentLon,

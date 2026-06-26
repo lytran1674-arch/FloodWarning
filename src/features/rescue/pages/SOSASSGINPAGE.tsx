@@ -1,16 +1,21 @@
-
-import SOSAssignPage from '../components/SOSAssignPage'
-import { useNavigate } from 'react-router-dom'
-
+import { useNavigate, useParams } from "react-router-dom";
+import SOSAssignPage from "../components/SOSAssignPage";
 
 export const SOSASSGINPAGE = () => {
-   const navigate=useNavigate();
+  const navigate = useNavigate();
+  const { sosId } = useParams();
+
+  const user = JSON.parse(
+    localStorage.getItem("user") || "{}"
+  );
+    console.log("PARAM SOS ID =", sosId);
+console.log("CURRENT URL =", window.location.pathname);
   return (
-   <SOSAssignPage
-  sosId="019eee54-a700-72ef-a50f-3a3b2e806cf7"
-  teamId="019ed44a-9412-7001-9516-fcca54215135"
-  onBack={() => navigate(-1)}
-  onAssigned={() => navigate("/Home")}
-/>
-  )
-}
+    <SOSAssignPage
+      sosId={sosId || ""}
+      teamId={user.teamId}
+      onBack={() => navigate(-1)}
+      onAssigned={() => navigate("/Home")}
+    />
+  );
+};

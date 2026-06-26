@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { rescueApi } from "../api/rescureApi";
 import { toast } from "react-toastify";
 
@@ -16,7 +16,6 @@ phone: string;
 
 export const AddMember = ({
 teamId,
-onClose,
 onSuccess,
 }: Props) => {
 const [step, setStep] = useState(1);
@@ -30,13 +29,13 @@ useState("");
 const [status, setStatus] =
 useState("AVAILABLE");
 
-const [hasBoat, setHasBoat] =
+const [hasBoat] =
 useState(false);
 
-const [hasMedical, setHasMedical] =
+const [hasMedical] =
 useState(false);
 
-const [notes, setNotes] =
+const [notes] =
 useState("");
 
 const [members, setMembers] =
@@ -48,7 +47,7 @@ useState<string[]>([]);
 const [leaderId, setLeaderId] =
 useState("");
 
-const [loading, setLoading] =
+const [, setLoading] =
 useState(false);
 
 const toggleMember = (

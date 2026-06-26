@@ -2,7 +2,7 @@ import type { Polygon, MultiPolygon } from "geojson"
 import type { Area } from "../types/areaType"
 import { axiosClient } from "@/api/axiosClient"
 
-const API_URL = "/area" // ✅ relative path, axiosClient tự gắn baseURL
+const API_URL = "/area" // 
 
 export const areaApi = {
   async getAll(): Promise<Area[]> {

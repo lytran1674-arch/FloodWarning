@@ -81,18 +81,18 @@ const STATUS_COLOR: Record<string, string> = {
   OFFLINE:   "bg-gray-100 text-gray-500",
 };
 
-/** Haversine distance (km) */
-function distanceKm(lat1: number, lon1: number, lat2: number, lon2: number) {
-  const R = 6371;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
+// /** Haversine distance (km) */
+// function distanceKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+//   const R = 6371;
+//   const dLat = ((lat2 - lat1) * Math.PI) / 180;
+//   const dLon = ((lon2 - lon1) * Math.PI) / 180;
+//   const a =
+//     Math.sin(dLat / 2) ** 2 +
+//     Math.cos((lat1 * Math.PI) / 180) *
+//       Math.cos((lat2 * Math.PI) / 180) *
+//       Math.sin(dLon / 2) ** 2;
+//   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+// }
 
 // Fix leaflet default icon
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -220,26 +220,35 @@ export default function SOSAssignPage({ sosId, teamId, onBack, onAssigned }: Pro
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
+    console.log("SOS ID =", sosId);
+  console.log("TEAM ID =", teamId);
   // Load SOS detail + group list
   useEffect(() => {
     async function load() {
       setLoading(true);
       setError(null);
       try {
-        const [sosRes, groupRes] = await Promise.all([
-          fetch(`${API_BASE}/sos-request/${sosId}`, { headers }),
-          fetch(`${API_BASE}/res-team/${teamId}/group`, { headers }),
-        ]);
-        const sosData = await sosRes.json();
-        const groupData = await groupRes.json();
+     const [sosRes, groupRes] = await Promise.all([
+  fetch(`${API_BASE}/sos-request/${sosId}`, { headers }),
+  fetch(`${API_BASE}/res-team/${teamId}/group`, { headers }),
+]);
+
+console.log("SOS STATUS:", sosRes.status);
+console.log("GROUP STATUS:", groupRes.status);
+
+const sosData = await sosRes.json();
+const groupData = await groupRes.json();
+
+console.log("SOS DATA:", sosData);
+console.log("GROUP DATA:", groupData);
 
         if (sosData.code !== 0) throw new Error("Không tải được SOS");
         if (groupData.code !== 0) throw new Error("Không tải được danh sách group");
 
         setSos(sosData.result);
-        // Sort groups by distance to SOS
-        const lat = sosData.result.lat;
-        const lon = sosData.result.lon;
+        // // Sort groups by distance to SOS
+        // const lat = sosData.result.lat;
+        // const lon = sosData.result.lon;
         const sorted = (groupData.result.content as Group[]).sort((a: any, b: any) => {
           // Groups don't have lat/lon in this API so sort by status then name
           if (a.status === "AVAILABLE" && b.status !== "AVAILABLE") return -1;
