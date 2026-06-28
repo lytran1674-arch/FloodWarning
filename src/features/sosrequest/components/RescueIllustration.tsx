@@ -1,69 +1,49 @@
+import { Button } from "antd";
+import anh from "../../../assets/4bf97db0-6d66-45d2-bfe3-de444053b78c.png";
+import { CheckCircleFilled } from "@ant-design/icons";
+
 export default function RescueIllustration() {
   return (
-    <div className="w-full max-w-sm h-56 rounded-xl overflow-hidden relative"
-      style={{ background: 'linear-gradient(180deg,#b8d9f0 0%,#7ab8e0 60%,#5a9fd4 100%)' }}
-    >
-      {/* Green check circle */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 w-14 h-14 bg-green-500 rounded-full flex items-center justify-center shadow-md">
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
-      </div>
-
-      {/* Clouds */}
-      <div className="absolute top-2 right-8 w-16 h-7 bg-white/70 rounded-full" />
-      <div className="absolute top-4 right-4 w-10 h-5 bg-white/50 rounded-full" />
-
-      {/* Trees */}
-      <div className="absolute bottom-14 left-4 flex gap-1.5">
-        {[22, 18, 22].map((w, i) => (
-          <div key={i} className="flex flex-col items-center">
-            <div className="bg-green-800 rounded-t-full" style={{ width: w, height: w + 4 }} />
-            <div className="w-1.5 h-2.5 bg-yellow-900" />
-          </div>
-        ))}
-      </div>
-
-      {/* Flooded house */}
-      <div className="absolute bottom-7 right-7">
-        {/* Roof */}
-        <div className="relative w-0 h-0 mx-auto"
-          style={{ borderLeft: '22px solid transparent', borderRight: '22px solid transparent', borderBottom: '16px solid #c0392b' }}
+    <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100">
+      {/* Phần ảnh nền + icon */}
+      <div className="relative w-full h-56 rounded-t-xl overflow-hidden" 
+           style={{ background: 'linear-gradient(180deg,#b8d9f0 0%,#7ab8e0 60%,#5a9fd4 100%)' }}>
+        <img 
+          src={anh} 
+          alt="Minh họa cứu hộ" 
+          className="w-full h-full object-cover"
         />
-        {/* Walls */}
-        <div className="w-10 h-7 bg-stone-200 border border-stone-300 relative">
-          <div className="absolute top-1 right-1 w-2.5 h-2 bg-sky-300 border border-stone-300" />
-          <div className="absolute bottom-0 left-1 w-3 h-4 bg-stone-400 rounded-sm" />
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-green-500 text-white rounded-full p-2 shadow-lg">
+          <CheckCircleFilled className="text-4xl" />
         </div>
       </div>
 
-      {/* Water */}
-      <div className="absolute bottom-0 left-0 right-0 h-20 bg-blue-600/50 rounded-b-xl" />
+      {/* Phần nội dung và nút bên dưới */}
+      <div className="p-6 text-center space-y-4">
+        <h2 className="text-2xl font-bold text-black">
+          Gửi yêu cầu thành công!
+        </h2>
+        <p className="text-gray-600 text-sm max-w-xs mx-auto">
+          Yêu cầu cứu hộ của bạn đã được gửi thành công.
+          <br />
+          Chúng tôi sẽ thông báo khi có thông tin cập nhật mới.
+        </p>
 
-      {/* Boat */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center">
-        {/* Rescuers */}
-        <div className="flex gap-1 mb-0.5">
-          {[
-            { helmet: '#2c3e50', body: '#34495e' },
-            { helmet: '#e67e22', body: '#e67e22' },
-            { helmet: '#c0392b', body: '#e67e22' },
-            { helmet: '#2c3e50', body: '#e67e22' },
-          ].map((p, i) => (
-            <div key={i} className="flex flex-col items-center gap-px">
-              <div className="w-2.5 h-1.5 rounded-t-full" style={{ background: p.helmet }} />
-              <div className="w-2 h-2 rounded-full bg-amber-200" />
-              <div className="w-3 h-3 rounded-sm" style={{ background: p.body }} />
-            </div>
-          ))}
-        </div>
-        {/* Boat hull */}
-        <div className="w-28 h-1.5 bg-slate-500 rounded-sm" />
-        <div className="w-24 h-4 bg-slate-700 rounded-b-xl relative">
-          {/* Life ring */}
-          <div className="absolute bottom-1 left-7 w-4 h-4 rounded-full border-4 border-red-500 bg-white" />
+        {/* 2 nút xếp dọc, căn giữa, mỗi nút rộng tối đa */}
+        <div className="flex flex-col items-center gap-3 mt-2">
+          <Button 
+            type="primary" 
+            className="bg-[#6C7EE1] hover:bg-[#5a6fd1] border-none rounded-lg px-6 py-2 h-auto font-medium w-full max-w-xs"
+          >
+            Xem yêu cầu của tôi
+          </Button>
+          <Button 
+            className="border border-[#92B9EB] text-[#4a6a9e] hover:border-[#6C7EE1] hover:text-[#6C7EE1] rounded-lg px-6 py-2 h-auto font-medium w-full max-w-xs"
+          >
+            Cập nhật yêu cầu
+          </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }

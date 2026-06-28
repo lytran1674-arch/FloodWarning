@@ -7,7 +7,8 @@ import { AreaFlood } from "../component/AreaFlood"
 import type { AreaWithRisk } from "../../map/types/mapType"
 import { RISK_COLORS } from "../../map/types/mapType"
 import { HuongDan } from "../component/HuongDan"
-import WaterDashboard from "../component/WaterDashboard"
+import { WaterLevelWidget } from "../component/WaterLevelWidget"
+
 
 export const Home = () => {
   const [lead, setLead] = useState<1 | 2 | 3>(1)
@@ -108,7 +109,8 @@ export const Home = () => {
 
         {/* Cột trái: WaterDashboard */}
         <div className="min-w-0">
-          <WaterDashboard />
+
+<WaterLevelWidget  />
         </div>
 
         {/* Cột giữa: Map + detail khi click */}

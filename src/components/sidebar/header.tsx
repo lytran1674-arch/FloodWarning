@@ -67,7 +67,7 @@ const CitizenHeader = ({ openMenu, setOpenMenu, user }: any) => (
     <div className="flex items-center gap-3 ">
       <FaBars
         onClick={() => setOpenMenu(!openMenu)}
-         className="text-sm lg:ml-40 sm:text-sm lg:text-3xl  cursor-pointer text-gray " />
+         className="text-sm lg:ml-40 sm:text-sm lg:text-3xl  cursor-pointer text-black " />
       <span className="text-red-600 font-bold text-sm sm:text-sm lg:text-2xl tracking-wide">
          HỆ THỐNG QUẢN TRỊ LŨ LỤT
       </span>

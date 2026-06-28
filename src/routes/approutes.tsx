@@ -26,7 +26,9 @@ import { SOSASSGINPAGE} from "@/features/rescue/pages/SOSASSGINPAGE"
 import TeamSOSPage from "@/features/rescue/components/ListSOSTeam"
 
 import { NearestDevicePage } from "@/features/citizen/component/NearestDevicePage"
-import { AlertHistory } from "@/features/floodriskdata/components/AlertHistory"
+import { AlertHistoryPage  } from "@/features/floodriskdata/components/AlertHistory"
+import { UpdateSOSPage } from "@/features/sosrequest/pages/Updatesospage"
+import RescueIllustration from "@/features/sosrequest/components/RescueIllustration"
 
 
 
@@ -48,7 +50,7 @@ const AppRoutes = () => {
          {/*CITIZEN */}
         <Route path="/dashboard" element={<Home/>}/> 
          <Route path="/request-sos" element={<SOSRequest />}/>
-        <Route path="/alerthistory" element={<AlertHistory/>}/>
+        <Route path="/alerthistory" element={<AlertHistoryPage />}/>
          <Route path="/rescue-management" element={<ResTeamPage/>}/>
         <Route path="/res-teams/:teamId/groups"element={<ResGroupPage />}/>
         <Route path="/res-groups/:groupId/members" element={<GroupMembersPage />}/>
@@ -57,6 +59,7 @@ const AppRoutes = () => {
         <Route path="/team-management" element={<HomeRescue />}/>
         <Route path="/sent-request" element={<RequestListPage/>}/>
         <Route path="/success" element={<SuccessPage />} />
+        
         <Route
   path="/sos-assign/:sosId"
   element={<SOSASSGINPAGE />}
@@ -66,7 +69,11 @@ const AppRoutes = () => {
   element={<TeamSOSPage />}
 />
 <Route path="/water-data" element={<NearestDevicePage/>}/>
+ <Route path="/update-sos/:id" element={<UpdateSOSPage />} />
+ <Route path="/success" element={<SuccessPage/>}/>
+ <Route path="/abc" element={<RescueIllustration/>}/>
         </Route>
+       
       </Routes>
 
   )
