@@ -59,12 +59,11 @@ interface Group {
 // ─── Config ──────────────────────────────────────────────────────────────────
 
 const API_BASE = "https://api-lulut.io.vn";
-const TOKEN = localStorage.getItem("token") || "";
 
-const headers = {
+const getHeaders = () => ({
   "Content-Type": "application/json",
-  Authorization: `Bearer ${TOKEN}`,
-};
+  Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+});
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -80,19 +79,6 @@ const STATUS_COLOR: Record<string, string> = {
   BUSY:      "bg-amber-100 text-amber-700",
   OFFLINE:   "bg-gray-100 text-gray-500",
 };
-
-// /** Haversine distance (km) */
-// function distanceKm(lat1: number, lon1: number, lat2: number, lon2: number) {
-//   const R = 6371;
-//   const dLat = ((lat2 - lat1) * Math.PI) / 180;
-//   const dLon = ((lon2 - lon1) * Math.PI) / 180;
-//   const a =
-//     Math.sin(dLat / 2) ** 2 +
-//     Math.cos((lat1 * Math.PI) / 180) *
-//       Math.cos((lat2 * Math.PI) / 180) *
-//       Math.sin(dLon / 2) ** 2;
-//   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-// }
 
 // Fix leaflet default icon
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -220,37 +206,25 @@ export default function SOSAssignPage({ sosId, teamId, onBack, onAssigned }: Pro
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-    console.log("SOS ID =", sosId);
-  console.log("TEAM ID =", teamId);
   // Load SOS detail + group list
   useEffect(() => {
     async function load() {
       setLoading(true);
       setError(null);
       try {
-     const [sosRes, groupRes] = await Promise.all([
-  fetch(`${API_BASE}/sos-request/${sosId}`, { headers }),
-  fetch(`${API_BASE}/res-team/${teamId}/group`, { headers }),
-]);
+        const [sosRes, groupRes] = await Promise.all([
+          fetch(`${API_BASE}/sos-request/${sosId}`, { headers: getHeaders() }),
+          fetch(`${API_BASE}/res-team/${teamId}/group`, { headers: getHeaders() }),
+        ]);
 
-console.log("SOS STATUS:", sosRes.status);
-console.log("GROUP STATUS:", groupRes.status);
-
-const sosData = await sosRes.json();
-const groupData = await groupRes.json();
-
-console.log("SOS DATA:", sosData);
-console.log("GROUP DATA:", groupData);
+        const sosData = await sosRes.json();
+        const groupData = await groupRes.json();
 
         if (sosData.code !== 0) throw new Error("Không tải được SOS");
         if (groupData.code !== 0) throw new Error("Không tải được danh sách group");
 
         setSos(sosData.result);
-        // // Sort groups by distance to SOS
-        // const lat = sosData.result.lat;
-        // const lon = sosData.result.lon;
         const sorted = (groupData.result.content as Group[]).sort((a: any, b: any) => {
-          // Groups don't have lat/lon in this API so sort by status then name
           if (a.status === "AVAILABLE" && b.status !== "AVAILABLE") return -1;
           if (a.status !== "AVAILABLE" && b.status === "AVAILABLE") return 1;
           return a.name.localeCompare(b.name);
@@ -274,7 +248,7 @@ console.log("GROUP DATA:", groupData);
     try {
       const res = await fetch(`${API_BASE}/sos-assignment`, {
         method: "POST",
-        headers,
+        headers: getHeaders(),
         body: JSON.stringify({
           sosId: sos.id,
           groupId: selectedGroupId,
@@ -347,7 +321,6 @@ console.log("GROUP DATA:", groupData);
       <div className="flex-1 flex flex-col lg:flex-row gap-0 overflow-hidden">
         {/* ── Left: Map + SOS info ── */}
         <div className="lg:w-1/2 flex flex-col">
-          {/* Map */}
           <div className="h-64 lg:h-80 relative">
             <MapContainer
               center={[sos.lat, sos.lon]}
@@ -402,7 +375,6 @@ console.log("GROUP DATA:", groupData);
               <p className="text-sm text-amber-800">{sos.priorityReason}</p>
             </div>
 
-            {/* Already assigned */}
             {sos.assignments?.length > 0 && (
               <div>
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
@@ -424,9 +396,7 @@ console.log("GROUP DATA:", groupData);
         <div className="lg:w-1/2 flex flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-semibold text-gray-900 text-sm">
-                Chọn nhóm cứu hộ
-              </h2>
+              <h2 className="font-semibold text-gray-900 text-sm">Chọn nhóm cứu hộ</h2>
               <span className="text-xs text-gray-500">
                 {groups.filter((g) => g.status === "AVAILABLE").length} sẵn sàng / {groups.length} tổng
               </span>

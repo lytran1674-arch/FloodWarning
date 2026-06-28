@@ -18,7 +18,7 @@ export default function ResGroupPage() {
   const [loading, setLoading] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const isLeader = user?.isLeader === true;
+  const canCreateGroup = user?.isTeamLeader === true;
 
   useEffect(() => {
     if (!teamId) return;
@@ -51,7 +51,7 @@ export default function ResGroupPage() {
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Danh sách Group</h1>
 
-        {isLeader && (
+        {canCreateGroup && (
           <Button
             onClick={() => navigate("/res-group/create")}
             className="text-black bg-yellow-600 lg:text-xl sm:text-sm text-sm md:text-xl border border-yellow-400 h-10 p-4 rounded-md"

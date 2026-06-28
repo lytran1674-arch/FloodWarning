@@ -19,6 +19,8 @@ export interface User{
     teamId?:string
     teamName?:string
     isLeader?:boolean
+    isTeamLeader?:boolean
+    isGroupLeader?:boolean
 }
 
 export interface LoginPayLoad{
@@ -38,6 +40,8 @@ export interface LoginResponse{
     teamId?:string
     teamName?:string
     sodt?:string
+    isTeamLeader?:boolean
+    isGroupLeader?:boolean
   }
 }
 

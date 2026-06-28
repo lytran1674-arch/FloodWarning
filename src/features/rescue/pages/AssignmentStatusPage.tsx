@@ -16,9 +16,10 @@ export default function AssignmentStatusPage() {
   const [selectedAssignment, setSelectedAssignment] =
     useState<Assignment | null>(null);
 
-  const [availableStatuses, setAvailableStatuses] = useState<string[]>([]);
+  const [availableStatuses, setAvailableStatuses] = useState<{ code: string; name: string }[]>([]);
   const [selectedStatus, setSelectedStatus] = useState("");
-
+const user = JSON.parse(localStorage.getItem("user") || "{}");
+const canUpdateStatus =  user?.isGroupLeader === true;
   // load danh sách nhiệm vụ
   useEffect(() => {
     loadAssignments();
@@ -43,47 +44,33 @@ export default function AssignmentStatusPage() {
   };
 
   // load trạng thái hợp lệ
-  const loadAvailableStatuses = async (
-    assignmentId: string
-  ) => {
-    try {
-      const res = await axiosClient.get(
-        `/sos-assignment/${assignmentId}/available-statuses`
-      );
+const loadAvailableStatuses = async (assignmentId: string) => {
+  try {
+    const res = await axiosClient.get(
+      `/sos-assignment/${assignmentId}/available-statuses`
+    );
+    setAvailableStatuses(res.data.result || []);
+  } catch (err) {
+    console.error(err);
+  }
+};
 
-      console.log("AVAILABLE STATUS:", res.data);
-
-      setAvailableStatuses(res.data.result || []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // cập nhật trạng thái
-  const updateStatus = async () => {
-    if (!selectedAssignment || !selectedStatus) return;
-
-    try {
-      await axiosClient.put(
-        `/sos-assignment/${selectedAssignment.id}/status`,
-        {
-          status: selectedStatus,
-        }
-      );
-
-      alert("Cập nhật thành công");
-
-      setSelectedAssignment(null);
-      setSelectedStatus("");
-
-      loadAssignments();
-    } catch (err: any) {
-      alert(
-        err.response?.data?.message ||
-          "Cập nhật thất bại"
-      );
-    }
-  };
+// Cập nhật status — dùng selectedStatus là code
+const updateStatus = async () => {
+  if (!selectedAssignment || !selectedStatus) return;
+  try {
+    await axiosClient.put(
+      `/sos-assignment/${selectedAssignment.id}/status`,
+      { status: selectedStatus }
+    );
+    alert("Cập nhật thành công");
+    setSelectedAssignment(null);
+    setSelectedStatus("");
+    loadAssignments();
+  } catch (err: any) {
+    alert(err.response?.data?.message || "Cập nhật thất bại");
+  }
+};
 
   if (loading) {
     return (
@@ -124,15 +111,17 @@ export default function AssignmentStatusPage() {
                 </p>
               </div>
 
-              <button
-                onClick={() => {
-                  setSelectedAssignment(item);
-                  loadAvailableStatuses(item.id);
-                }}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
-              >
-                Cập nhật
-              </button>
+           {canUpdateStatus && (
+  <button
+    onClick={() => {
+      setSelectedAssignment(item);
+      loadAvailableStatuses(item.id);
+    }}
+    className="bg-blue-600 text-white px-4 py-2 rounded"
+  >
+    Cập nhật
+  </button>
+)}
             </div>
           </div>
         ))}
@@ -154,25 +143,17 @@ export default function AssignmentStatusPage() {
           </p>
 
           <select
-            className="border rounded px-3 py-2 w-full"
-            value={selectedStatus}
-            onChange={(e) =>
-              setSelectedStatus(e.target.value)
-            }
-          >
-            <option value="">
-              Chọn trạng thái
-            </option>
-
-            {availableStatuses.map((status) => (
-              <option
-                key={status}
-                value={status}
-              >
-                {status}
-              </option>
-            ))}
-          </select>
+  className="border rounded px-3 py-2 w-full"
+  value={selectedStatus}
+  onChange={(e) => setSelectedStatus(e.target.value)}
+>
+  <option value="">Chọn trạng thái</option>
+  {availableStatuses.map((s) => (
+    <option key={s.code} value={s.code}>
+      {s.name}
+    </option>
+  ))}
+</select>
 
           <button
             onClick={updateStatus}
