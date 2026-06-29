@@ -28,7 +28,9 @@ import TeamSOSPage from "@/features/rescue/components/ListSOSTeam"
 import { NearestDevicePage } from "@/features/citizen/component/NearestDevicePage"
 import { AlertHistoryPage  } from "@/features/floodriskdata/components/AlertHistory"
 import { UpdateSOSPage } from "@/features/sosrequest/pages/Updatesospage"
-import RescueIllustration from "@/features/sosrequest/components/RescueIllustration"
+
+
+import { SummaryWaterPage } from "@/features/water-level/pages/SummaryWaterPage"
 
 
 
@@ -69,9 +71,11 @@ const AppRoutes = () => {
   element={<TeamSOSPage />}
 />
 <Route path="/water-data" element={<NearestDevicePage/>}/>
+
  <Route path="/update-sos/:id" element={<UpdateSOSPage />} />
  <Route path="/success" element={<SuccessPage/>}/>
- <Route path="/abc" element={<RescueIllustration/>}/>
+ <Route path="/summary-water" element={<SummaryWaterPage/>}/>
+
         </Route>
        
       </Routes>

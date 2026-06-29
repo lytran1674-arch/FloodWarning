@@ -53,8 +53,8 @@ export const Menu = ({
                 className={`
                   flex items-center gap-3
                   mx-2 border-b-2
-                  rounded-md py-3
-                  text-xs sm:text-sm lg:text-[18px]
+                  rounded-md py-[8px]
+                  text-xs sm:text-sm lg:text-[15px]
                   font-medium
                   transition-all duration-300
                   cursor-pointer

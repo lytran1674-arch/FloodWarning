@@ -1,4 +1,4 @@
-import { BellIcon, Calendar, Files, FileText, GlassWater, Home, MapPin, PieChart, Send, Snowflake, User, Users, WavesArrowUp } from "lucide-react"
+import { BellIcon, Calendar, Files, FileText, GlassWater, GlassWaterIcon, Home, MapPin, PieChart, Send, Snowflake, StarHalf, User, Users, WavesArrowUp } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import MenuRescuer from "../assets/menurescuer.png"
 import type { CSSProperties } from "react"
@@ -22,6 +22,8 @@ export const adminMenu: MenuItem[] = [
   { text: "Quản lý người dùng",             icon: Users,     path: "/users-management"        },
   { text: "Quản lý khu vực",                icon: MapPin,    path: "/areas-management"        },
   { text: "Quản lý dữ liệu nguy cơ lũ lụt",         icon: Snowflake, path: "/flood-risk" },
+  {text:"Quản lý dữ liệu mực nước tổng hợp",icon:GlassWaterIcon, path:"/summary-water"},
+  {text:"Quản lý dữ liệu đánh giá", icon:StarHalf,path:"/evaluation"},
   {text:"Quản lý thiết bị", icon:WavesArrowUp,path:"/iot-device" },
 ]
 

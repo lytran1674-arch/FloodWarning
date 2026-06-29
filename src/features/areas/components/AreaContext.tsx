@@ -15,7 +15,7 @@ export const AreaProvider = ({ children }: { children: ReactNode }) => {
   const [areas, setAreas] = useState<AreaTree[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const token = useAppSelector(state => state.auth.token);
+  const token = useAppSelector(state => state.auth.accessToken);
 
   const fetchAreas = async () => {
     try {

@@ -8,6 +8,7 @@ interface SosRequestCardProps {
   request:    SoSResponse
   highlight?: boolean
   sosData?:   any
+   onViewDetail?: () => void 
 }
 
 const statusConfig: Record<SosStatus, {
@@ -69,6 +70,7 @@ export default function SosRequestCard({
   request,
   highlight = false,
   sosData,
+  onViewDetail 
 }: SosRequestCardProps) {
   const navigate = useNavigate()
 
@@ -179,6 +181,14 @@ export default function SosRequestCard({
           </div>
         )}
       </div>
+       <button
+        onClick={onViewDetail}
+        className="text-xs text-red-500 hover:underline mt-2"
+      >
+        Xem chi tiết
+      </button>
+
     </div>
+    
   )
 }

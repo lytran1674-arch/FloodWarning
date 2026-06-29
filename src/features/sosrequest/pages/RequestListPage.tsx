@@ -6,6 +6,8 @@ import type { SoSResponse, FilterStatus } from '../types/sosType'
 import SosRequestCard from '../components/SosRequestCard'
 import { axiosClient } from '@/api/axiosClient'
 import { AlertCircle, X, ChevronLeft } from 'lucide-react'
+import BaseModal from '@/components/ui/BaseModal'
+import SosDetailModal from '../components/ChiTietSOS'
 
 const filterOptions: { key: FilterStatus; label: string }[] = [
   { key: 'ALL',        label: 'Tất cả'     },
@@ -18,7 +20,8 @@ const filterOptions: { key: FilterStatus; label: string }[] = [
 export const RequestListPage = () => {
   const navigate = useNavigate()
   const location = useLocation()
-
+    const [modalOpen,   setModalOpen]   = useState(false)
+  const [selectedId,  setSelectedId]  = useState<string | null>(null)
   const [requests,     setRequests]     = useState<SoSResponse[]>([])
   const [loading,      setLoading]      = useState(true)
   const [error,        setError]        = useState<string | null>(null)
@@ -72,6 +75,11 @@ export const RequestListPage = () => {
     activeFilter === 'ALL'
       ? requests
       : requests.filter(r => r.status === activeFilter)
+
+      function handleOpenDetail(id: string) {
+    setSelectedId(id)
+    setModalOpen(true)
+  }
 
   return (
     <div className="p-3 sm:p-5 flex-1 flex flex-col">
@@ -166,9 +174,17 @@ export const RequestListPage = () => {
               request={req}
               highlight={req.id === highlightId}
               sosData={req.id === highlightId ? sosData : undefined}
+              onViewDetail={() => handleOpenDetail(req.id)} 
             />
           </div>
         ))}
+          <BaseModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title="Chi tiết yêu cầu SOS"
+      >
+        <SosDetailModal id={selectedId} />
+      </BaseModal>
       </div>
 
       {/* ── Pagination ── */}

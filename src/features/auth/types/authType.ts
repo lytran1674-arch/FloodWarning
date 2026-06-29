@@ -31,7 +31,7 @@ export interface LoginPayLoad{
 export interface LoginResponse{
    code: number
   result: {
-    token: string
+    accessToken: string
     role: Role
     authenticated: boolean
     hoten:string 

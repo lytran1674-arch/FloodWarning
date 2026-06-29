@@ -1,4 +1,3 @@
-
 import type { LoginPayLoad } from "../types/authType";
 import { axiosClient } from "@/api/axiosClient";
 
@@ -17,4 +16,11 @@ export const authAPI = {
     return axiosClient.post(`${API_URL}/forgotpwd`, { email });
   },
 
+  refreshToken() {
+    return axiosClient.get(`${API_URL}/auth/refresh`);
+  },
+
+  logout() {
+    return axiosClient.post(`${API_URL}/auth/logout`);
+  },
 };

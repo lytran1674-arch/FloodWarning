@@ -1,11 +1,11 @@
-const ACCESS_TOKEN= "access_token"
+const ACCESS_TOKEN= "accessToken"
 
 export const saveToken= (
-    token: string
+    accessToken: string
 )=>{
     localStorage.setItem(
         ACCESS_TOKEN,
-        token
+        accessToken
     )
 }
 
