@@ -23,7 +23,10 @@ export function Table<T>({
   className1,
   className2
 }: TableProps<T>) {
+      if(!data)
+        return <div>Chưa có dữ liệu</div>
   return (
+    
     <div className={`w-full overflow-x-auto rounded-lg border border-slate-200 ${className1} `}>
       
       <table className={`w-full table-auto min-w-[700px] border-collapse text-xs sm:text-sm ${className2}`}>

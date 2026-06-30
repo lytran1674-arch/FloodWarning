@@ -2,11 +2,15 @@
 import { FaBars } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../app/store";
+import { BellIcon } from "lucide-react";
+
 
 type Props = {
   openMenu: boolean;
   setOpenMenu: React.Dispatch<React.SetStateAction<boolean>>;
 };
+
+
 
 // ════════════════════════════════════
 // ADMIN HEADER
@@ -22,7 +26,9 @@ const AdminHeader = ({ openMenu, setOpenMenu, user }: any) => (
       </span>
     </div>
     <div className="flex items-center gap-3">
+       <BellIcon className="h-6 w-6 text-yellow-300" />
       <div className="text-right">
+       
         <p className="text-white text-sm font-semibold">{user?.hoten ?? "Admin"}</p>
         <p className="text-blue-200 text-xs">Quản trị viên</p>
       </div>
@@ -63,19 +69,22 @@ const RescuerHeader = ({ openMenu, setOpenMenu, user }: any) => (
 // CITIZEN HEADER
 // ════════════════════════════════════
 const CitizenHeader = ({ openMenu, setOpenMenu, user }: any) => (
-  <div className="w-full px-4 py-3 flex items-center justify-between fixed top-0 left-0 right-0 shadow-md z-[5000] bg-white">
-    <div className="flex items-center gap-3 ">
+  
+  <div className="w-full px-4 py-3 flex items-center justify-between fixed top-0 left-0 right-0 shadow-md z-[5000] bg-[#248BD6]">
+    <div className="flex items-start gap-3 ">
       <FaBars
         onClick={() => setOpenMenu(!openMenu)}
-         className="text-sm lg:ml-40 sm:text-sm lg:text-3xl  cursor-pointer text-black " />
-      <span className="text-red-600 font-bold text-sm sm:text-sm lg:text-2xl tracking-wide">
+         className="text-sm lg:ml-40 sm:text-sm lg:text-3xl  cursor-pointer text-white " />
+      <span className="text-white font-bold text-sm sm:text-sm lg:text-2xl tracking-wide">
          HỆ THỐNG QUẢN TRỊ LŨ LỤT
       </span>
     </div>
     <div className="flex items-center gap-3">
+         <BellIcon className="h-6 w-6 text-[#313866]" />
       <div className="text-right">
-        <p className="text-blue-800 text-sm font-semibold">{user?.hoten ?? "Admin"}</p>
-        <p className="text-blue-500 text-xs">Người dân</p>
+       
+        <p className="text-white text-sm font-semibold">{user?.hoten ?? "Admin"}</p>
+        <p className="text-white text-xs">Người dân</p>
       </div>
       <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center text-[#1E4DAF] font-bold text-sm">
         {user?.hoten?.[0] ?? "A"}

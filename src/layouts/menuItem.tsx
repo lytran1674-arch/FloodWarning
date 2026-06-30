@@ -45,7 +45,7 @@ export const userMenu: MenuItem[] = [
   {
     text:"Dữ liệu mực nước" ,icon: GlassWater, path:"/water-data"
   },
-  {text:"Cảnh báo gần đây",icon:BellIcon, path:"/alerthistory"},
+  {text:"Cảnh báo gần đây",icon:BellIcon, path:"/myalert"},
   { text: "Tài khoản", icon: User, path: "/account" },
 ]
 
@@ -79,9 +79,9 @@ export const roleConfig: Record<string,RoleConfig>={
     },
     CITIZEN:{
         menu:userMenu,
-        bgColor:"bg-white",
+        bgColor:"bg-[#248BD6]",
         hover:"hover:bg-[#F5ACAC]",
-        color:"#f00000",
+        color:"#ffffff",
     },
 
 }

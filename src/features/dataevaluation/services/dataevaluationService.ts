@@ -11,7 +11,7 @@ export const dataevaluationService = {
      return await dataevaluationApi.getSnapShotSumById(areaId)
     }
     ,
-    async getSnapShotSumOneDay(areaId:string):Promise<SnapShot>{
+    async getSnapShotSumOneDay(areaId:string):Promise<SnapShot[]>{
         return await dataevaluationApi.getSnapShotSumOneDay(areaId)
      
     }

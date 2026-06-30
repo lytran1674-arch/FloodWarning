@@ -13,7 +13,7 @@ export const dataevaluationApi =  {
     return respone.data.result
   }
   ,
-  async getSnapShotSumOneDay(areaId:string):Promise<SnapShot>{
+  async getSnapShotSumOneDay(areaId:string):Promise<SnapShot[]>{
     const response=await axiosClient.get(`${API_URL}/list-snapshot-by-areaId/${areaId}`)
     return response.data.result?.content??[]
   }

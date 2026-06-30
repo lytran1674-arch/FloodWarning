@@ -12,6 +12,6 @@ export interface SnapShot{
     dangerAggregateCount?:number
     dangerPercent?:number
     predictionRiskLevel?:MucDo
-    snapshotAt?:string
-    createdAt?:string
+    snapshotAt:string
+    createdAt:string
 }

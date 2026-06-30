@@ -26,12 +26,12 @@ import { SOSASSGINPAGE} from "@/features/rescue/pages/SOSASSGINPAGE"
 import TeamSOSPage from "@/features/rescue/components/ListSOSTeam"
 
 import { NearestDevicePage } from "@/features/citizen/component/NearestDevicePage"
-import { AlertHistoryPage  } from "@/features/floodriskdata/components/AlertHistory"
 import { UpdateSOSPage } from "@/features/sosrequest/pages/Updatesospage"
 
 
 import { SummaryWaterPage } from "@/features/water-level/pages/SummaryWaterPage"
 import { SnapShotPage } from "@/features/dataevaluation/pages/SnapShotPage"
+import { AlertPage } from "@/features/alert/pages/AlertPage"
 
 
 
@@ -53,7 +53,7 @@ const AppRoutes = () => {
          {/*CITIZEN */}
         <Route path="/dashboard" element={<Home/>}/> 
          <Route path="/request-sos" element={<SOSRequest />}/>
-        <Route path="/alerthistory" element={<AlertHistoryPage />}/>
+        <Route path="/myalert" element={<AlertPage />}/>
          <Route path="/rescue-management" element={<ResTeamPage/>}/>
         <Route path="/res-teams/:teamId/groups"element={<ResGroupPage />}/>
         <Route path="/res-groups/:groupId/members" element={<GroupMembersPage />}/>

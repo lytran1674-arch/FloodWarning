@@ -4,7 +4,6 @@ import { messaging } from "../firebase";
 
 export const requestNotificationPermission = async () => {
   try {
-
     // Xin quyền notification
     const permission = await Notification.requestPermission();
 
@@ -13,10 +12,17 @@ export const requestNotificationPermission = async () => {
       return;
     }
 
+    // Đăng ký service worker TRƯỚC khi lấy token
+    const registration = await navigator.serviceWorker.register(
+      "/firebase-messaging-sw.js"
+    );
+    await navigator.serviceWorker.ready;
+
     // Lấy FCM token
     const token = await getToken(messaging, {
       vapidKey:
         "BJpZLQUn5cvE-lotcGk9C-1eu8SOI7y_9vANyUtPJD9pIVUMkIsAjXfhUBjYhiUfcURJMK_JwBn2gwBw61Ogw0g",
+      serviceWorkerRegistration: registration, // <-- thêm dòng này
     });
 
     if (!token) {
@@ -35,8 +41,7 @@ export const requestNotificationPermission = async () => {
     }
 
     // Lấy JWT access token
-    const accessToken =
-      localStorage.getItem("accessToken") || "";
+    const accessToken = localStorage.getItem("accessToken") || "";
 
     console.log("ACCESS TOKEN:", accessToken);
 
@@ -48,10 +53,8 @@ export const requestNotificationPermission = async () => {
 
     // Gửi token lên backend
     const response = await axios.post(
-      "https://api-lulut.io.vn/notifications/token",
-      {
-        token,
-      },
+      "https://api-lulut.io.vn/notification/token",
+      { token },
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -60,21 +63,14 @@ export const requestNotificationPermission = async () => {
       }
     );
 
-    console.log(
-      "SEND TOKEN SUCCESS:",
-      response.data
-    );
+    console.log("SEND TOKEN SUCCESS:", response.data);
 
     // Lưu token tránh spam
     localStorage.setItem("fcm_token", token);
-
   } catch (error: any) {
-
-    console.log("FCM ERROR:", error);
-
-    console.log(
-      "SERVER RESPONSE:",
-      error?.response?.data
-    );
+    console.error("FCM ERROR CODE:", error?.code);
+    console.error("FCM ERROR MESSAGE:", error?.message);
+    console.error("FULL ERROR:", error);
+    console.error("SERVER RESPONSE:", error?.response?.data);
   }
 };

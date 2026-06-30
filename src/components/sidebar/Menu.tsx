@@ -36,7 +36,7 @@ export const Menu = ({
         sm:w-[180px] lg:w-[240px] w-[150px]
         p-0 lg:p-3
         border
-        mt-[57px]
+        mt-[60px]
         transition-transform duration-300
         ${openMenu ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0

@@ -42,13 +42,7 @@ export const WeatherDataPage = () => {
         </div>
 
         <div className="flex justify-end gap-1 lg:mr-3 mt-5 mr-2 text-xs lg:text-sm lg:gap-2">
-          <Button
-            type="button"
-            className="border bg-[#FFC44A] p-1 rounded-md text-black font-medium sm:text-sm text-xs lg:text-xl w-30 h-8"
-          >
-            <FaPlus />
-            Thêm dữ liệu
-          </Button>
+         
 
           <Button
             onClick={() => window.location.reload()}
@@ -59,13 +53,6 @@ export const WeatherDataPage = () => {
             Cập nhật tự động
           </Button>
 
-          <Button
-            type="button"
-            className="border border-[#E5E7EB] bg-white p-1 rounded-md text-black font-medium sm:text-sm text-xs lg:text-xl w-30 h-8"
-          >
-            <ImportIcon />
-            Import excel
-          </Button>
         </div>
       </div>
 
