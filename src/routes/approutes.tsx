@@ -31,6 +31,7 @@ import { UpdateSOSPage } from "@/features/sosrequest/pages/Updatesospage"
 
 
 import { SummaryWaterPage } from "@/features/water-level/pages/SummaryWaterPage"
+import { SnapShotPage } from "@/features/dataevaluation/pages/SnapShotPage"
 
 
 
@@ -75,7 +76,7 @@ const AppRoutes = () => {
  <Route path="/update-sos/:id" element={<UpdateSOSPage />} />
  <Route path="/success" element={<SuccessPage/>}/>
  <Route path="/summary-water" element={<SummaryWaterPage/>}/>
-
+    <Route path="/evaluation" element={<SnapShotPage/>}/>
         </Route>
        
       </Routes>

@@ -4,12 +4,13 @@ import { toast } from "react-toastify";
 import { waterlevalService } from "../services/waterlevalService";
 import type { IoTAggregate } from "../types/waterlevelType";
 import { waterlevelApi } from "../api/waterlevelApi";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export const useWaterLevel = () => {
   const [data, setData] = useState<IoTAggregate[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+   const [search,setSearch]=useState("");
 
 
 useEffect(()=>{
@@ -46,11 +47,23 @@ useEffect(()=>{
   }
 };
 
+const searchResult=useMemo(()=>{
+  if(search.trim()==="") return null;
+
+  const keyword=search.trim().toLowerCase()
+  return data.filter(
+    (item)=>
+      item.tenkhuvuc?.toLowerCase().includes(keyword)
+
+  )
+},[data,search])
+
   return {
     data,
     loading,
     error,
     reload: loadData,
     handleAggregate,
+    search,setSearch
   };
 };

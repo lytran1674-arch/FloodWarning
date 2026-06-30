@@ -1,26 +1,54 @@
 import type { LoginPayLoad } from "../types/authType";
-import { axiosClient } from "@/api/axiosClient";
 
-const API_URL = "https://api-lulut.io.vn";
+import {
+  axiosClient,
+  publicApi,
+} from "@/api/axiosClient";
 
 export const authAPI = {
+
+  // ================= LOGIN =================
   login(data: LoginPayLoad) {
-    return axiosClient.post(`${API_URL}/auth/token`, data);
+    return publicApi.post(
+      "/auth/token",
+      data
+    );
   },
 
+  // ================= REGISTER =================
   register(data: any) {
-    return axiosClient.post(`${API_URL}/user/register`, data);
+    return publicApi.post(
+      "/user/register",
+      data
+    );
   },
 
+  // ================= FORGOT PASSWORD =================
   forgotPassword(email: string) {
-    return axiosClient.post(`${API_URL}/forgotpwd`, { email });
+    return publicApi.post(
+      "/forgotpwd",
+      { email }
+    );
   },
 
+  // ================= REFRESH TOKEN =================
   refreshToken() {
-    return axiosClient.get(`${API_URL}/auth/refresh`);
+
+    const refreshToken =
+      localStorage.getItem("refreshToken");
+
+    return publicApi.post(
+      "/auth/refresh",
+      {
+        refreshToken,
+      }
+    );
   },
 
+  // ================= LOGOUT =================
   logout() {
-    return axiosClient.post(`${API_URL}/auth/logout`);
+    return axiosClient.post(
+      "/auth/logout"
+    );
   },
 };

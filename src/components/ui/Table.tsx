@@ -1,3 +1,4 @@
+import { Search } from "lucide-react";
 import type React from "react";
 
 export type Column<T> = {
@@ -24,6 +25,7 @@ export function Table<T>({
 }: TableProps<T>) {
   return (
     <div className={`w-full overflow-x-auto rounded-lg border border-slate-200 ${className1} `}>
+      
       <table className={`w-full table-auto min-w-[700px] border-collapse text-xs sm:text-sm ${className2}`}>
         <thead className="bg-slate-100">
           <tr>

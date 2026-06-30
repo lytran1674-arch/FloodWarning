@@ -4,14 +4,18 @@ import {
   Shield,
   TriangleAlert,
 } from "lucide-react";
+import type { SnapShot } from "../types/dataevaluationType";
+import { useDataEvalution } from "../hooks/useDataEvalution";
 
-import type { IoTAggregate } from "../types/waterlevelType";
+
 
 interface Props {
-  data: IoTAggregate[];
+  data: SnapShot[];
+  areaId?:string
 }
 
-export const StatusCard = ({ data }: Props) => {
+export const StatusCard = ({ data ,areaId}: Props) => {
+    const {data:evaluation}=useDataEvalution(areaId)
 
   const totalAreas = data.length;
 
@@ -19,24 +23,21 @@ export const StatusCard = ({ data }: Props) => {
     (x) => (x.dangerRatio || 0) > 0.8
   ).length;
 
-  const totalDevices = data.reduce(
-    (sum, x) => sum + (x.totalDeviceCount || 0),
-    0
-  );
-
-  const safeAreas = data.filter(
-    (x) => (x.dangerRatio || 0) < 0.3
-  ).length;
-
-  const warningAreas = data.filter(
-    (x) =>
-      (x.dangerRatio || 0) >= 0.3 &&
-      (x.dangerRatio || 0) < 0.6
-  ).length;
-
+  const evaluationLatest = data?.
+ 
   const cards = [
+    //  {
+    //   title: "Lần đánh giá gần nhất",
+    //   value: totalAreas,
+    //   sub: "khu vực",
+    //   icon: GlassWaterIcon,
+    //   color: "text-blue-700",
+    //   bg: "hover:bg-blue-500",
+    //   iconBg: "bg-blue-100",
+    //   border: "border-[#E5E7EB]",
+    // },
     {
-      title: "Khu vực giám sát",
+      title: "Tổng số khu vực",
       value: totalAreas,
       sub: "khu vực",
       icon: GlassWaterIcon,
@@ -47,7 +48,7 @@ export const StatusCard = ({ data }: Props) => {
     },
 
     {
-      title: "Khu vực nguy hiểm",
+      title: "Khu vực rủi ro cao",
       value: dangerAreas,
       sub: "khu vực",
       icon: TriangleAlert,
@@ -57,17 +58,7 @@ export const StatusCard = ({ data }: Props) => {
       border: "border-[#E5E7EB]",
     },
 
-    {
-      title: "Khu vực cảnh báo",
-      value: warningAreas,
-      sub: "khu vực",
-      icon: TriangleAlert,
-      color: "text-yellow-600",
-      bg: "hover:bg-yellow-500",
-      iconBg: "bg-yellow-100",
-      border: "border-[#E5E7EB]",
-    },
-
+   
     {
       title: "Khu vực an toàn",
       value: safeAreas,
@@ -79,16 +70,7 @@ export const StatusCard = ({ data }: Props) => {
        border: "border-[#E5E7EB]",
     },
 
-    {
-      title: "Tổng thiết bị",
-      value: totalDevices,
-      sub: "thiết bị",
-      icon: Radio,
-      color: "text-purple-600",
-      bg: "hover:bg-purple-500",
-      iconBg: "bg-purple-100",
-       border: "border-[#E5E7EB]",
-    },
+   
   ];
 
   return (

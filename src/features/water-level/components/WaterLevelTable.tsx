@@ -2,6 +2,9 @@
 import { Table } from '@/components/ui/Table'
 import type { IoTAggregate } from '../types/waterlevelType'
 import { usePagination } from '@/hooks/usePagination'
+import { SearchBar } from '@/components/ui/SearchBar';
+import { useWaterLevel } from '../hooks/useWaterLevel';
+import { Input } from '@/components/ui/Input';
 
 interface Props {
   data: IoTAggregate[];
@@ -9,7 +12,7 @@ interface Props {
 }
 
 export const WaterLevelTable = ({ data, loading }: Props) => {
-  
+    const {search,setSearch}=useWaterLevel();
      const { page, setPage, totalPages, paginated } = usePagination(data, 5);
     
       const columns = [
@@ -78,6 +81,8 @@ export const WaterLevelTable = ({ data, loading }: Props) => {
         <div>.........Loading</div>
   return (
     <div>
+      <Input value={search??""} placeholder="Tìm kiếm khu vực" onChange={(e) => setSearch(e)} className='lg:w-[300px] lg:h-[40px] lg:mb-2 lg:ml-5' />
+  
     <Table<IoTAggregate> columns={columns} data={paginated} className1='lg:w-[750px] lg:ml-5 ' className2='lg:text-[10px] p-0'/>
       <div className="flex items-center justify-start lg:gap-[520px] px-3 py-2 ">
         <span className="text-xs text-slate-400">

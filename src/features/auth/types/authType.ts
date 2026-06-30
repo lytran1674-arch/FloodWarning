@@ -21,6 +21,7 @@ export interface User{
     isLeader?:boolean
     isTeamLeader?:boolean
     isGroupLeader?:boolean
+    refreshToken?:string
 }
 
 export interface LoginPayLoad{
@@ -42,6 +43,7 @@ export interface LoginResponse{
     sodt?:string
     isTeamLeader?:boolean
     isGroupLeader?:boolean
+    refreshToken?:string
   }
 }
 

@@ -17,7 +17,7 @@ export const SummaryWaterPage = () => {
     <div className="flex justify-end mt-8 mr-5">
   <Button
     onClick={handleAggregate}
-    className="rounded-md lg:text-xl border  text-white bg-red-600 lg:p-2"
+    className="rounded-md lg:text-xl border  text-white bg-green-500 lg:p-2"
   >
     <ChartColumnBig />
     Tổng hợp mực nước
