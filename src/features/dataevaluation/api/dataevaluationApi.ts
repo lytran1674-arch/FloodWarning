@@ -1,5 +1,4 @@
 import { axiosClient } from '@/api/axiosClient'
-import React from 'react'
 import type { SnapShot } from '../types/dataevaluationType';
 
 const API_URL="/snapshot"

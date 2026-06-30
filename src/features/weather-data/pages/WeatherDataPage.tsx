@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useWeatherData } from "../hooks/useWeatherData";
-import { CloudFog, FilterIcon, ImportIcon } from "lucide-react";
+import { CloudFog, FilterIcon } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
-import { FaPlus } from "react-icons/fa";
+
 import { IoReload } from "react-icons/io5";
 import { Combobox } from "../../../components/ui/Combobox";
 import { useAreaOptions } from "../../areas/hooks/useAreaOption";

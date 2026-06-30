@@ -45,6 +45,7 @@ export const userMenu: MenuItem[] = [
   {
     text:"Dữ liệu mực nước" ,icon: GlassWater, path:"/water-data"
   },
+  {text:"Dữ liệu dự đoán lũ lụt", icon:Snowflake, path:"/predict"},
   {text:"Cảnh báo gần đây",icon:BellIcon, path:"/myalert"},
   { text: "Tài khoản", icon: User, path: "/account" },
 ]

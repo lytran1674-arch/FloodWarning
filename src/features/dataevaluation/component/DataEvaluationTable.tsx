@@ -1,5 +1,5 @@
 import { usePagination } from '@/hooks/usePagination';
-import React from 'react'
+
 import type { SnapShot } from '../types/dataevaluationType';
 import { Table } from '@/components/ui/Table';
 

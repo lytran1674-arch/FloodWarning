@@ -1,5 +1,5 @@
-import React from 'react'
-import type { Alert } from '../types/alerType'
+
+import type { Alert } from '../types/alertType'
 import { axiosClient } from '@/api/axiosClient'
 
 

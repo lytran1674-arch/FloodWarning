@@ -1,127 +1,71 @@
 // pages/Home/HomePage.tsx
 import { useState, useMemo } from "react"
 import { useUserProvince } from "../../map/hooks/useUserProvince"
-import { useProvinceMap } from "../../map/hooks/useProvinceMap"
+
 import GeoMap from "../../map/components/GeoMap"
 import { AreaFlood } from "../component/AreaFlood"
-import type { AreaWithRisk } from "../../map/types/mapType"
+import type { AreaMapItem, AreaWithRisk } from "../../map/types/mapType"
 import { RISK_COLORS } from "../../map/types/mapType"
 import { HuongDan } from "../component/HuongDan"
 import { WaterLevelWidget } from "../component/WaterLevelWidget"
+import { useRegionalForecast } from "../hooks/useRegionalForecast"
+import { useSelector } from "react-redux"
+import type { RootState } from "@/app/store"
 
 
 export const Home = () => {
-  const [lead, setLead] = useState<1 | 2 | 3>(1)
-  const [selected, setSelected] = useState<AreaWithRisk | null>(null)
+
+    const [selected, setSelected] = useState<AreaMapItem | null>(null)
+
+  // Lấy areaId từ Redux login
+  const areaId = useSelector((state: RootState) => state.auth.user?.areaId ?? null)
 
   const {
     gpsArea,
     parentArea,
-    polygons,
     currentLat,
     currentLon,
     loading: loadingGps,
   } = useUserProvince()
 
-  const effectiveParentId = useMemo(() => parentArea?.id ?? null, [parentArea])
-
   const effectiveParentName = useMemo(() => {
     return parentArea?.tenkhuvuc ?? "Khu vực của bạn"
   }, [parentArea])
 
-  const { areas: riskAreas, loading: loadingMap } = useProvinceMap(
-    effectiveParentId,
-    lead
-  )
-
-  const areasWithGeometry = useMemo(() => {
-    if (!Object.keys(polygons).length) return riskAreas
-    return riskAreas.map(area => ({
-      ...area,
-      geometry: polygons[area.id] ?? area.geometry ?? null,
-    }))
-  }, [riskAreas, polygons])
-
-  const riskCount = areasWithGeometry.reduce((acc, a) => {
-    acc[a.riskLevel] = (acc[a.riskLevel] ?? 0) + 1
-    return acc
-  }, {} as Record<string, number>)
+  // Dùng areaId từ login, hook sẽ tự lấy parent_id bên trong
+  const { areas: riskAreas, loading: loadingMap } = useRegionalForecast(areaId)
 
   const loading = loadingGps || loadingMap
 
-  return (
-    <div className="p-4 space-y-4">
+   return (
+    <div className="p-3 md:p-4 space-y-4">
 
       {/* HEADER */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-base font-semibold text-slate-800">
-            Bản đồ nguy cơ lũ lụt
-          </h2>
-          <p className="text-sm text-slate-400">
-            {parentArea
-              ? `Quận/Huyện ${parentArea.tenkhuvuc}`
-              : gpsArea
-              ? `Phường/Xã ${gpsArea.tenkhuvuc}`
-              : "Đang xác định khu vực..."}
-          </p>
-        </div>
-
-        {/* Badge thống kê */}
-        <div className="flex gap-2">
-          {(["HIGH", "MEDIUM", "LOW"] as const).map(level =>
-            riskCount[level] ? (
-              <div
-                key={level}
-                className="px-2.5 py-1 rounded-full text-xs font-medium"
-                style={{
-                  background: RISK_COLORS[level].fill,
-                  color: RISK_COLORS[level].stroke,
-                  border: `1px solid ${RISK_COLORS[level].stroke}`,
-                }}
-              >
-                {riskCount[level]} {RISK_COLORS[level].label}
-              </div>
-            ) : null
-          )}
-        </div>
+      <div>
+        <h2 className="text-base font-semibold text-slate-800">
+          Bản đồ nguy cơ lũ lụt
+        </h2>
+        <p className="text-sm text-slate-400">
+          {parentArea
+            ? `Quận/Huyện ${parentArea.tenkhuvuc}`
+            : gpsArea
+            ? `Phường/Xã ${gpsArea.tenkhuvuc}`
+            : "Đang xác định khu vực..."}
+        </p>
       </div>
 
-      {/* 3 nút chọn ngày */}
-      <div className="flex gap-2">
-        {([1, 2, 3] as const).map(day => (
-          <button
-            key={day}
-            onClick={() => setLead(day)}
-            className={`px-4 py-1.5 rounded-lg border text-sm font-medium transition-colors ${
-              lead === day
-                ? "bg-blue-600 text-white border-blue-600"
-                : "bg-white text-slate-600 border-slate-200 hover:border-blue-300"
-            }`}
-          >
-            {day === 1 ? "Ngày mai" : day === 2 ? "Ngày kia" : "Ngày mốt"}
-          </button>
-        ))}
-      </div>
+      {/* LAYOUT CHÍNH */}
+      <div className="flex flex-col xl:flex-row gap-4 items-start">
 
-      {/* 3 CỘT CHÍNH: WaterDashboard | GeoMap | AreaFlood */}
-      <div className="grid grid-cols-[280px_1fr_280px] gap-4 items-start">
-
-        {/* Cột trái: WaterDashboard */}
-        <div className="min-w-0">
-
-<WaterLevelWidget  />
-        </div>
-
-        {/* Cột giữa: Map + detail khi click */}
-        <div className="min-w-0 space-y-3">
+        {/* Cột trái: Map */}
+        <div className="w-full xl:flex-1 space-y-3">
           <GeoMap
-            areas={areasWithGeometry}
+            areas={riskAreas}
             userAreaId={gpsArea?.id}
             selectedAreaId={undefined}
             provinceName={effectiveParentName}
             loading={loading}
-            className="w-full h-[420px] lg:h-[520px] rounded-xl shadow"
+            className="w-full h-[360px] md:h-[460px] xl:h-[520px] rounded-xl shadow"
             onAreaClick={setSelected}
             currentLat={currentLat}
             currentLon={currentLon}
@@ -136,7 +80,7 @@ export const Home = () => {
                 <div>
                   <h3 className="font-medium text-slate-800">{selected.tenkhuvuc}</h3>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    {selected.id === gpsArea?.id && "📍 Khu vực của bạn · "}
+                    {selected.id === gpsArea?.id && "📍 Khu vực của bạn"}
                   </p>
                 </div>
                 <div
@@ -178,10 +122,12 @@ export const Home = () => {
           )}
         </div>
 
-        {/* Cột phải: AreaFlood */}
-        <div className="min-w-0">
+        {/* Cột phải: Widget + AreaFlood */}
+        <div className="w-full xl:w-[300px] flex flex-col gap-4">
+          <WaterLevelWidget />
           <AreaFlood />
         </div>
+
       </div>
 
       <HuongDan />

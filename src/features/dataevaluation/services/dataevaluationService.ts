@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { dataevaluationApi } from '../api/dataevaluationApi'
 import type { SnapShot } from '../types/dataevaluationType'
 

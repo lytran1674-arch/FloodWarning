@@ -2,7 +2,6 @@
 import { Table } from '@/components/ui/Table'
 import type { IoTAggregate } from '../types/waterlevelType'
 import { usePagination } from '@/hooks/usePagination'
-import { SearchBar } from '@/components/ui/SearchBar';
 import { useWaterLevel } from '../hooks/useWaterLevel';
 import { Input } from '@/components/ui/Input';
 

@@ -65,5 +65,6 @@ const searchResult=useMemo(()=>{
     reload: loadData,
     handleAggregate,
     search,setSearch
+    ,searchResult
   };
 };

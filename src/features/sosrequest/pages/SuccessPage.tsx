@@ -1,7 +1,7 @@
 // features/sos/pages/SuccessPage.tsx
 
 import { useNavigate } from "react-router-dom"
-import { Check, ShieldCheck, BellRing, PhoneCall } from "lucide-react"
+import { Check, } from "lucide-react"
 
 import anh from "../../../assets/4bf97db0-6d66-45d2-bfe3-de444053b78c.png"
 import { StatusTimeline } from "../components/StatusTimeline"

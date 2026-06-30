@@ -13,7 +13,12 @@ export interface AreaWithRisk extends Area {
   riskLevel: RiskLevel
   
 }
-
+export interface AreaMapItem {
+  id: string
+  tenkhuvuc: string
+  riskLevel: RiskLevel
+  geometry: GeoJSON.MultiPolygon | GeoJSON.Polygon | null
+}
 // features/map/types/mapType.ts
 export type RiskLevel = "LOW" | "MEDIUM" | "HIGH" | "UNKNOWN"
 
