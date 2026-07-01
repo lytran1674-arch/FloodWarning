@@ -11,6 +11,8 @@ import { WaterLevelWidget } from "../component/WaterLevelWidget"
 import { useRegionalForecast } from "../hooks/useRegionalForecast"
 import { useSelector } from "react-redux"
 import type { RootState } from "@/app/store"
+import { PredictCard } from "@/features/floodriskdata/components/PredictCard"
+import { useDataEvalution } from "@/features/dataevaluation/hooks/useDataEvalution"
 
 
 export const Home = () => {
@@ -121,6 +123,7 @@ export const Home = () => {
             </div>
           )}
         </div>
+          {/* Card dự báo */}
 
         {/* Cột phải: Widget + AreaFlood */}
         <div className="w-full xl:w-[300px] flex flex-col gap-4">
@@ -129,7 +132,7 @@ export const Home = () => {
         </div>
 
       </div>
-
+<PredictCard areaId={areaId ?? ""} />
       <HuongDan />
     </div>
   )

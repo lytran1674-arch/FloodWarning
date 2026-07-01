@@ -1,14 +1,10 @@
-import type { SnapShot } from "@/features/dataevaluation/types/dataevaluationType";
 import {
   GlassWaterIcon,
   TriangleAlert,
   Waves,
 } from "lucide-react";
 
-import { useEffect } from "react";
-import { useFloodRiskData } from "../hooks/useFloodRiskData";
 import { useDataEvalution } from "@/features/dataevaluation/hooks/useDataEvalution";
-import { data } from "react-router-dom";
 
 interface Props {
   areaId: string;
@@ -16,14 +12,15 @@ interface Props {
 
 export const PredictCard = ({ areaId }: Props) => {
 
- const {data:SnapShot}=useDataEvalution(areaId)
-
- 
+  const {
+    data: snapshot,
+    loading,
+  } = useDataEvalution(areaId);
 
   const cards = [
     {
       title: "Rủi ro ngập lụt",
-      value: data?. || "--",
+      value: snapshot?.riskLevel || "--",
       sub: "Mức độ khu vực",
       icon: GlassWaterIcon,
       color: "text-blue-700",
@@ -34,8 +31,8 @@ export const PredictCard = ({ areaId }: Props) => {
 
     {
       title: "Xác suất",
-      value: floodRiskData?.predictionProbability
-        ? `${(floodRiskData.predictionProbability * 100).toFixed(1)}%`
+      value: snapshot?.predictionProbaility
+        ? `${(snapshot.predictionProbaility * 100).toFixed(1)}%`
         : "--",
       sub: "Khả năng xảy ra",
       icon: TriangleAlert,
@@ -47,8 +44,8 @@ export const PredictCard = ({ areaId }: Props) => {
 
     {
       title: "Tốc độ mực nước",
-      value: floodRiskData?.waterRiseRatePerMinute
-        ? `${floodRiskData.waterRiseRatePerMinute} cm/phút`
+      value: snapshot?.waterRiseRatePerMinute
+        ? `${snapshot.waterRiseRatePerMinute} cm/phút`
         : "--",
       sub: "Mực nước tăng",
       icon: Waves,
@@ -60,17 +57,21 @@ export const PredictCard = ({ areaId }: Props) => {
   ];
 
   if (loading) {
-    return <div>Đang tải dữ liệu...</div>;
+    return (
+      <div className="p-4 text-sm text-slate-500">
+        Đang tải dữ liệu...
+      </div>
+    );
   }
 
   return (
     <div
       className="
       grid
-      grid-cols-2
+      grid-cols-1
+      md:grid-cols-2
       lg:grid-cols-3
-      gap-3
-      lg:gap-5
+      gap-4
       px-2
       lg:px-5
       py-2
@@ -91,8 +92,7 @@ export const PredictCard = ({ areaId }: Props) => {
             border
             ${card.border}
             bg-white
-            p-3
-            lg:p-4
+            p-4
             shadow-sm
             transition-all
             duration-300
@@ -102,6 +102,7 @@ export const PredictCard = ({ areaId }: Props) => {
             `}
           >
 
+            {/* glow */}
             <div
               className={`
               absolute
@@ -118,16 +119,14 @@ export const PredictCard = ({ areaId }: Props) => {
 
             <div className="relative flex items-start justify-between">
 
-              <div className="min-w-0">
+              <div>
 
                 <p
                   className="
-                  text-[11px]
-                  lg:text-sm
+                  text-sm
                   text-slate-500
                   group-hover:text-white
                   transition-colors
-                  truncate
                   "
                 >
                   {card.title}
@@ -136,8 +135,7 @@ export const PredictCard = ({ areaId }: Props) => {
                 <h2
                   className={`
                   mt-2
-                  text-xl
-                  lg:text-3xl
+                  text-3xl
                   font-bold
                   ${card.color}
                   group-hover:text-white
@@ -150,8 +148,7 @@ export const PredictCard = ({ areaId }: Props) => {
                 <p
                   className="
                   mt-1
-                  text-[10px]
-                  lg:text-xs
+                  text-xs
                   text-slate-400
                   group-hover:text-white/80
                   transition-colors
@@ -167,10 +164,8 @@ export const PredictCard = ({ areaId }: Props) => {
                 flex
                 items-center
                 justify-center
-                w-10
-                h-10
-                lg:w-12
-                lg:h-12
+                w-12
+                h-12
                 rounded-xl
                 ${card.iconBg}
                 group-hover:bg-white/20

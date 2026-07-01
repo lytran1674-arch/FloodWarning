@@ -578,7 +578,7 @@ export const NearestDevicePage = () => {
 
   const fetchData = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("accessToken");
       const res = await axios.get(
         "https://api-lulut.io.vn/iot-device/nearest/history?lat=10.85639&lon=106.76250",
         {
