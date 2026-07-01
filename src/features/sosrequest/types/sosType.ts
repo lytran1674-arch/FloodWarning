@@ -15,6 +15,7 @@ export type SosPriority =
 export type FilterStatus = 'ALL' | 'PENDING' | 'PROCESSING' | 'DONE' | 'CANCELLED'
 // features/sos/types/sosType.ts
 
+export type RoleGroup="PRIMARY" | "SUPPORT"
 export interface SoSRequest {
   sodt: string
   clientDeviceId: string
@@ -57,4 +58,16 @@ export interface ListSOS {
   priority: string
   mota: string
   createdAt: string
+}
+
+export interface AssignSos{
+  sosId?:string
+  groupId:string
+  role:RoleGroup
+  note?:string
+}
+
+export interface AssignRespone{
+  code:number
+  result:string
 }

@@ -1,4 +1,4 @@
-import {  Routes, Route } from "react-router-dom"
+import {  Routes, Route, Router } from "react-router-dom"
 import { MainLayout } from "../layouts/MainLayout"
 import { Area } from "../features/areas/pages/Area"
 
@@ -32,6 +32,7 @@ import { UpdateSOSPage } from "@/features/sosrequest/pages/Updatesospage"
 import { SummaryWaterPage } from "@/features/water-level/pages/SummaryWaterPage"
 import { SnapShotPage } from "@/features/dataevaluation/pages/SnapShotPage"
 import { AlertPage } from "@/features/alert/pages/AlertPage"
+import { SumWaterPage } from "@/features/citizen/pages/SumWater"
 
 
 
@@ -63,20 +64,16 @@ const AppRoutes = () => {
         <Route path="/sent-request" element={<RequestListPage/>}/>
         <Route path="/success" element={<SuccessPage />} />
         
-        <Route
-  path="/sos-assign/:sosId"
-  element={<SOSASSGINPAGE />}
-/>
-<Route
-  path="/team-sos"
-  element={<TeamSOSPage />}
-/>
-<Route path="/water-data" element={<NearestDevicePage/>}/>
+        <Route path="/sos-assign/:sosId"element={<SOSASSGINPAGE />}/>
+        <Route path="/team-sos" element={<TeamSOSPage />}/>
+        <Route path="/water-data" element={<NearestDevicePage/>}/>
 
- <Route path="/update-sos/:id" element={<UpdateSOSPage />} />
- <Route path="/success" element={<SuccessPage/>}/>
- <Route path="/summary-water" element={<SummaryWaterPage/>}/>
-    <Route path="/evaluation" element={<SnapShotPage/>}/>
+        <Route path="/update-sos/:id" element={<UpdateSOSPage />} />
+        <Route path="/success" element={<SuccessPage/>}/>
+        <Route path="/summary-water" element={<SummaryWaterPage/>}/>
+        <Route path="/sum-water" element={<SumWaterPage/>}/>
+        <Route path="/evaluation" element={<SnapShotPage/>}/>
+        <Route path="/homerescue" element={<HomeRescue/>}/>
         </Route>
        
       </Routes>

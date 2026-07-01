@@ -1,4 +1,4 @@
-import { BellIcon, Calendar, Files, FileText, GlassWater, GlassWaterIcon, Home, MapPin, PieChart, Send, Snowflake, StarHalf, User, Users, WavesArrowUp } from "lucide-react"
+import { BellIcon, Calendar, Files, FileText, GlassWater, GlassWaterIcon, Home, MapPin, PieChart, Send, SigmaIcon, Snowflake, StarHalf, User, Users, WavesArrowUp } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import MenuRescuer from "../assets/menurescuer.png"
 import type { CSSProperties } from "react"
@@ -28,13 +28,15 @@ export const adminMenu: MenuItem[] = [
 ]
 
 export const rescuerMenu: MenuItem[] = [
-  {text: "RESCUER     Lực Lượng Cứu Hộ", icon: IconRescuer,path:"/sos-assign/:sosId" },
-  { text: "Trang chủ",              icon: PieChart, path: "/sos-assign/:sosId"       },
+  {text: "RESCUER     Lực Lượng Cứu Hộ", icon: IconRescuer,path:"/homerescue" },
+  { text: "Trang chủ",              icon: PieChart, path: "/homerescue"       },
   { text: "Danh sách yêu cầu",      icon: Files,    path: "/team-sos" },
   { text: "Yêu cầu đã nhận",      icon: Files,    path: "/received-requests" },
-  { text: "Tài khoản ",      icon: User,    path: "/account" },
   {text:"Quản lý đội cứu hội", icon:FileText ,path:"/team-management"}
-  ,{text:"Quản lý nhóm cứu hộ" ,icon:FileText, path:"/group-management"}
+  ,{text:"Quản lý nhóm cứu hộ" ,icon:FileText, path:"/group-management"},
+   {text:"Quản lý dữ liệu mực nước tổng hợp",icon:GlassWaterIcon, path:"/summary-water"},
+  {text:"Quản lý dữ liệu đánh giá", icon:StarHalf,path:"/evaluation"},
+    { text: "Tài khoản ",      icon: User,    path: "/account" },
 ]
 
 export const userMenu: MenuItem[] = [
@@ -44,6 +46,9 @@ export const userMenu: MenuItem[] = [
  // { text: "Dữ liệu dự đoán nguy cơ lũ lụt", icon:FileQuestion , path: "/prediction" },
   {
     text:"Dữ liệu mực nước" ,icon: GlassWater, path:"/water-data"
+  },
+  {
+    text:"Dữ liệu tổng hợp" ,icon:SigmaIcon, path:"/sum-water"
   },
   {text:"Dữ liệu dự đoán lũ lụt", icon:Snowflake, path:"/predict"},
   {text:"Cảnh báo gần đây",icon:BellIcon, path:"/myalert"},

@@ -49,7 +49,7 @@ export const DataEvaluationTable = ({data}:Props) => {
      {
        title: "Xác xuất",
        key: "predictionProbaility" as keyof SnapShot,
-       render: (item: SnapShot) => `${item.predictionProbaility} `,
+       render: (item: SnapShot) => `${item.predictionProbability} `,
      },
      {
        title: "Tỷ lệ nguy hiểm ",

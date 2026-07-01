@@ -4,15 +4,15 @@ import { useUserProvince } from "../../map/hooks/useUserProvince"
 
 import GeoMap from "../../map/components/GeoMap"
 import { AreaFlood } from "../component/AreaFlood"
-import type { AreaMapItem, AreaWithRisk } from "../../map/types/mapType"
+import type { AreaMapItem } from "../../map/types/mapType"
 import { RISK_COLORS } from "../../map/types/mapType"
 import { HuongDan } from "../component/HuongDan"
 import { WaterLevelWidget } from "../component/WaterLevelWidget"
 import { useRegionalForecast } from "../hooks/useRegionalForecast"
 import { useSelector } from "react-redux"
 import type { RootState } from "@/app/store"
-import { PredictCard } from "@/features/floodriskdata/components/PredictCard"
-import { useDataEvalution } from "@/features/dataevaluation/hooks/useDataEvalution"
+import { SnapShotCard } from "@/features/dataevaluation/component/SnapShotCard"
+
 
 
 export const Home = () => {
@@ -57,7 +57,7 @@ export const Home = () => {
       </div>
 
       {/* LAYOUT CHÍNH */}
-      <div className="flex flex-col xl:flex-row gap-4 items-start">
+      <div className="flex flex-col xl:flex-row gap-2 items-start">
 
         {/* Cột trái: Map */}
         <div className="w-full xl:flex-1 space-y-3">
@@ -122,6 +122,7 @@ export const Home = () => {
               </div>
             </div>
           )}
+          <SnapShotCard areaId={areaId ?? ""} />
         </div>
           {/* Card dự báo */}
 
@@ -132,7 +133,7 @@ export const Home = () => {
         </div>
 
       </div>
-<PredictCard areaId={areaId ?? ""} />
+
       <HuongDan />
     </div>
   )

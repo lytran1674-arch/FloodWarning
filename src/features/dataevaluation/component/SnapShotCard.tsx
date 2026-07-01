@@ -10,12 +10,58 @@ interface Props {
   areaId: string;
 }
 
-export const PredictCard = ({ areaId }: Props) => {
+// Xác định bộ màu theo mức độ rủi ro: Cao (đỏ), Trung bình (vàng), Thấp (xanh lá)
+const getRiskLevelStyle = (riskLevel?: string) => {
+  const level = (riskLevel || "").toLowerCase();
+
+  const isHigh = ["cao", "high", "nguy hiểm", "nghiêm trọng"].some((k) =>
+    level.includes(k)
+  );
+  const isMedium = ["trung bình", "medium", "vừa"].some((k) =>
+    level.includes(k)
+  );
+  const isLow = ["thấp", "low", "an toàn"].some((k) => level.includes(k));
+
+  if (isHigh) {
+    return {
+      color: "text-red-700",
+      bg: "hover:bg-red-500",
+      iconBg: "bg-red-100",
+    };
+  }
+
+  if (isMedium) {
+    return {
+      color: "text-yellow-600",
+      bg: "hover:bg-yellow-500",
+      iconBg: "bg-yellow-100",
+    };
+  }
+
+  if (isLow) {
+    return {
+      color: "text-green-600",
+      bg: "hover:bg-green-500",
+      iconBg: "bg-green-100",
+    };
+  }
+
+  // Mặc định khi chưa có dữ liệu
+  return {
+    color: "text-slate-500",
+    bg: "hover:bg-slate-400",
+    iconBg: "bg-slate-100",
+  };
+};
+
+export const SnapShotCard = ({ areaId }: Props) => {
 
   const {
     data: snapshot,
     loading,
   } = useDataEvalution(areaId);
+
+  const riskStyle = getRiskLevelStyle(snapshot?.riskLevel);
 
   const cards = [
     {
@@ -23,21 +69,21 @@ export const PredictCard = ({ areaId }: Props) => {
       value: snapshot?.riskLevel || "--",
       sub: "Mức độ khu vực",
       icon: GlassWaterIcon,
-      color: "text-blue-700",
-      bg: "hover:bg-blue-500",
-      iconBg: "bg-blue-100",
+      color: riskStyle.color,
+      bg: riskStyle.bg,
+      iconBg: riskStyle.iconBg,
       border: "border-[#E5E7EB]",
     },
 
     {
       title: "Xác suất",
-      value: snapshot?.predictionProbaility
-        ? `${(snapshot.predictionProbaility * 100).toFixed(1)}%`
+      value: snapshot?.predictionProbability
+        ? `${(snapshot.predictionProbability * 100).toFixed(1)}%`
         : "--",
       sub: "Khả năng xảy ra",
       icon: TriangleAlert,
-      color: "text-red-600",
-      bg: "hover:bg-red-500",
+      color: "text-orange-600",
+      bg: "hover:bg-orange-500",
       iconBg: "bg-red-100",
       border: "border-[#E5E7EB]",
     },
@@ -48,6 +94,18 @@ export const PredictCard = ({ areaId }: Props) => {
         ? `${snapshot.waterRiseRatePerMinute} cm/phút`
         : "--",
       sub: "Mực nước tăng",
+      icon: Waves,
+      color: "text-yellow-600",
+      bg: "hover:bg-yellow-500",
+      iconBg: "bg-yellow-100",
+      border: "border-[#E5E7EB]",
+    },
+      {
+      title: "% Nguy hiểm",
+      value: snapshot?.dangerPercent
+        ? `${snapshot.dangerPercent} %`
+        : "--",
+      sub: "",
       icon: Waves,
       color: "text-yellow-600",
       bg: "hover:bg-yellow-500",
@@ -68,13 +126,13 @@ export const PredictCard = ({ areaId }: Props) => {
     <div
       className="
       grid
-      grid-cols-1
+      grid-cols-2
       md:grid-cols-2
-      lg:grid-cols-3
-      gap-4
+      lg:grid-cols-4
+      gap-2
       px-2
-      lg:px-5
-      py-2
+     
+      lg:w-[950px]
       "
     >
       {cards.map((card, index) => {
@@ -92,7 +150,7 @@ export const PredictCard = ({ areaId }: Props) => {
             border
             ${card.border}
             bg-white
-            p-4
+                p-2
             shadow-sm
             transition-all
             duration-300
@@ -135,7 +193,7 @@ export const PredictCard = ({ areaId }: Props) => {
                 <h2
                   className={`
                   mt-2
-                  text-3xl
+                  text-sm
                   font-bold
                   ${card.color}
                   group-hover:text-white

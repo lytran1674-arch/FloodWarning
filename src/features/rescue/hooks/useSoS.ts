@@ -1,8 +1,8 @@
 // features/sos/hooks/useSoS.ts
 
 import { useState } from "react"
-import type { AssignSos, ListSOS, SoSRequest, SoSResponse } from "../types/sosType"
-import { sosService } from "../services/sosService"
+import type { AssignSos, ListSOS, SoSRequest, SoSResponse } from "../../sosrequest/types/sosType"
+import { sosService } from "../../sosrequest/services/sosService"
 import { toast } from "react-toastify"
 
 export const useSoS = () => {
@@ -52,8 +52,8 @@ export const useSoS = () => {
 const assignment = async (payload: AssignSos): Promise<boolean> => {
   try {
     setSubmitting(true)
-    const assignmentId = await sosService.postassign(payload) // string
-    console.log("Assignment ID:", assignmentId)
+    await sosService.postassign(payload)
+    console.log("POST dữ liệu thành công")
     toast.success("Phân công cứu hộ thành công")
     return true
   } catch (err: any) {

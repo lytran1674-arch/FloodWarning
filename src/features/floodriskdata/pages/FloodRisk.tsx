@@ -11,7 +11,7 @@ import { Button } from '../../../components/ui/Button'
 import GeoMap from '@/features/map/components/GeoMap'
 import { useUserProvince } from '@/features/map/hooks/useUserProvince'
 import { useProvinceMap } from '@/features/map/hooks/useProvinceMap'
-import type { AreaWithRisk } from '@/features/map/types/mapType'
+//import type { AreaWithRisk } from '@/features/map/types/mapType'
 
 export const FloodRisk = () => {
   const { loading } = useFloodRiskData()
@@ -20,7 +20,7 @@ export const FloodRisk = () => {
   const [areaId, setAreaId] = useState("")
   const [userHasSelected, setUserHasSelected] = useState(false)
   const [lead] = useState<1 | 2 | 3>(1)
-  const [, setSelected] = useState<AreaWithRisk | null>(null)
+  //const [//selected, setSelected] = useState<AreaWithRisk | null>(null)
 
   // ── GPS → phường → detail → parentId → siblings → polygons ──────────────
   const {
@@ -192,7 +192,7 @@ export const FloodRisk = () => {
             selectedAreaId={areaId}
             provinceName={effectiveParentName ?? undefined}
             loading={loadingGps || loadingMap}
-            onAreaClick={setSelected}
+           // onAreaClick={setSelected}
             currentLat={currentLat}
             currentLon={currentLon}
             showCurrentPin={true}

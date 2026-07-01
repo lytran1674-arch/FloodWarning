@@ -32,11 +32,12 @@ export const Menu = ({
         ${bgColor}
         fixed left-0 top-0 z-[2000]
         h-screen
-        sm:mt-[60px] lg:mt-[68px]
+        sm:mt-[58px] lg:mt-[63px]
         sm:w-[180px] lg:w-[240px] w-[150px]
+        md:mt-[61px]
         p-0 lg:p-3
         border
-        mt-[60px]
+        mt-[62px]
         transition-transform duration-300
         ${openMenu ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0

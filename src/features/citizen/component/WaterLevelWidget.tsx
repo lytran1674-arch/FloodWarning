@@ -1,6 +1,7 @@
 // features/dashboard/components/WaterLevelWidget.tsx
 // Hiển thị mực nước mới nhất của khu vực user — dùng trên Dashboard
 // API: GET /iot-aggregate/areas/{areaId}/latest
+// Ngưỡng cảnh báo (nguong_canh_bao) lấy từ danh sách thiết bị IoT của khu vực
 // areaId lấy từ redux state.auth.user.areaId
 
 import { useEffect, useState } from "react"
@@ -10,6 +11,9 @@ import {
   Droplets, TrendingUp, AlertTriangle,
   Clock, Wifi, WifiOff, RefreshCw,
 } from "lucide-react"
+import { DeviceService } from "@/features/iotdevices/services/iotdeviceService"
+import type { Device } from "@/features/iotdevices/types/deviceType"
+
 
 interface WaterData {
   area_id:                string
@@ -32,41 +36,41 @@ function formatTime(iso: string) {
   })
 }
 
-function GaugeArc({ ratio }: { ratio: number }) {
-  const clamped = Math.min(1, Math.max(0, ratio))
-  const r       = 40
-  const cx      = 50
-  const cy      = 55
-  const circ    = Math.PI * r
-  const offset  = circ * (1 - clamped)
+// function GaugeArc({ ratio }: { ratio: number }) {
+//   const clamped = Math.min(1, Math.max(0, ratio))
+//   const r       = 40
+//   const cx      = 50
+//   const cy      = 55
+//   const circ    = Math.PI * r
+//   const offset  = circ * (1 - clamped)
 
-  const fillColor =
-    clamped >= 0.8 ? "#ef4444" :
-    clamped >= 0.5 ? "#f97316" :
-    clamped >= 0.3 ? "#eab308" : "#22c55e"
+  // const fillColor =
+  //   clamped >= 0.8 ? "#ef4444" :
+  //   clamped >= 0.5 ? "#f97316" :
+  //   clamped >= 0.3 ? "#eab308" : "#22c55e"
 
-  return (
-    <svg viewBox="0 0 100 60" className="w-full max-w-[160px]">
-      <path
-        d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
-        fill="none" stroke="#e5e7eb" strokeWidth="8" strokeLinecap="round"
-      />
-      <path
-        d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
-        fill="none" stroke={fillColor} strokeWidth="8" strokeLinecap="round"
-        strokeDasharray={circ} strokeDashoffset={offset}
-        style={{ transition: "stroke-dashoffset 0.8s ease, stroke 0.4s ease" }}
-      />
-      <text x={cx} y={cy - 8} textAnchor="middle"
-        fontSize="13" fill={fillColor} fontWeight="700">
-        {Math.round(clamped * 100)}%
-      </text>
-      <text x={cx} y={cy + 4} textAnchor="middle" fontSize="6.5" fill="#9ca3af">
-        nguy hiểm
-      </text>
-    </svg>
-  )
-}
+//   return (
+//     <svg viewBox="0 0 100 60" className="w-full max-w-[160px]">
+//       <path
+//         d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
+//         fill="none" stroke="#e5e7eb" strokeWidth="8" strokeLinecap="round"
+//       />
+//       <path
+//         d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
+//         fill="none" stroke={fillColor} strokeWidth="8" strokeLinecap="round"
+//         strokeDasharray={circ} strokeDashoffset={offset}
+//         style={{ transition: "stroke-dashoffset 0.8s ease, stroke 0.4s ease" }}
+//       />
+//       <text x={cx} y={cy - 8} textAnchor="middle"
+//         fontSize="13" fill={fillColor} fontWeight="700">
+//         {Math.round(clamped * 100)}%
+//       </text>
+//       <text x={cx} y={cy + 4} textAnchor="middle" fontSize="6.5" fill="#9ca3af">
+//         nguy hiểm
+//       </text>
+//     </svg>
+//   )
+// }
 
 export const WaterLevelWidget = () => {
   // ✅ Lấy areaId trực tiếp từ redux — không cần prop
@@ -76,6 +80,10 @@ export const WaterLevelWidget = () => {
   const [data,    setData]    = useState<WaterData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState<string | null>(null)
+
+  // Ngưỡng cảnh báo lấy từ thiết bị IoT thuộc khu vực (field nguong_canh_bao)
+  const [threshold,        setThreshold]        = useState<number | null>(null)
+  const [thresholdLoading, setThresholdLoading]  = useState(true)
 
   const fetchData = async () => {
     if (!areaId) {
@@ -95,18 +103,56 @@ export const WaterLevelWidget = () => {
     }
   }
 
+  // Lấy ngưỡng cảnh báo từ API IoT (danh sách thiết bị của khu vực)
+  const fetchThreshold = async () => {
+    if (!areaId) {
+      setThresholdLoading(false)
+      return
+    }
+    try {
+      setThresholdLoading(true)
+      const devices: Device[] = await DeviceService.getDevices()
+
+      const areaDevices = devices.filter(
+        (d) => d.area_id === areaId && d.nguong_canh_bao !== null
+      )
+
+      if (areaDevices.length > 0) {
+        // Nhiều thiết bị trong cùng khu vực có thể có ngưỡng khác nhau
+        // → lấy ngưỡng THẤP NHẤT để cảnh báo sớm nhất
+        const minThreshold = Math.min(
+          ...areaDevices.map((d) => d.nguong_canh_bao as number)
+        )
+        setThreshold(minThreshold)
+      } else {
+        setThreshold(null)
+      }
+    } catch (err) {
+      console.log(err)
+      setThreshold(null)
+    } finally {
+      setThresholdLoading(false)
+    }
+  }
+
   useEffect(() => {
     fetchData()
+    fetchThreshold()
     const timer = setInterval(fetchData, 60_000)
     return () => clearInterval(timer)
   }, [areaId])
 
-  const dangerLevel =
-    !data ? null :
-    data.dangerRatio >= 0.8 ? { label: "Nguy hiểm cao",  color: "text-red-600",    bg: "bg-red-50 border-red-200"       } :
-    data.dangerRatio >= 0.5 ? { label: "Cảnh báo",        color: "text-orange-600", bg: "bg-orange-50 border-orange-200" } :
-    data.dangerRatio >= 0.3 ? { label: "Theo dõi",        color: "text-yellow-600", bg: "bg-yellow-50 border-yellow-200" } :
-                               { label: "An toàn",         color: "text-green-600",  bg: "bg-green-50 border-green-200"   }
+  // Tính phần vượt/còn cách ngưỡng dựa trên mực nước hiện tại
+  const exceedAmount =
+    data && threshold !== null ? data.currentWater - threshold : null
+  const isExceeded = exceedAmount !== null && exceedAmount > 0
+
+  // const dangerLevel =
+  //   !data ? null :
+  //   data.dangerRatio >= 0.8 ? { label: "Nguy hiểm cao",  color: "text-red-600",    bg: "bg-red-50 border-red-200"       } :
+  //   data.dangerRatio >= 0.5 ? { label: "Cảnh báo",        color: "text-orange-600", bg: "bg-orange-50 border-orange-200" } :
+  //   data.dangerRatio >= 0.3 ? { label: "Theo dõi",        color: "text-yellow-600", bg: "bg-yellow-50 border-yellow-200" } :
+  //                              { label: "An toàn",         color: "text-green-600",  bg: "bg-green-50 border-green-200"   }
 
   // ── Loading skeleton ──
   if (loading && !data) {
@@ -145,15 +191,15 @@ export const WaterLevelWidget = () => {
   const isRising = data.waterRiseRatePerMinute > 0
 
   return (
-    <div className={`bg-white rounded-2xl border overflow-hidden transition-all ${dangerLevel?.bg}`}>
+    <div className={`bg-white rounded-2xl border overflow-hidden transition-all `}>
 
       {/* Header */}
       <div className="px-4 pt-4 pb-2 flex items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5 mb-0.5">
             <Droplets className="w-4 h-4 text-blue-500 shrink-0" />
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              Mực nước
+            <span className="text-xs font-bold text-blue-600 uppercase tracking-wide">
+              MỰC NƯỚC HIỆN TẠI
             </span>
           </div>
           <h3 className="text-sm font-bold text-gray-800 truncate">
@@ -178,49 +224,56 @@ export const WaterLevelWidget = () => {
 
       {/* Gauge + current */}
       <div className="flex items-center justify-between px-4 py-2 gap-4">
-        <div className="flex flex-col items-center">
+        {/* <div className="flex flex-col items-center">
           <GaugeArc ratio={data.dangerRatio} />
           <span className={`text-[11px] font-semibold mt-1 ${dangerLevel?.color}`}>
             {dangerLevel?.label}
           </span>
-        </div>
+        </div> */}
 
         <div className="flex-1 space-y-2">
-          <div>
-            <p className="text-[10px] text-gray-400 mb-0.5">Hiện tại</p>
+          <div className="flex justify-start lg:gap-3">
+          
             <p className="text-2xl font-black text-gray-800 leading-none">
               {data.currentWater.toFixed(2)}
-              <span className="text-sm font-medium text-gray-400 ml-1">m</span>
+              <span className="text-sm font-medium text-gray-400 ml-1">cm</span>
             </p>
-          </div>
-
-          <div className={`flex items-center gap-1 text-xs font-medium ${isRising ? "text-red-500" : "text-green-500"}`}>
+              <div className={`flex items-center gap-1 text-xs font-medium ${isRising ? "text-red-500" : "text-green-500"}`}>
             <TrendingUp className={`w-3.5 h-3.5 ${!isRising ? "rotate-180" : ""}`} />
             {isRising ? "+" : ""}{(data.waterRiseRatePerMinute * 60).toFixed(4)} m/h
           </div>
+          </div>
+
+        
+
+          {/* Vượt / còn cách ngưỡng cảnh báo (nguong_canh_bao lấy từ thiết bị IoT) */}
+          {!thresholdLoading && threshold !== null && exceedAmount !== null && (
+            <div
+              className={`flex items-center gap-1 text-[10px] rounded-lg px-2 py-1 font-medium ${
+                isExceeded
+                  ? "text-red-600 bg-red-50 font-bold"
+                  : "text-green-600 bg-green-50"
+              }`}
+            >
+              <AlertTriangle className="w-3 h-3 shrink-0" />
+              {isExceeded
+                ? `Cao hơn ngưỡng ${exceedAmount.toFixed(2)}cm `
+                : `Còn cách ngưỡng ${Math.abs(exceedAmount).toFixed(2)}cm (ngưỡng: ${threshold}cm)`}
+            </div>
+          )}
 
           {data.dangerDurationMinutes > 0 && (
             <div className="flex items-center gap-1 text-[10px] text-orange-600 bg-orange-50 rounded-lg px-2 py-1">
               <AlertTriangle className="w-3 h-3 shrink-0" />
-              Nguy hiểm {data.dangerDurationMinutes} phút
+              Nguy hiểm: {data.dangerDurationMinutes} phút
             </div>
           )}
         </div>
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-3 gap-2 px-4 pb-4">
-        {[
-          { label: "Trung bình", value: data.avgWater.toFixed(2) + " m"  },
-          { label: "Cao nhất",   value: data.maxWater.toFixed(2) + " m"  },
-          { label: "Thấp nhất",  value: data.minWater.toFixed(2) + " m"  },
-        ].map(stat => (
-          <div key={stat.label} className="bg-white/80 rounded-xl px-2.5 py-2 text-center border border-gray-100">
-            <p className="text-[10px] text-gray-400 mb-0.5">{stat.label}</p>
-            <p className="text-xs font-bold text-gray-700">{stat.value}</p>
-          </div>
-        ))}
-      </div>
+     
+   
 
       {/* Footer */}
       <div className="flex items-center justify-between px-4 py-2 border-t border-gray-100/80 bg-white/50">

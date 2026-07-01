@@ -31,7 +31,7 @@ export const StatusCard = ({ data }: Props) => {
   const warningAreas = data.filter(
     (x) =>
       (x.dangerRatio || 0) >= 0.3 &&
-      (x.dangerRatio || 0) < 0.6
+      (x.dangerRatio || 0) < 0.8
   ).length;
 
   const cards = [

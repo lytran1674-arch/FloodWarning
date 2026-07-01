@@ -5,7 +5,7 @@ export interface SnapShot{
     tenkhuvuc?:string
     riskLevel?:MucDo
     iotRiskScore?:string
-    predictionProbaility?:number
+    predictionProbability?:number
     dangerRatio?:number
     dangerDuraionMinutes?:number
     waterRiseRatePerMinute?:number
