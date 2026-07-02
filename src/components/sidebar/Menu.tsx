@@ -1,3 +1,5 @@
+import { useAppSelector } from "@/hooks/redux.hooks";
+import { Button } from "antd";
 import type { LucideIcon } from "lucide-react";
 import type { CSSProperties } from "react";
 import { NavLink } from "react-router-dom";
@@ -25,19 +27,24 @@ export const Menu = ({
   hover = "",
   bgStyle,
 }: Props) => {
+
+    const user = useAppSelector((state) => state.auth.user);
+    const role = user?.role==="CITIZEN"
+  
   return (
+
     <div
       style={bgStyle}
       className={`
         ${bgColor}
         fixed left-0 top-0 z-[2000]
         h-screen
-        sm:mt-[58px] lg:mt-[63px]
+        sm:mt-[58px] lg:mt-[65px]
         sm:w-[180px] lg:w-[240px] w-[150px]
         md:mt-[61px]
         p-0 lg:p-3
         border
-        mt-[62px]
+        mt-[61px]
         transition-transform duration-300
         ${openMenu ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0
@@ -77,6 +84,11 @@ export const Menu = ({
           );
         })}
       </ul>
+        <div className="lg:mt-[100px] lg:ml-[45px] mt-[200px] ml-[30px]">
+            {role&&
+      <Button className="border border-red-600 font-bold lg:p-4 bg-red-600 text-white text-xs sm:text-sm lg:text-xl rounded-3xl">Gọi SOS</Button>
+}
+        </div>
     </div>
   );
 };

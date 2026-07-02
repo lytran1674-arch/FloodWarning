@@ -1,6 +1,6 @@
 // features/sos/api/sosApi.ts
 
-import type { AssignRespone, AssignSos, ListSOS, SoSRequest, SoSResponse } from "../types/sosType"
+import type { AssignSos, DetailSos, ListSOS, SoSRequest, SoSResponse } from "../types/sosType"
 import { axiosClient } from "@/api/axiosClient"
 
 const API_URL = "/sos-request"
@@ -37,6 +37,10 @@ export const SoSAPI = {
  ,
   async postassigment(data:AssignSos):Promise<string>{
     const response=await axiosClient.post("/sos-assignment",data);
+    return response.data.result
+  },
+  async getdetailsos(id:string):Promise<DetailSos>{
+    const response=await axiosClient.get(`${API_URL}/${id}`)
     return response.data.result
   }
 }

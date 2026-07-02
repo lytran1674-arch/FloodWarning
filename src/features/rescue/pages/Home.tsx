@@ -14,7 +14,7 @@ import type { RootState } from "@/app/store"
 
 import { useRegionalForecast } from "@/features/citizen/hooks/useRegionalForecast"
 import SoSCard from "./SoSCard"
-import { StatusSoS } from "../components/StatusSoS"
+//import { StatusSoS } from "../components/StatusSoS"
 import AssigmentCard from "../components/AsssignGroup"
 
 
@@ -64,7 +64,7 @@ export const HomeRescue = () => {
  
         <div className="w-full xl:flex-1 gap-2 flex lg:justify-start">
           <div className="flex-wrap space-y-2">
-            <StatusSoS />
+           {/* <StatusSoS />*/}
             <SoSCard/>
             <AssigmentCard/>
             </div>

@@ -50,6 +50,7 @@ export const LoginForm: React.FC = () => {
         case "ADMIN":   navigate("/areas-management"); break
         case "RESCUER": navigate("/team-sos");             break
         case "CITIZEN": navigate("/dashboard");             break
+        case "PROVINCE_OPERATOR": navigate("/homeprovince"); break
         default:        navigate("/")
       }
 
@@ -61,7 +62,7 @@ export const LoginForm: React.FC = () => {
   }
 
   const handleOnClick=()=>{
-    navigate("/dashboard")
+    navigate("/register")
   }
   return (
     <div className="flex items-center justify-center overflow-hidden p-0 m-10 sm:w-50 ">

@@ -6,7 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAppSelector } from "@/hooks/redux.hooks";
 import { useGroup } from "../hooks/useGroup";
 import { useSoS } from "../hooks/useSoS";
-import type { Group } from "../../grouprescue/types/groupType";
+
 import {
   Anchor,
   Stethoscope,
@@ -65,9 +65,9 @@ export default function SosAssignPage() {
   const [role, setRole] = useState<RoleGroup>("PRIMARY");
   const [note, setNote] = useState("");
 
-  const selectedGroup: Group | undefined = groups.find(
-    (g) => g.id === selectedGroupId
-  );
+  // const selectedGroup: Group | undefined = groups.find(
+  //   (g) => g.id === selectedGroupId
+  // );
 
   const handleSubmit = async () => {
     if (!sosId) return;

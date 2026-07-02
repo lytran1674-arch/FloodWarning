@@ -1,4 +1,4 @@
-import {  Routes, Route, Router } from "react-router-dom"
+import {  Routes, Route } from "react-router-dom"
 import { MainLayout } from "../layouts/MainLayout"
 import { Area } from "../features/areas/pages/Area"
 
@@ -19,7 +19,7 @@ import { HomeRescue } from "../features/rescue/pages/Home"
 
 import { CreateGroupPage } from "@/features/rescue/pages/Creategrouppage"
 import { SOSRequest } from "@/features/sosrequest/components/FormSos"
-import { FormSOS } from "@/features/citizen/component/FormSOS"
+
 import {RequestListPage} from "@/features/sosrequest/pages/RequestListPage"
 import SuccessPage from "@/features/sosrequest/pages/SuccessPage"
 import { SOSASSGINPAGE} from "@/features/rescue/pages/SOSASSGINPAGE"
@@ -33,6 +33,14 @@ import { SummaryWaterPage } from "@/features/water-level/pages/SummaryWaterPage"
 import { SnapShotPage } from "@/features/dataevaluation/pages/SnapShotPage"
 import { AlertPage } from "@/features/alert/pages/AlertPage"
 import { SumWaterPage } from "@/features/citizen/pages/SumWater"
+import { SupportRequestListPage } from "@/features/province_operator/pages/SuppportRequestListPage"
+
+import { HomeProvince } from "@/features/province_operator/pages/Home"
+import { SupportRequestReviewPage } from "@/features/province_operator/pages/SupportRequestReviewPage"
+import ListProvinceOperatorPage from "@/features/province_operator/pages/ListProvinceOperatorPage"
+import { SoSAnonymous } from "@/features/sosrequest-anonymous/components/SoSAnonymous"
+import SentRequestAnonymousPage from "@/features/sosrequest-anonymous/components/Sentrequestanonymouspage"
+
 
 
 
@@ -43,7 +51,8 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage/>}/>
-        <Route path="/sos-request-anonymous" element={<FormSOS/>}/>
+        <Route path="/sos-request-anonymous" element={<SoSAnonymous/>}/>
+        <Route path="/sent-request-anonymous" element={<SentRequestAnonymousPage />} />
         <Route element={<MainLayout />}>          
           <Route path="/areas-management" element={<Area />} />
           <Route path="/weather-data/:area_id"/>
@@ -60,7 +69,7 @@ const AppRoutes = () => {
         <Route path="/res-groups/:groupId/members" element={<GroupMembersPage />}/>
         <Route path="/create-team" element={<CreateTeam />}/>
         <Route path="/res-group/create" element={<CreateGroupPage />} />
-        <Route path="/team-management" element={<HomeRescue />}/>
+        <Route path="/team-management" element={<ResTeamPage />}/>
         <Route path="/sent-request" element={<RequestListPage/>}/>
         <Route path="/success" element={<SuccessPage />} />
         
@@ -74,6 +83,11 @@ const AppRoutes = () => {
         <Route path="/sum-water" element={<SumWaterPage/>}/>
         <Route path="/evaluation" element={<SnapShotPage/>}/>
         <Route path="/homerescue" element={<HomeRescue/>}/>
+        <Route path="/request-support" element={<SupportRequestListPage/>}/>
+        <Route path="/support-request/:id/review" element={<SupportRequestReviewPage />} />
+        <Route path="/homeprovince" element={<HomeProvince/>}/>
+        {/* <Route path="/province_operator-management" element={<ProvinceOperatorListPage/>}/> */}
+         <Route path="/province_operator-management" element={<ListProvinceOperatorPage/>}/>
         </Route>
        
       </Routes>

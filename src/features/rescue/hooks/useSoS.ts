@@ -39,6 +39,8 @@ export const useSoS = () => {
     }
   }
 
+  
+
   const updateSoS = async (
     id: string,
     payload: SoSRequest

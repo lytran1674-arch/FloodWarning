@@ -9,7 +9,7 @@ export const authAPI = {
 
   // ================= LOGIN =================
   login(data: LoginPayLoad) {
-    return publicApi.post(
+    return axiosClient.post(
       "/auth/token",
       data
     );
@@ -17,7 +17,7 @@ export const authAPI = {
 
   // ================= REGISTER =================
   register(data: any) {
-    return publicApi.post(
+    return axiosClient.post(
       "/user/register",
       data
     );

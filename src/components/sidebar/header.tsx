@@ -108,8 +108,8 @@ const ProvinceHeader = ({ openMenu, setOpenMenu, user }: any) => (
     </div>
     <div className="flex items-center lg:gap-3">
       <div className="text-right">
-        <p className="text-white text-xs lg:text-sm sm:text-sm font-semibold">{user?.hoten ?? "Admin"}</p>
-        <p className="text-white text-xs">Lực lượng cứu hộ </p>
+        <p className="text-white text-xs lg:text-sm sm:text-sm font-semibold">{user?.hoten ?? "Province_Operator"}</p>
+        <p className="text-white text-xs">Lực lượng cứu hộ cấp tỉnh </p>
       </div>
       <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-[#111B3F] font-bold text-xs sm:text-sm lg:text-sm">
         {user?.hoten?.[0] ?? "A"}

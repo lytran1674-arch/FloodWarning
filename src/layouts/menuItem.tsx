@@ -1,4 +1,4 @@
-import { BellIcon, Calendar, Files, FileText, GlassWater, GlassWaterIcon, Home, MapPin, PieChart, Send, SigmaIcon, Snowflake, StarHalf, User, Users, WavesArrowUp } from "lucide-react"
+import { BellIcon, Calendar, Files, FileText, GlassWater, GlassWaterIcon, Home, MapPin, PieChart, Send, SigmaIcon, Snowflake, StarHalf, User, WavesArrowUp } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import MenuRescuer from "../assets/menurescuer.png"
 import type { CSSProperties } from "react"
@@ -16,10 +16,9 @@ export type MenuItem = {
 export const adminMenu: MenuItem[] = [
   { text: "Thống kê",                       icon: PieChart,  path: "/thongke"            },
   { text: "Quản lý lực lượng cứu hộ",       icon: Files,     path: "/rescue-management"},
-   
-   
+  { text: "Quản lý điều hành cứu hộ cấp tỉnh",       icon: Files,     path: "/province_operator-management"},
   { text: "Quản lý dữ liệu thời tiết",      icon: Calendar,  path: "/weather-data"      },
-  { text: "Quản lý người dùng",             icon: Users,     path: "/users-management"        },
+  // { text: "Quản lý người dùng",             icon: Users,     path: "/users-management"        },
   { text: "Quản lý khu vực",                icon: MapPin,    path: "/areas-management"        },
   { text: "Quản lý dữ liệu nguy cơ lũ lụt",         icon: Snowflake, path: "/flood-risk" },
   {text:"Quản lý dữ liệu mực nước tổng hợp",icon:GlassWaterIcon, path:"/summary-water"},
@@ -55,6 +54,19 @@ export const userMenu: MenuItem[] = [
   { text: "Tài khoản", icon: User, path: "/account" },
 ]
 
+export const province_operatorMenu: MenuItem[] = [
+  {text: "RESCUER     Lực Lượng Cứu Hộ", icon: IconRescuer,path:"/homeprovince" },
+  { text: "Trang chủ",              icon: PieChart, path: "/homeprovince"       },
+  { text: "Danh sách hỗ trợ cứu hộ",      icon: Files,    path: "/request-support" },
+  { text: "Yêu cầu đã nhận",      icon: Files,    path: "/received-requests" },
+  {text:"Quản lý đội cứu hội", icon:FileText ,path:"/team-management"}
+  ,{text:"Quản lý nhóm cứu hộ" ,icon:FileText, path:"/group-management"},
+   {text:"Quản lý dữ liệu mực nước tổng hợp",icon:GlassWaterIcon, path:"/summary-water"},
+  {text:"Quản lý dữ liệu đánh giá", icon:StarHalf,path:"/evaluation"},
+    { text: "Tài khoản ",      icon: User,    path: "/account" },
+]
+
+
 export type RoleConfig={
     menu:MenuItem[]
     bgColor:string
@@ -89,7 +101,18 @@ export const roleConfig: Record<string,RoleConfig>={
         hover:"hover:bg-[#F5ACAC]",
         color:"#ffffff",
     },
-
+ PROVINCE_OPERATOR:{
+        menu:province_operatorMenu,
+        bgColor:"",
+        bgStyle: {
+      backgroundImage: `url(${MenuRescuer})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+    },
+        hover: "hover:bg-[#1160FD]",
+        color:"#ffffff"
+    },
 }
 
 export const defaultConfig:RoleConfig={

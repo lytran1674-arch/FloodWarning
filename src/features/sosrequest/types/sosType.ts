@@ -71,3 +71,33 @@ export interface AssignRespone{
   code:number
   result:string
 }
+
+export interface DetailSos{
+  id:string
+  teamId:string
+  teamName:string
+  phoneNumber:string
+  victimCount:number
+  injured:boolean
+  trapped:boolean
+  vulnerable:boolean
+  description:string
+  priority:SosPriority
+  baseSeverityScore:number
+  priorityReason:string
+  eviromentRisk:SosPriority
+  lat:number
+  lon:number
+  address:string
+  status:SosStatus
+  createdAt:string
+  assignments:Assignment[]
+
+}
+
+export interface Assignment {
+  id: string;
+  groupId: string;
+  groupName:string
+  teamId:string
+}

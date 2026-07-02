@@ -2,58 +2,61 @@ import axios from "axios";
 import { getToken } from "firebase/messaging";
 import { messaging } from "../firebase";
 
+const API_URL = "https://api-lulut.io.vn/notification/token";
+
 export const requestNotificationPermission = async () => {
   try {
-    // Xin quyền notification
+    // Xin quyền thông báo
     const permission = await Notification.requestPermission();
 
     if (permission !== "granted") {
-      console.log("Notification denied");
-      return;
+      console.log("Notification permission denied");
+      return null;
     }
 
-    // Đăng ký service worker TRƯỚC khi lấy token
+    // Đăng ký Service Worker
     const registration = await navigator.serviceWorker.register(
       "/firebase-messaging-sw.js"
     );
+
     await navigator.serviceWorker.ready;
 
-    // Lấy FCM token
+    // Lấy FCM Token
     const token = await getToken(messaging, {
       vapidKey:
         "BJpZLQUn5cvE-lotcGk9C-1eu8SOI7y_9vANyUtPJD9pIVUMkIsAjXfhUBjYhiUfcURJMK_JwBn2gwBw61Ogw0g",
-      serviceWorkerRegistration: registration, // <-- thêm dòng này
+      serviceWorkerRegistration: registration,
     });
 
     if (!token) {
-      console.log("Không lấy được FCM token");
-      return;
+      console.log("Không lấy được FCM Token");
+      return null;
     }
 
     console.log("FCM TOKEN:", token);
 
-    // Chống gửi nhiều lần
-    const savedFcmToken = localStorage.getItem("fcm_token");
+    // Lưu token tạm để dùng sau khi đăng nhập
+    localStorage.setItem("pending_fcm_token", token);
 
-    if (savedFcmToken === token) {
-      console.log("FCM token already sent");
-      return;
-    }
+    const accessToken = localStorage.getItem("accessToken");
 
-    // Lấy JWT access token
-    const accessToken = localStorage.getItem("accessToken") || "";
-
-    console.log("ACCESS TOKEN:", accessToken);
-
-    // Nếu chưa login thì không gửi
+    // Chưa đăng nhập thì chỉ lưu token
     if (!accessToken) {
-      console.log("Không tìm thấy accessToken");
-      return;
+      console.log("Chưa đăng nhập, lưu FCM token tạm.");
+      return token;
     }
 
-    // Gửi token lên backend
+    // Token đã gửi rồi thì bỏ qua
+    const savedToken = localStorage.getItem("fcm_token");
+
+    if (savedToken === token) {
+      console.log("FCM token đã được đăng ký.");
+      return token;
+    }
+
+    // Gửi lên backend
     const response = await axios.post(
-      "https://api-lulut.io.vn/notification/token",
+      API_URL,
       { token },
       {
         headers: {
@@ -63,14 +66,16 @@ export const requestNotificationPermission = async () => {
       }
     );
 
-    console.log("SEND TOKEN SUCCESS:", response.data);
+    console.log("Đăng ký FCM thành công:", response.data);
 
-    // Lưu token tránh spam
+    // Chỉ lưu sau khi gửi thành công
     localStorage.setItem("fcm_token", token);
+    localStorage.removeItem("pending_fcm_token");
+
+    return token;
   } catch (error: any) {
-    console.error("FCM ERROR CODE:", error?.code);
-    console.error("FCM ERROR MESSAGE:", error?.message);
-    console.error("FULL ERROR:", error);
-    console.error("SERVER RESPONSE:", error?.response?.data);
+    console.error("FCM ERROR:", error);
+    console.error("SERVER:", error?.response?.data);
+    return null;
   }
 };

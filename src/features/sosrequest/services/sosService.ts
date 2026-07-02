@@ -1,7 +1,7 @@
 // features/sos/services/sosService.ts
 
 import { SoSAPI } from "../api/sosApi"
-import type { AssignRespone, AssignSos, ListSOS, SoSRequest, SoSResponse } from "../types/sosType"
+import type {  AssignSos, DetailSos, ListSOS, SoSRequest, SoSResponse } from "../types/sosType"
 
 export const sosService = {
   async createsos(data: SoSRequest): Promise<SoSResponse> {
@@ -21,4 +21,9 @@ export const sosService = {
   ,async postassign(data:AssignSos):Promise<string>{
     return await SoSAPI.postassigment(data)
   }
+  ,
+  async getDetailSoS(id:string):Promise<DetailSos>{
+    return await SoSAPI.getdetailsos(id)
+  }
+
 }

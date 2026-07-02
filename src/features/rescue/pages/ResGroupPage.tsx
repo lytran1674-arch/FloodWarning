@@ -5,6 +5,8 @@ import {
   Cross,
   ArrowLeft,
   Plus,
+  LifeBuoy,
+  Package,
 } from "lucide-react";
 import { rescueApi } from "../api/rescureApi";
 import { Button } from "../../../components/ui/Button";
@@ -86,7 +88,7 @@ export default function ResGroupPage() {
               </span>
             </div>
 
-            <div className="mt-3 flex gap-4">
+            <div className="mt-3 flex flex-wrap gap-4">
               {group.hasBoat && (
                 <div className="flex items-center gap-1 text-blue-600">
                   <Ship size={16} />
@@ -97,6 +99,18 @@ export default function ResGroupPage() {
                 <div className="flex items-center gap-1 text-red-600">
                   <Cross size={16} />
                   <span>Y tế</span>
+                </div>
+              )}
+              {group.hasSearchRescue && (
+                <div className="flex items-center gap-1 text-orange-600">
+                  <LifeBuoy size={16} />
+                  <span>Tìm kiếm cứu nạn</span>
+                </div>
+              )}
+              {group.hasLogistics && (
+                <div className="flex items-center gap-1 text-emerald-600">
+                  <Package size={16} />
+                  <span>Hậu cần</span>
                 </div>
               )}
             </div>

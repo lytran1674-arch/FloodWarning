@@ -16,9 +16,10 @@ export const CreateGroupPage = () => {
 
   // step 1 - create group
   const [groupName, setGroupName] = useState("");
-  const [status, setStatus] = useState("AVAILABLE");
   const [hasBoat, setHasBoat] = useState(false);
   const [hasMedical, setHasMedical] = useState(false);
+  const [hasSearchRescue, setHasSearchRescue] = useState(false);
+  const [hasLogistics, setHasLogistics] = useState(false);
   const [notes, setNotes] = useState("");
   const [creating, setCreating] = useState(false);
 
@@ -41,6 +42,17 @@ export const CreateGroupPage = () => {
     setTeamName(user.teamName || "Chưa có tên đội");
   }, []);
 
+  // 👇 tìm kiếm cứu nạn / hậu cần đều cần thuyền + y tế
+  // → tự động tick khi bật 1 trong 2, và khoá không cho tự bỏ tick
+  useEffect(() => {
+    if (hasSearchRescue || hasLogistics) {
+      setHasBoat(true);
+      setHasMedical(true);
+    }
+  }, [hasSearchRescue, hasLogistics]);
+
+  const isBoatMedicalLocked = hasSearchRescue || hasLogistics;
+
   // ── Step 1: Tạo nhóm ──────────────────────────────────────────────
   const handleCreateGroup = async () => {
     if (!groupName.trim()) {
@@ -51,9 +63,11 @@ export const CreateGroupPage = () => {
       setCreating(true);
       const group = await rescueApi.CreateGroup(teamId, {
         name: groupName,
-        status,
+        status: "AVAILABLE", // 👈 luôn cố định khi tạo nhóm mới
         hasBoat,
         hasMedical,
+        hasSearchRescue,
+        hasLogistics,
         notes,
       });
       setCreatedGroup(group);
@@ -205,41 +219,86 @@ export const CreateGroupPage = () => {
                 />
               </div>
 
+              {/* status - cố định, không cho chọn */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-600">
                   Trạng thái
                 </label>
-                <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 p-3 outline-none focus:border-blue-500"
-                >
-                  <option value="AVAILABLE">AVAILABLE</option>
-                  <option value="BUSY">BUSY</option>
-                  <option value="MAINTENANCE">MAINTENANCE</option>
-                </select>
+                <div className="w-full rounded-lg border border-slate-200 bg-slate-50 p-3 text-slate-500">
+                  AVAILABLE
+                </div>
+                <p className="mt-1 text-xs text-slate-400">
+                  Nhóm mới tạo luôn ở trạng thái sẵn sàng.
+                </p>
               </div>
 
+              {/* năng lực chính: tìm kiếm cứu nạn / hậu cần */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-600">
+                  Năng lực nhóm
+                </label>
+                <div className="flex gap-6">
+                  <label className="flex cursor-pointer items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={hasSearchRescue}
+                      onChange={(e) => setHasSearchRescue(e.target.checked)}
+                      className="h-4 w-4"
+                    />
+                    Tìm kiếm cứu nạn
+                  </label>
+                  <label className="flex cursor-pointer items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={hasLogistics}
+                      onChange={(e) => setHasLogistics(e.target.checked)}
+                      className="h-4 w-4"
+                    />
+                    Hậu cần
+                  </label>
+                </div>
+                <p className="mt-1 text-xs text-slate-400">
+                  Chọn 1 trong 2 (hoặc cả hai) sẽ tự động yêu cầu nhóm có thuyền và y tế.
+                </p>
+              </div>
+
+              {/* checkbox thuyền / y tế */}
               <div className="flex gap-6">
-                <label className="flex cursor-pointer items-center gap-2 text-sm">
+                <label
+                  className={`flex cursor-pointer items-center gap-2 text-sm ${
+                    isBoatMedicalLocked ? "text-slate-400" : ""
+                  }`}
+                >
                   <input
                     type="checkbox"
                     checked={hasBoat}
+                    disabled={isBoatMedicalLocked}
                     onChange={(e) => setHasBoat(e.target.checked)}
                     className="h-4 w-4"
                   />
                   Có xuồng
                 </label>
-                <label className="flex cursor-pointer items-center gap-2 text-sm">
+                <label
+                  className={`flex cursor-pointer items-center gap-2 text-sm ${
+                    isBoatMedicalLocked ? "text-slate-400" : ""
+                  }`}
+                >
                   <input
                     type="checkbox"
                     checked={hasMedical}
+                    disabled={isBoatMedicalLocked}
                     onChange={(e) => setHasMedical(e.target.checked)}
                     className="h-4 w-4"
                   />
                   Có y tế
                 </label>
               </div>
+
+              {isBoatMedicalLocked && (
+                <p className="-mt-2 text-xs text-amber-600">
+                  Đã tự động bật "Có xuồng" và "Có y tế" vì nhóm có năng lực tìm kiếm cứu nạn / hậu cần.
+                </p>
+              )}
 
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-600">

@@ -2,6 +2,13 @@ export interface CreateTeamRequest{
  name:string
     description:string 
     areaId:string
+    lat:number
+    lon:number 
+    emergencyPhone:string
+    diachi:string 
+
+    
+
 }
 export interface ResCue{
   userId:string
@@ -19,6 +26,7 @@ export interface ResTeam{
   leaderName:string |null
 
 }
+
 
 export interface ApiResPonse<T>{
     code:number
