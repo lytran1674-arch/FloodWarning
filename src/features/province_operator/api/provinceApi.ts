@@ -1,8 +1,10 @@
 import { axiosClient } from "@/api/axiosClient";
 import type {
     ApprovePayload,
+    AssignmentRequestSupport,
     CandidateTeam,
   RejectPayload,
+  RequestSupportMyTeam,
   Status,
   SupportRequestListResponse,
 } from "../types/provinceType";
@@ -28,28 +30,21 @@ async getCandidateTeams(
   );
   return data.result as CandidateTeam[];
 },
-    async approveSupportRequest(
+async approveSupportRequest(
   id: string,
   payload: ApprovePayload
 ) {
-  const body: ApprovePayload = {
-    assignedTeamId: payload.assignedTeamId,
-  };
-
-  if (payload.provinceResponse?.trim()) {
-    body.provinceResponse =
-      payload.provinceResponse.trim();
-  }
-
-  console.log("APPROVE BODY:", body);
+  console.log("APPROVE BODY:", payload);
 
   const response = await axiosClient.put(
     `${API_URL}/${id}/approve`,
-    body
+    payload
   );
 
   return response.data;
-},
+}
+
+,
   async rejectSupportRequest(
     id: string,
     payload: {
@@ -61,5 +56,17 @@ async getCandidateTeams(
       payload
     );
   },
+
+  async getListRequestSupportMyTeam():Promise<RequestSupportMyTeam[]>{
+    const response=await axiosClient.get(`${API_URL}/my-team`)
+    return response.data.result?.content??[]
+  },
+  async assignmentRequestSupport(id:string,payload:AssignmentRequestSupport):Promise<void>{
+   await axiosClient.post(`${API_URL}/${id}/assign-group`,
+      payload
+    )
+  }
 };
+
+
 

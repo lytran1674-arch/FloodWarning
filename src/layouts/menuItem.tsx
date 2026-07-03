@@ -30,9 +30,13 @@ export const rescuerMenu: MenuItem[] = [
   {text: "RESCUER     Lực Lượng Cứu Hộ", icon: IconRescuer,path:"/homerescue" },
   { text: "Trang chủ",              icon: PieChart, path: "/homerescue"       },
   { text: "Danh sách yêu cầu",      icon: Files,    path: "/team-sos" },
+  {
+    text:"Yêu cầu hỗ trợ" ,icon:Files, path:"/support-request"
+  },
   { text: "Yêu cầu đã nhận",      icon: Files,    path: "/received-requests" },
   {text:"Quản lý đội cứu hội", icon:FileText ,path:"/team-management"}
   ,{text:"Quản lý nhóm cứu hộ" ,icon:FileText, path:"/group-management"},
+  
    {text:"Quản lý dữ liệu mực nước tổng hợp",icon:GlassWaterIcon, path:"/summary-water"},
   {text:"Quản lý dữ liệu đánh giá", icon:StarHalf,path:"/evaluation"},
     { text: "Tài khoản ",      icon: User,    path: "/account" },

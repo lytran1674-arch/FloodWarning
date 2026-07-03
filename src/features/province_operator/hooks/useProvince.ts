@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 
 import { provinceoperatorApi } from "../api/provinceoperatorApi";
-import type { ProvinceOperator, ProvinceOperatorItem } from "../types/provinceType";
+import { type RequestSupportMyTeam, type ProvinceOperator, type ProvinceOperatorItem } from "../types/provinceType";
 import { provinceService } from "../services/provinceService";
 
 export const useProvince = () => {
   const [operators, setOperators] = useState<ProvinceOperatorItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+ const [requestsupport, setrequestsupport] =
+  useState<RequestSupportMyTeam[]>([]);
 
 
 
@@ -32,18 +33,33 @@ const getTeamsByProvinceOperator = async (id: string) => {
 };
 
 
+const getListRequestSupportMyTeam=async()=>{
+  try{
+    setLoading(true);
+    const res:RequestSupportMyTeam[]=await provinceService.getListRequestSupportMyTeam()
+    setrequestsupport(res)
+  }catch(err){
+    console.error(err)
+  }finally{
+    setLoading(false);
+  }
+}
 
 
   useEffect(() => {
-    getProvinceOperators();
+ getProvinceOperators();
+    getListRequestSupportMyTeam();
   }, []);
 
   return {
+    requestsupport,
+    setrequestsupport,
     operators,
     loading,
     error,
     reload: getProvinceOperators,
-    getTeamsByProvinceOperator
+    getTeamsByProvinceOperator,
+    getListRequestSupportMyTeam
 
   };
 };

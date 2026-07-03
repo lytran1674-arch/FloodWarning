@@ -1,14 +1,12 @@
-// src/features/province_operator/components/SupportRequestListPage.tsx
+// src/features/province_operator/pages/SupportRequestListPage.tsx
 
 import { useState } from "react";
-
 import { useNavigate } from "react-router-dom";
 
 import {
   CheckCircle2,
   Clock,
   Flag,
-  RotateCcw,
   XCircle,
 } from "lucide-react";
 
@@ -42,12 +40,6 @@ const STATUS_TABS: {
   },
 
   {
-    value: "TEAM_REJECTED",
-    label: "Team từ chối",
-    icon: RotateCcw,
-  },
-
-  {
     value: "REJECTED",
     label: "Đã từ chối",
     icon: XCircle,
@@ -64,24 +56,17 @@ const STATUS_TABS: {
 // STATUS BADGE
 // ======================================================
 
-const STATUS_BADGE: Record<
-  Status,
-  string
-> = {
-  PENDING:
-    "bg-yellow-100 text-yellow-700",
+const STATUS_BADGE: Record<Status, string> = {
+  PENDING: "bg-yellow-100 text-yellow-700",
 
-  APPROVED:
-    "bg-blue-100 text-blue-700",
+  APPROVED: "bg-blue-100 text-blue-700",
 
-  REJECTED:
-    "bg-red-100 text-red-700",
+  REJECTED: "bg-red-100 text-red-700",
 
-  TEAM_REJECTED:
-    "bg-orange-100 text-orange-700",
+  COMPLETED: "bg-green-100 text-green-700",
 
-  COMPLETED:
-    "bg-green-100 text-green-700",
+  // TEAM_REJECTED:
+  //   "bg-orange-100 text-orange-700",
 };
 
 // ======================================================
@@ -143,33 +128,41 @@ export function SupportRequestListPage() {
     status: Status
   ) =>
     status === "PENDING" ||
-    status === "TEAM_REJECTED";
+    status === "REJECTED" ;//||
+    //status === "TEAM_REJECTED";
 
   // ======================================================
   // NAVIGATE REVIEW
   // ======================================================
-const goToReview = (
-  sosGroup: SupportRequestItem,
-  subItems: SupportRequestDetail[]
-) => {
-  navigate(
-    `/support-request/${sosGroup.sosId}/review`,
-    {
-      state: {
-        sosId: sosGroup.sosId,
-        supportRequestId: sosGroup.id,   // 👈 THÊM: id cha của SupportRequest
-        items: subItems,
-      },
-    }
-  );
-};
+
+  const goToReview = (
+    sosGroup: SupportRequestItem,
+    subItems: SupportRequestDetail[]
+  ) => {
+    navigate(
+      `/support-request/${sosGroup.sosId}/review`,
+      {
+        state: {
+          sosId: sosGroup.sosId,
+
+          // id cha của support request
+          supportRequestId:
+            sosGroup.id,
+
+          // QUAN TRỌNG:
+          // truyền TOÀN BỘ items
+          items: subItems,
+        },
+      }
+    );
+  };
+
   // ======================================================
   // UI
   // ======================================================
 
   return (
     <div className="mx-auto max-w-4xl p-6">
-
       {/* TITLE */}
       <h1 className="mb-4 text-xl font-bold">
         Danh sách yêu cầu hỗ trợ
@@ -177,7 +170,6 @@ const goToReview = (
 
       {/* TABS */}
       <div className="mb-6 flex gap-2 overflow-x-auto pb-1">
-
         {STATUS_TABS.map(
           (tab) => {
             const Icon =
@@ -216,7 +208,6 @@ const goToReview = (
             );
           }
         )}
-
       </div>
 
       {/* LOADING */}
@@ -256,22 +247,22 @@ const goToReview = (
             </p>
 
             <div className="space-y-4">
-
               {items.map(
                 (
                   sosGroup
                 ) => {
-
-                  // chỉ cần 1 item pending là được review
+                  // có item review được không
                   const hasReviewable =
                     sosGroup.items.some(
-                      (item) =>
+                      (
+                        item
+                      ) =>
                         canReview(
                           item.status
                         )
                     );
 
-                  // tổng nhóm cần hỗ trợ
+                  // tổng số nhóm cần
                   const totalRequiredGroups =
                     sosGroup.items.reduce(
                       (
@@ -279,12 +270,12 @@ const goToReview = (
                         item
                       ) =>
                         sum +
-                        (item.requiredGroupCount ||
+                        (item.requiredGroupCount ??
                           0),
                       0
                     );
 
-                  // tổng nhóm đã gán
+                  // tổng số nhóm đã gán
                   const totalAssignedGroups =
                     sosGroup.items.reduce(
                       (
@@ -292,7 +283,7 @@ const goToReview = (
                         item
                       ) =>
                         sum +
-                        (item.assignedGroupCount ||
+                        (item.assignedGroupCount ??
                           0),
                       0
                     );
@@ -302,14 +293,19 @@ const goToReview = (
                       key={
                         sosGroup.id
                       }
-                   onClick={() => {
-  if (hasReviewable) {
-    const reviewableItems = sosGroup.items.filter((item) =>
-      canReview(item.status)
-    );
-    goToReview(sosGroup, reviewableItems);
-  }
-}}
+                      onClick={() => {
+                        if (
+                          hasReviewable
+                        ) {
+                          // FIX QUAN TRỌNG:
+                          // KHÔNG filter item nữa
+                          // backend cần toàn bộ items
+                          goToReview(
+                            sosGroup,
+                            sosGroup.items
+                          );
+                        }
+                      }}
                       className={`
                         rounded-xl border border-gray-200
                         bg-white p-4 transition-colors
@@ -321,35 +317,26 @@ const goToReview = (
                         }
                       `}
                     >
-
                       {/* HEADER */}
                       <div className="mb-3 flex items-center justify-between">
-
                         <div>
-
                           <p className="text-xs text-gray-400">
                             SOS:{" "}
-
                             <span className="font-mono">
                               {
                                 sosGroup.sosId
                               }
                             </span>
-
                           </p>
 
                           <p className="mt-1 text-xs text-gray-500">
-
                             Tổng cần{" "}
-
                             <span className="font-semibold">
                               {
                                 totalRequiredGroups
                               }
                             </span>{" "}
-
                             nhóm
-
                             {totalAssignedGroups >
                               0 && (
                               <>
@@ -360,15 +347,14 @@ const goToReview = (
                                 }
                               </>
                             )}
-
                           </p>
-
                         </div>
 
                         <span
                           className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-medium ${
                             STATUS_BADGE[
-                              sosGroup.status
+                              sosGroup
+                                .status
                             ]
                           }`}
                         >
@@ -376,12 +362,10 @@ const goToReview = (
                             sosGroup.status
                           }
                         </span>
-
                       </div>
 
                       {/* SUPPORT TYPES */}
                       <div className="space-y-2">
-
                         {sosGroup.items.map(
                           (
                             subItem
@@ -392,11 +376,8 @@ const goToReview = (
                               }
                               className="rounded-lg border p-3"
                             >
-
                               <div className="flex items-center justify-between gap-3">
-
                                 <div>
-
                                   <p className="text-sm font-semibold">
                                     {
                                       SUPPORT_TYPE_LABEL[
@@ -407,17 +388,12 @@ const goToReview = (
                                   </p>
 
                                   <p className="mt-1 text-xs text-gray-500">
-
                                     Cần{" "}
-
                                     {
                                       subItem.requiredGroupCount
                                     }{" "}
-
                                     nhóm
-
                                   </p>
-
                                 </div>
 
                                 <span
@@ -432,51 +408,39 @@ const goToReview = (
                                     subItem.status
                                   }
                                 </span>
-
                               </div>
 
                               {/* TEAM REJECT */}
-                              {subItem.status ===
+                              {/* {subItem.status ===
                                 "TEAM_REJECTED" &&
                                 subItem.teamResponse && (
                                   <p className="mt-2 rounded bg-orange-50 px-2 py-1.5 text-xs text-orange-700">
-
                                     Team từ chối:{" "}
                                     {
                                       subItem.teamResponse
                                     }
-
                                   </p>
-                                )}
-
+                                )} */}
                             </div>
                           )
                         )}
-
                       </div>
 
                       {/* ACTION */}
                       {hasReviewable && (
                         <div className="mt-3 text-right">
-
                           <span className="text-xs font-medium text-blue-600">
-
                             Bấm để xem chi tiết & điều phối →
-
                           </span>
-
                         </div>
                       )}
-
                     </div>
                   );
                 }
               )}
-
             </div>
           </>
         )}
-
     </div>
   );
 }

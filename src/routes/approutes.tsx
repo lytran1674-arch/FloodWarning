@@ -40,6 +40,7 @@ import { SupportRequestReviewPage } from "@/features/province_operator/pages/Sup
 import ListProvinceOperatorPage from "@/features/province_operator/pages/ListProvinceOperatorPage"
 import { SoSAnonymous } from "@/features/sosrequest-anonymous/components/SoSAnonymous"
 import SentRequestAnonymousPage from "@/features/sosrequest-anonymous/components/Sentrequestanonymouspage"
+import { MyRequestSupportPage } from "@/features/rescue/pages/MyRequestSupportPage"
 
 
 
@@ -88,6 +89,7 @@ const AppRoutes = () => {
         <Route path="/homeprovince" element={<HomeProvince/>}/>
         {/* <Route path="/province_operator-management" element={<ProvinceOperatorListPage/>}/> */}
          <Route path="/province_operator-management" element={<ListProvinceOperatorPage/>}/>
+         <Route path="/support-request" element={<MyRequestSupportPage/>}/>
         </Route>
        
       </Routes>

@@ -1,5 +1,5 @@
 export type SupportType ="SEARCH_RESCUE" | "BOAT" | "MEDICAL" | "LOGISTICS"
-export type Status="PENDING" | "APPROVED" | "REJECTED" | "TEAM_REJECTED" | "COMPLETED"
+export type Status="PENDING" | "APPROVED" | "REJECTED" | "REJECTED" | "COMPLETED"
 export interface SupportRequestItem{
     id: string;
   sosId: string;
@@ -79,8 +79,12 @@ export interface ImportProvinceOperatorResponse {
 }
 
 export interface ApprovePayload {
-  assignedTeamId: string;
-  provinceResponse?: string;
+  items:ApprovedItem[];
+}
+export interface ApprovedItem{
+  supportRequestItemId:string
+  status:Status
+  assignedTeamId:string
 }
 
 export interface RejectPayload {
@@ -140,4 +144,26 @@ export interface CandidateTeam {
   availableLogisticsGroups: number;
   distanceKm:number
   requesterTeam:boolean
+}
+
+export interface RequestSupportMyTeam{
+  id:string
+  sosId:string
+  status:Status
+  supportType:SupportType
+  reason:string
+  requestById:string
+  requestByName:string
+  assignedTeamName:string
+  assignedTeamId:string
+  approvedById:string
+  approvedByName:string
+  provinceResponse:string
+  createdAt:string
+  reviewAt:string
+}
+
+export interface AssignmentRequestSupport{
+  groupId:string
+  note:string
 }
