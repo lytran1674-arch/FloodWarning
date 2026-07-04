@@ -13,7 +13,7 @@ const API_URL = "/support-request";
 
 export const provinceApi = {
   async getRequestSupport(
-    status: Status
+    status: Status  
   ): Promise<SupportRequestListResponse> {
     const response = await axiosClient.get(API_URL, {
       params: { status },
@@ -61,8 +61,8 @@ async approveSupportRequest(
     const response=await axiosClient.get(`${API_URL}/my-team`)
     return response.data.result?.content??[]
   },
-  async assignmentRequestSupport(id:string,payload:AssignmentRequestSupport):Promise<void>{
-   await axiosClient.post(`${API_URL}/${id}/assign-group`,
+  async assignmentRequestSupport(supportRequestItemId:string,payload:AssignmentRequestSupport):Promise<void>{
+   await axiosClient.post(`${API_URL}/items/${supportRequestItemId}/assign-group`,
       payload
     )
   }

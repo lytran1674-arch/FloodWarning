@@ -20,10 +20,10 @@ export const useRequestSupport = () => {
     }
   };
 
-  const assignGroupToRequest = async (id: string, groupId: string, note = "") => {
+  const assignGroupToRequest = async (supportRequestItemId: string, groupId: string, note = "") => {
     try {
       setLoading(true);
-      await provinceApi.assignmentRequestSupport(id, { groupId, note });
+      await provinceApi.assignmentRequestSupport(supportRequestItemId, { groupId, note });
       return true;
     } catch (err) {
       setError("Phân công thất bại, vui lòng thử lại");

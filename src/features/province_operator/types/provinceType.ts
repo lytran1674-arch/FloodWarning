@@ -150,19 +150,27 @@ export interface RequestSupportMyTeam{
   id:string
   sosId:string
   status:Status
-  supportType:SupportType
-  reason:string
+ items:RequestSupportMyTeamItems[];
+ reason:string
   requestById:string
   requestByName:string
-  assignedTeamName:string
-  assignedTeamId:string
   approvedById:string
   approvedByName:string
-  provinceResponse:string
   createdAt:string
   reviewAt:string
 }
 
+export interface RequestSupportMyTeamItems{
+  id:string
+   supportType:SupportType
+   requiredGroupCount:number
+   assignedTeamId:string
+   assignedTeamName:string
+   provinceNote:string
+   teamResponse:string
+   assignedGroupCount:number
+  
+}
 export interface AssignmentRequestSupport{
   groupId:string
   note:string
