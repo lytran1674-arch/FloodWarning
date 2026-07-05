@@ -33,7 +33,7 @@ import { SummaryWaterPage } from "@/features/water-level/pages/SummaryWaterPage"
 import { SnapShotPage } from "@/features/dataevaluation/pages/SnapShotPage"
 import { AlertPage } from "@/features/alert/pages/AlertPage"
 import { SumWaterPage } from "@/features/citizen/pages/SumWater"
-import { SupportRequestListPage } from "@/features/province_operator/pages/SuppportRequestListPage"
+import  {SupportRequestListPage}  from "@/features/province_operator/pages/SuppportRequestListPage"
 
 import { HomeProvince } from "@/features/province_operator/pages/Home"
 import { SupportRequestReviewPage } from "@/features/province_operator/pages/SupportRequestReviewPage"

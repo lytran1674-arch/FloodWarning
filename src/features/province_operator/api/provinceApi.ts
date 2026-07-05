@@ -11,6 +11,7 @@ import type {
 
 const API_URL = "/support-request";
 
+//lấy danh sách yêu cầu hỗ trợ theo trạng thái
 export const provinceApi = {
   async getRequestSupport(
     status: Status  
@@ -20,9 +21,11 @@ export const provinceApi = {
     });
     return response.data?.result;
   },
+
+  //lấy danh sách đội của 1 tỉnh
 async getCandidateTeams(
   requestId: string,
-  params?: { supportType?: string; lat?: number; lon?: number }
+  params?: { supportType?: string;}
 ): Promise<CandidateTeam[]> {
   const { data } = await axiosClient.get(
     `${API_URL}/${requestId}/candidate-teams`,
@@ -30,6 +33,8 @@ async getCandidateTeams(
   );
   return data.result as CandidateTeam[];
 },
+
+// phê duyệt yêu cầu hỗ trợ
 async approveSupportRequest(
   id: string,
   payload: ApprovePayload
@@ -45,6 +50,8 @@ async approveSupportRequest(
 }
 
 ,
+
+//Từ chối yêu cầu hỗ trợ
   async rejectSupportRequest(
     id: string,
     payload: {

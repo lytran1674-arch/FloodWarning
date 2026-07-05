@@ -1,7 +1,7 @@
 export type SupportType ="SEARCH_RESCUE" | "BOAT" | "MEDICAL" | "LOGISTICS"
-export type Status="PENDING" | "APPROVED" | "REJECTED" | "REJECTED" | "COMPLETED"
+export type Status="PENDING" | "APPROVED" | "REJECTED" | "REJECTED" | "COMPLETED" | "TEAM_REJECTED"
 export interface SupportRequestItem{
-    id: string;
+  id:string
   sosId: string;
   status: Status;
  items:SupportRequestDetail[]
