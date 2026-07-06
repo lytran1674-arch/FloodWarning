@@ -31,7 +31,15 @@ export interface FloodRiskAlert{
 
 //lấy danh sách lịch sử chạy dự báo
 export interface PredictionJobs{
-    id:string
+  id:string
+  date:string
+  jobType:string
+  status:string
+}
+
+//lấy chi tiết của 1 lịch sử chạy dự báo 
+export interface PredictionJobsDetail{
+     id:string
     startedAt:string // thời gian bắt đầu chạy dự báo
     finishedAt:string // thời gian kết thúc chạy dự báo
     jobType:JobType   // ca dự báo ( có 2 ca là sáng và chiều)
@@ -46,23 +54,6 @@ export interface PredictionJobs{
     recoveredAreass:number // số khu vực được recovery thành công
     remainingMissing:number//số khu vực vẫn chưa có dữ liệu dự báo sau khi recovery
     message:string // thông tin kết quả hoặc mô tả trạng thái của lần chạy dự báo
-}
-
-//lấy chi tiết của 1 lịch sử chạy dự báo 
-export interface PredictionJobsDetail{
-    id:string
-    startedAt:string
-    finishedAt:string
-    jobtype:JobType
-    status:StatusPredict
-    totalAreas:number
-    processedAreas:number
-    highRiskAreas:number
-    errors:number
-    recoveryAttempts:number
-    recoveredAreass:number
-    remainingMissing:number
-    message:string
 
 
 }

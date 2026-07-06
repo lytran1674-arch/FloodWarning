@@ -30,7 +30,7 @@ export const Menu = ({
 
     const user = useAppSelector((state) => state.auth.user);
     const role = user?.role==="CITIZEN"
-  
+    const admin = user?.role==="ADMIN"
   return (
 
     <div
@@ -39,7 +39,7 @@ export const Menu = ({
         ${bgColor}
         fixed left-0 top-0 z-[2000]
         h-screen
-        sm:mt-[58px] lg:mt-[65px]
+        sm:mt-[58px] lg:mt-[64px]
         sm:w-[180px] lg:w-[240px] w-[150px]
         md:mt-[61px]
         p-0 lg:p-3
@@ -50,7 +50,7 @@ export const Menu = ({
         lg:translate-x-0
       `}
     >
-      <ul className="space-y-2 sm:space-y-2 lg:space-y-3">
+      <ul className="space-y-2 sm:space-y-2 ">
         {items.map((item, index) => {
           const Icon = item.icon;
 
@@ -59,9 +59,9 @@ export const Menu = ({
               <NavLink
                 to={item.path}
                 className={`
-                  flex items-center gap-3
+                  flex items-center gap-1
                   mx-2 border-b-2
-                  rounded-md py-[8px]
+                  rounded-md py-[7px]
                   text-xs sm:text-sm lg:text-[15px]
                   font-medium
                   transition-all duration-300
