@@ -15,7 +15,7 @@ import type {
 } from "../types/provinceType";
 
 import { CandidateTeamsPanel } from "../components/CandidateTeamsPanel";
-import { useCandidateTeams } from "../hooks/useCandidateTeams";
+import { useCandidateTeams } from "../hooks/usecandidateTeams";
 import { provinceApi } from "../api/provinceApi";
 import { getAvailableGroups, SUPPORT_TYPE_LABEL } from "../utils/supportType";
 
@@ -213,43 +213,44 @@ export function SupportRequestReviewPage() {
        * MEDICAL -> B (x1 dòng)
        */
 
-      const approvedItems: ApprovedItem[] = [];
+const approvedItems: ApprovedItem[] = [];
 
-      items.forEach((item) => {
-        let remaining = item.requiredGroupCount || 0;
+items.forEach((item) => {
+  let remaining = item.requiredGroupCount || 0;
 
-        for (const teamId of selectedTeamIds) {
-          if (remaining <= 0) break;
+  for (const teamId of selectedTeamIds) {
+    if (remaining <= 0) break;
 
-          const team = teams.find((t) => t.id === teamId);
-          if (!team) continue;
+    const team = teams.find((t) => t.id === teamId);
+    if (!team) continue;
 
-          const available = getAvailableGroups(team, item.supportType);
-          if (available <= 0) continue;
+    const available = getAvailableGroups(team, item.supportType);
+    if (available <= 0) continue;
 
-          const take = Math.min(available, remaining);
+    // CHỈ 1 dòng cho mỗi cặp (item, team) — backend tự hiểu
+    // đội này đảm nhận phần còn thiếu của item, KHÔNG lặp dòng
+    // theo số nhóm mà đội đó cung cấp.
+    approvedItems.push({
+      supportRequestItemId: item.id,
+      assignedTeamId: teamId,
+      status: "APPROVED",
+    });
 
-          for (let i = 0; i < take; i++) {
-            approvedItems.push({
-              supportRequestItemId: item.id,
-              assignedTeamId: teamId,
-              status: "APPROVED",
-            });
-          }
+    remaining -= Math.min(available, remaining);
+  }
+});
 
-          remaining -= take;
-        }
-      });
+// ======================================================
+// VALIDATE LẦN CUỐI
+// So sánh số CẶP (item, team) hợp lệ, không còn so bằng
+// tổng số NHÓM nữa (vì 1 dòng giờ có thể gánh nhiều nhóm)
+// ======================================================
 
-      // ======================================================
-      // VALIDATE LẦN CUỐI
-      // ======================================================
-
-      if (approvedItems.length !== totalRequiredGroups) {
-        toast.error("Số đội phân bổ không hợp lệ");
-        setSubmitting(false);
-        return;
-      }
+if (approvedItems.length === 0) {
+  toast.error("Chưa phân bổ được đội nào");
+  setSubmitting(false);
+  return;
+}
 
       const payload: ApprovePayload = {
         items: approvedItems,

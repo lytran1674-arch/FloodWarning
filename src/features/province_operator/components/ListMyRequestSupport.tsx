@@ -205,9 +205,20 @@ export default function ListMyRequestSupport() {
                         )}
                       </div>
 
-                      {/* Chỉ cho phân công khi phiếu đã APPROVED và item chưa có đội */}
+                      {/* Chỉ cho phân công khi phiếu đã APPROVED và
+                          SỐ NHÓM ĐÃ GÁN (assignedGroupCount) còn nhỏ hơn
+                          số nhóm cần (requiredGroupCount).
+
+                          ⚠️ FIX BUG: KHÔNG dùng điều kiện !item.assignedTeamId
+                          nữa. Ở tầng đội trưởng, item luôn đã có sẵn
+                          assignedTeamId = đội của chính họ (do tỉnh đã gán
+                          đội này ở bước approve trước đó) — nên điều kiện
+                          cũ khiến nút "Phân công" bị ẩn ngay cả khi
+                          assignedGroupCount = 0 (chưa gán nhóm cụ thể nào
+                          trong đội để đi thực hiện). */}
                       {request.status === "APPROVED" &&
-                        !item.assignedTeamId && (
+                        (item.assignedGroupCount ?? 0) <
+                          item.requiredGroupCount && (
                           <button
                             onClick={() => openAssignModal(item)}
                             className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs text-white hover:bg-emerald-700"
@@ -292,7 +303,7 @@ export default function ListMyRequestSupport() {
               <button
                 onClick={handleSubmitAssign}
                 disabled={assigning}
-                className="rounded-lg bg  -emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700 disabled:opacity-60"
+                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700 disabled:opacity-60"
               >
                 {assigning ? "Đang phân công..." : "Xác nhận"}
               </button>
