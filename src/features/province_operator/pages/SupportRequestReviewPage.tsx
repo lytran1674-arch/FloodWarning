@@ -268,9 +268,10 @@ if (approvedItems.length === 0) {
        *     }
        *   ]
        * }
-       */
+       */   
 
       await provinceApi.approveSupportRequest(supportRequestId, payload);
+  
 
       toast.success("Đã duyệt yêu cầu hỗ trợ");
       navigate("/support-request");
@@ -290,27 +291,37 @@ if (approvedItems.length === 0) {
   // ======================================================
 
   const handleReject = async () => {
-    if (!rejectReason.trim()) {
-      toast.warning("Vui lòng nhập lý do từ chối");
-      return;
-    }
+  if (!rejectReason.trim()) {
+    toast.warning("Vui lòng nhập lý do từ chối");
+    return;
+  }
 
-    setSubmitting(true);
+  setSubmitting(true);
 
-    try {
-      await provinceApi.rejectSupportRequest(supportRequestId, {
-        provinceResponse: rejectReason,
-      });
+  try {
+    // Dùng chung endpoint approve, nhưng mỗi item có status = REJECTED
+    // và provinceResponse là lý do từ chối. Test qua Postman xác nhận
+    // đúng cấu trúc: PUT /support-request/{id}/approve
+    // { items: [{ supportRequestItemId, status: "REJECTED", provinceResponse }] }
+    const rejectedItems = items.map((item) => ({
+      supportRequestItemId: item.id,
+      status: "REJECTED" as const,
+      provinceResponse: rejectReason,
+    }));
 
-      toast.success("Đã từ chối yêu cầu hỗ trợ");
-      navigate("/support-request");
-    } catch (err: any) {
-      console.error("REJECT ERROR:", err);
-      toast.error(err?.response?.data?.message || "Từ chối thất bại");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+    await provinceApi.approveSupportRequest(supportRequestId, {
+      items: rejectedItems,
+    });
+
+    toast.success("Đã từ chối yêu cầu hỗ trợ");
+    navigate("/support-request");
+  } catch (err: any) {
+    console.error("REJECT ERROR:", err);
+    toast.error(err?.response?.data?.message || "Từ chối thất bại");
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   // ======================================================
   // UI

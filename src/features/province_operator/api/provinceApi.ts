@@ -25,15 +25,41 @@ export const provinceApi = {
   //lấy danh sách đội của 1 tỉnh
 async getCandidateTeams(
   requestId: string,
-  params?: { supportType?: string;}
+  params?: { supportType?: string }
 ): Promise<CandidateTeam[]> {
   const { data } = await axiosClient.get(
     `${API_URL}/${requestId}/candidate-teams`,
     { params }
   );
-  return data.result as CandidateTeam[];
-},
 
+  // Cấu trúc thật: { code, result: { sos: {...}, teams: [...] } }
+  // result.teams mới là mảng teams thật, KHÔNG phải result trực tiếp
+  const rawTeams = data?.result?.teams;
+
+  if (!Array.isArray(rawTeams)) {
+    return [];
+  }
+
+  // Map lại field cho khớp với type CandidateTeam dùng trong UI:
+  // - BE trả "name"        -> FE cần "teamName"
+  // - BE trả "markerType"  -> FE cần "requesterTeam" (boolean)
+  return rawTeams.map((t: any) => ({
+    id: t.id,
+    teamName: t.name,
+    areaId: t.areaId,
+    lat: t.lat,
+    lon: t.lon,
+    leaderName: t.leaderName,
+    leaderPhone: t.leaderPhone,
+    emergencyPhone: t.emergencyPhone,
+    availableBoatGroups: t.availableBoatGroups,
+    availableMedicalGroups: t.availableMedicalGroups,
+    availableSearchRescueGroups: t.availableSearchRescueGroups,
+    availableLogisticsGroups: t.availableLogisticsGroups,
+    distanceKm: t.distanceKm,
+    requesterTeam: t.markerType === "REQUESTER_TEAM",
+  }));
+},
 // phê duyệt yêu cầu hỗ trợ
 async approveSupportRequest(
   id: string,
@@ -59,7 +85,7 @@ async approveSupportRequest(
     }
   ) {
     return axiosClient.put(
-      `/support-request/${id}/reject`,
+      `/support-request/${id}/approve`,
       payload
     );
   },
@@ -70,6 +96,15 @@ async approveSupportRequest(
   },
   async assignmentRequestSupport(supportRequestItemId:string,payload:AssignmentRequestSupport):Promise<void>{
    await axiosClient.post(`${API_URL}/items/${supportRequestItemId}/assign-group`,
+      payload
+    )
+  },
+
+  //team_leader từ chối yêu cầu hỗ trợ 
+  async rejectsupportrequest(supportRequestItemId:string,payload:{
+   reason:string
+  }){
+    return axiosClient.post(`${API_URL}/items/${supportRequestItemId}/team_reject`,
       payload
     )
   }

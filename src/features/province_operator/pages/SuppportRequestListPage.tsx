@@ -15,8 +15,16 @@ import type {
 
 // ======================================================
 // STATUS TABS
-// ⚠️ Yêu cầu: "TEAM_REJECTED" phải có trong union type `Status`
-// (provinceType.ts) để dòng dưới không báo lỗi TypeScript.
+// ⚠️ "TEAM_REJECTED" chỉ tồn tại ở cấp ITEM CON (SupportRequestDetail),
+// KHÔNG tồn tại trong enum SupportRequestStatus ở backend cho cấp
+// SOS CHA. Nếu gọi API bằng status="TEAM_REJECTED" sẽ bị lỗi 400:
+// "Failed to convert value of type 'String' to required type
+// 'SupportRequestStatus'... for value [TEAM_REJECTED]"
+//
+// => Tab này KHÔNG được gọi API trực tiếp bằng giá trị này.
+// Xử lý: khi tab active là TEAM_REJECTED, ta gọi API bằng "APPROVED"
+// (vì SOS cha vẫn ở trạng thái APPROVED khi có 1 item bị đội từ chối),
+// sau đó lọc lại ở client theo item con có status TEAM_REJECTED.
 // ======================================================
 
 const STATUS_TABS: {
@@ -24,11 +32,35 @@ const STATUS_TABS: {
   label: string;
   icon: React.ElementType;
 }[] = [
-  { value: "PENDING", label: "Chờ duyệt", icon: Clock },
-  { value: "APPROVED", label: "Đã duyệt", icon: CheckCircle2 },
-  { value: "TEAM_REJECTED", label: "Đội từ chối", icon: AlertTriangle },
-  { value: "REJECTED", label: "Đã từ chối", icon: XCircle },
-  { value: "COMPLETED", label: "Hoàn tất", icon: Flag },
+  {
+    value: "PENDING",
+    label: "Chờ duyệt",
+    icon: Clock,
+  },
+
+  {
+    value: "APPROVED",
+    label: "Đã duyệt",
+    icon: CheckCircle2,
+  },
+
+  {
+    value: "TEAM_REJECTED",
+    label: "Đội từ chối",
+    icon: AlertTriangle,
+  },
+
+  {
+    value: "REJECTED",
+    label: "Đã từ chối",
+    icon: XCircle,
+  },
+
+  {
+    value: "COMPLETED",
+    label: "Hoàn tất",
+    icon: Flag,
+  },
 ];
 
 // ======================================================
@@ -37,10 +69,14 @@ const STATUS_TABS: {
 
 const STATUS_BADGE: Record<Status, string> = {
   PENDING: "bg-yellow-100 text-yellow-700",
+
   APPROVED: "bg-blue-100 text-blue-700",
+
   REJECTED: "bg-red-100 text-red-700",
-  COMPLETED: "bg-green-100 text-green-700",
+
   TEAM_REJECTED: "bg-orange-100 text-orange-700",
+
+  COMPLETED: "bg-green-100 text-green-700",
 };
 
 // ======================================================
@@ -67,12 +103,28 @@ export function SupportRequestListPage() {
 
   const [activeStatus, setActiveStatus] = useState<Status>("PENDING");
 
+  // Cờ đánh dấu đang ở tab "Đội từ chối" — tab đặc biệt, không
+  // gọi API trực tiếp bằng giá trị này.
+  const isTeamRejectedTab = activeStatus === "TEAM_REJECTED";
+
+  // Status THẬT SỰ gửi lên API. Nếu đang ở tab TEAM_REJECTED,
+  // ta gọi bằng "APPROVED" rồi lọc lại ở client bên dưới.
+  const queryStatus: Status = isTeamRejectedTab ? "APPROVED" : activeStatus;
+
   // ======================================================
   // FETCH DATA
   // ======================================================
 
   const { items, loading, error, totalElements } =
-    useSupportRequestList(activeStatus);
+    useSupportRequestList(queryStatus);
+
+  // Lọc lại ở client: chỉ giữ những SOS có ít nhất 1 item con
+  // đang ở trạng thái TEAM_REJECTED
+  const displayedItems = isTeamRejectedTab
+    ? items.filter((sosGroup) =>
+        sosGroup.items.some((item) => item.status === "TEAM_REJECTED")
+      )
+    : items;
 
   // ======================================================
   // REVIEWABLE
@@ -82,9 +134,8 @@ export function SupportRequestListPage() {
   // ======================================================
 
   const canReview = (status: Status) =>
-    status === "PENDING" ||
-    status === "REJECTED" ||
-    status === "TEAM_REJECTED";
+    status === "PENDING" || status === "TEAM_REJECTED" 
+    
 
   // ======================================================
   // NAVIGATE REVIEW
@@ -164,21 +215,22 @@ export function SupportRequestListPage() {
       )}
 
       {/* EMPTY */}
-      {!loading && !error && items.length === 0 && (
+      {!loading && !error && displayedItems.length === 0 && (
         <p className="text-sm text-gray-400">
           Không có đơn nào ở trạng thái này
         </p>
       )}
 
       {/* LIST */}
-      {!loading && items.length > 0 && (
+      {!loading && displayedItems.length > 0 && (
         <>
           <p className="mb-2 text-xs text-gray-400">
-            Tổng số: {totalElements} SOS
+            Tổng số:{" "}
+            {isTeamRejectedTab ? displayedItems.length : totalElements} SOS
           </p>
 
           <div className="space-y-4">
-            {items.map((sosGroup) => {
+            {displayedItems.map((sosGroup) => {
               // có item review được không
               const hasReviewable = sosGroup.items.some((item) =>
                 canReview(item.status)

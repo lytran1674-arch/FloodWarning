@@ -1,5 +1,6 @@
 export type SupportType ="SEARCH_RESCUE" | "BOAT" | "MEDICAL" | "LOGISTICS"
-export type Status="PENDING" | "APPROVED" | "REJECTED" | "REJECTED" | "COMPLETED" | "TEAM_REJECTED"
+export type Status="PENDING" | "APPROVED" | "REJECTED" | "COMPLETED" | "TEAM_REJECTED"
+
 export interface SupportRequestItem{
   id:string
   sosId: string;
@@ -81,10 +82,12 @@ export interface ImportProvinceOperatorResponse {
 export interface ApprovePayload {
   items:ApprovedItem[];
 }
-export interface ApprovedItem{
-  supportRequestItemId:string
-  status:Status
-  assignedTeamId:string
+// provinceType.ts
+export interface ApprovedItem {
+  supportRequestItemId: string;
+  assignedTeamId?: string | null;   // chỉ cần khi approve
+  provinceResponse?: string;        // chỉ cần khi reject
+  status: "APPROVED" | "REJECTED";
 }
 
 export interface RejectPayload {

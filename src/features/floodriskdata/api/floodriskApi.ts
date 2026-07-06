@@ -1,8 +1,8 @@
 import { axiosClient } from '@/api/axiosClient'
-import type { FloodRiskAlert, FloodRiskData } from '../types/floodriskType'
+import type { FloodRiskAlert, FloodRiskData, PredictionJobs, PredictionJobsDetail } from '../types/floodriskType'
 
 const API_URL = "/predict"
-
+const Endpoint="/prediction-jobs"
 export const FloodRiskDataApi = {
   async getAll(): Promise<FloodRiskData[]> {
     try {
@@ -34,5 +34,18 @@ export const FloodRiskDataApi = {
       console.error('❌ Lỗi khi gọi alert history:', error)
       return []
     }
+  },
+
+  // lấy danh sách lịch sử chạy dự báo
+  async getPredictJob():Promise<PredictionJobs[]>{
+    const response=await axiosClient.get(Endpoint);
+    return response.data.result;
+  }
+  
+  ,
+  // lấy chi tiết của 1 lịch sử dự báo
+  async getPredictionJobDetail(id:string):Promise<PredictionJobsDetail>{
+    const response=await axiosClient.get(`${Endpoint}/${id}`)
+    return response.data.result;
   }
 }

@@ -42,13 +42,21 @@ export default function ListMyRequestSupport() {
 
   // ======================================================
   // STATE CHO MODAL PHÂN CÔNG
-  // assignTarget giờ lưu itemId (id của SupportRequestItem con)
+  // assignTarget lưu itemId + số nhóm còn thiếu cần chọn đủ
   // ======================================================
   const [assignTarget, setAssignTarget] = useState<{
     itemId: string;
     supportType: string;
+    remainingSlots: number;
   } | null>(null);
-  const [groupId, setGroupId] = useState("");
+
+
+  //STATE CHO MODAL TỪ CHỐI 
+  const [reason,setReason]=useState("");
+  
+  // Đổi từ groupId (string) -> selectedGroupIds (string[])
+  // vì cần chọn NHIỀU nhóm cùng lúc, đủ với số lượng còn thiếu
+  const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([]);
   const [note, setNote] = useState("");
   const [assigning, setAssigning] = useState(false);
   const [assignError, setAssignError] = useState<string | null>(null);
@@ -66,38 +74,86 @@ export default function ListMyRequestSupport() {
   // ======================================================
 
   const openAssignModal = (item: RequestSupportMyTeamItems) => {
-    setAssignTarget({ itemId: item.id, supportType: item.supportType });
-    setGroupId("");
+    const remainingSlots =
+      item.requiredGroupCount - (item.assignedGroupCount ?? 0);
+
+    setAssignTarget({
+      itemId: item.id,
+      supportType: item.supportType,
+      remainingSlots,
+    });
+    setSelectedGroupIds([]);
     setNote("");
     setAssignError(null);
   };
 
   const closeAssignModal = () => {
     setAssignTarget(null);
+    setSelectedGroupIds([]);
     setAssignError(null);
   };
 
+  // Toggle chọn/bỏ chọn 1 nhóm, không cho vượt quá remainingSlots
+  const toggleGroupSelect = (groupId: string) => {
+    if (!assignTarget) return;
+
+    setAssignError(null);
+
+    setSelectedGroupIds((prev) => {
+      const isSelected = prev.includes(groupId);
+
+      if (isSelected) {
+        // bỏ chọn -> luôn cho phép
+        return prev.filter((id) => id !== groupId);
+      }
+
+      // đang chọn thêm -> kiểm tra giới hạn
+      if (prev.length >= assignTarget.remainingSlots) {
+        setAssignError(
+          `Chỉ được chọn tối đa ${assignTarget.remainingSlots} nhóm`
+        );
+        return prev;
+      }
+
+      return [...prev, groupId];
+    });
+  };
+
   const handleSubmitAssign = async () => {
-    if (!assignTarget || !groupId) {
-      setAssignError("Vui lòng chọn nhóm cứu hộ");
+    if (!assignTarget) return;
+
+    // Yêu cầu chọn ĐỦ số nhóm còn thiếu, không cho gán thiếu/thừa
+    if (selectedGroupIds.length !== assignTarget.remainingSlots) {
+      setAssignError(
+        `Vui lòng chọn đủ ${assignTarget.remainingSlots} nhóm cứu hộ`
+      );
       return;
     }
 
     try {
       setAssigning(true);
       setAssignError(null);
-      const success = await assignGroupToRequest(
-        assignTarget.itemId,
-        groupId,
-        note.trim()
-      );
 
-      if (success) {
-        await getListRequestSupportMyTeam();
-        closeAssignModal();
-      } else {
-        setAssignError("Phân công thất bại, vui lòng thử lại");
+      // Gọi tuần tự cho từng nhóm đã chọn.
+      // Nếu backend có endpoint nhận mảng groupIds trong 1 lần gọi,
+      // nên đổi lại gọi 1 lần duy nhất thay vì loop để tránh
+      // trường hợp gán được 1 phần rồi lỗi giữa chừng.
+      for (const groupId of selectedGroupIds) {
+        const success = await assignGroupToRequest(
+          assignTarget.itemId,
+          groupId,
+          note.trim()
+        );
+
+        if (!success) {
+          setAssignError("Phân công thất bại, vui lòng thử lại");
+          setAssigning(false);
+          return;
+        }
       }
+
+      await getListRequestSupportMyTeam();
+      closeAssignModal();
     } finally {
       setAssigning(false);
     }
@@ -207,25 +263,16 @@ export default function ListMyRequestSupport() {
 
                       {/* Chỉ cho phân công khi phiếu đã APPROVED và
                           SỐ NHÓM ĐÃ GÁN (assignedGroupCount) còn nhỏ hơn
-                          số nhóm cần (requiredGroupCount).
-
-                          ⚠️ FIX BUG: KHÔNG dùng điều kiện !item.assignedTeamId
-                          nữa. Ở tầng đội trưởng, item luôn đã có sẵn
-                          assignedTeamId = đội của chính họ (do tỉnh đã gán
-                          đội này ở bước approve trước đó) — nên điều kiện
-                          cũ khiến nút "Phân công" bị ẩn ngay cả khi
-                          assignedGroupCount = 0 (chưa gán nhóm cụ thể nào
-                          trong đội để đi thực hiện). */}
-                      {request.status === "APPROVED" &&
-                        (item.assignedGroupCount ?? 0) <
-                          item.requiredGroupCount && (
-                          <button
-                            onClick={() => openAssignModal(item)}
-                            className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs text-white hover:bg-emerald-700"
-                          >
-                            Phân công
-                          </button>
-                        )}
+                          số nhóm cần (requiredGroupCount). */}
+                     {request.status === "APPROVED" &&
+  (item.assignedGroupCount ?? 0) < item.requiredGroupCount && (
+    <button
+      onClick={() => openAssignModal(item)}
+      className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs text-white hover:bg-emerald-700"
+    >
+      Phân công
+    </button>
+  )}
                     </div>
                   </div>
                 ))}
@@ -251,27 +298,56 @@ export default function ListMyRequestSupport() {
           <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-lg">
             <h2 className="mb-1 text-lg font-bold">Phân công nhóm hỗ trợ</h2>
             <p className="mb-4 text-sm text-gray-500">
-              {SUPPORT_TYPE_LABEL[assignTarget.supportType]}
+              {SUPPORT_TYPE_LABEL[assignTarget.supportType]} — cần chọn đủ{" "}
+              <span className="font-semibold text-emerald-700">
+                {assignTarget.remainingSlots}
+              </span>{" "}
+              nhóm
             </p>
 
             <label className="mb-1 block text-sm font-medium text-gray-700">
-              Nhóm cứu hộ
+              Chọn nhóm cứu hộ ({selectedGroupIds.length}/
+              {assignTarget.remainingSlots})
             </label>
-            <select
-              value={groupId}
-              onChange={(e) => setGroupId(e.target.value)}
-              disabled={loadingGroups}
-              className="mb-3 w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            >
-              <option value="">
-                {loadingGroups ? "Đang tải nhóm..." : "-- Chọn nhóm cứu hộ --"}
-              </option>
-              {groups.map((g) => (
-                <option key={g.id} value={g.id}>
-                  {g.name}
-                </option>
-              ))}
-            </select>
+
+            {loadingGroups && (
+              <p className="mb-3 text-sm text-gray-500">Đang tải nhóm...</p>
+            )}
+
+            {!loadingGroups && groups.length === 0 && (
+              <p className="mb-3 text-sm text-gray-500">
+                Không có nhóm nào khả dụng
+              </p>
+            )}
+
+            <div className="mb-3 max-h-48 space-y-1 overflow-y-auto rounded-lg border p-2">
+              {groups.map((g) => {
+                const isChecked = selectedGroupIds.includes(g.id);
+                const isDisabled =
+                  !isChecked &&
+                  selectedGroupIds.length >= assignTarget.remainingSlots;
+
+                return (
+                  <label
+                    key={g.id}
+                    className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                      isDisabled
+                        ? "cursor-not-allowed text-gray-400"
+                        : "cursor-pointer hover:bg-gray-50"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      disabled={isDisabled}
+                      onChange={() => toggleGroupSelect(g.id)}
+                      className="h-4 w-4 accent-emerald-600"
+                    />
+                    {g.name}
+                  </label>
+                );
+              })}
+            </div>
 
             {groupError && (
               <p className="mb-3 text-sm text-red-600">{groupError}</p>
@@ -302,7 +378,10 @@ export default function ListMyRequestSupport() {
               </button>
               <button
                 onClick={handleSubmitAssign}
-                disabled={assigning}
+                disabled={
+                  assigning ||
+                  selectedGroupIds.length !== assignTarget.remainingSlots
+                }
                 className="rounded-lg bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700 disabled:opacity-60"
               >
                 {assigning ? "Đang phân công..." : "Xác nhận"}

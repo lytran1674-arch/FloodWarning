@@ -15,7 +15,7 @@ export const publicApi = axios.create({
   baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
-  },3
+  },
 });
 
 // ================= PRIVATE API =================
