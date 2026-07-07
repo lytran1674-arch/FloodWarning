@@ -39,7 +39,7 @@ export const FloodRiskDataApi = {
   // lấy danh sách lịch sử chạy dự báo
   async getPredictJob():Promise<PredictionJobs[]>{
     const response=await axiosClient.get(Endpoint);
-    return response.data.result;
+    return response.data.result?.content??[]
   }
   
   ,

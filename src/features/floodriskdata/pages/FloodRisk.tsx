@@ -11,12 +11,14 @@ import { Button } from '../../../components/ui/Button'
 import GeoMap from '@/features/map/components/GeoMap'
 import { useUserProvince } from '@/features/map/hooks/useUserProvince'
 import { useProvinceMap } from '@/features/map/hooks/useProvinceMap'
+import { PredictionJobTable } from '../components/predictionjobs/PredictionJobTable'
+import { usePredictionJobs } from '../hooks/usePredictionJobs'
 //import type { AreaWithRisk } from '@/features/map/types/mapType'
 
 export const FloodRisk = () => {
   const { loading } = useFloodRiskData()
   const areaOption = useAreaOptions()
-
+  const { predictjobs } = usePredictionJobs();
   const [areaId, setAreaId] = useState("")
   const [userHasSelected, setUserHasSelected] = useState(false)
   const [lead] = useState<1 | 2 | 3>(1)
@@ -222,17 +224,10 @@ export const FloodRisk = () => {
 
       {/* LỊCH SỬ DỰ ĐOÁN */}
       <div className='border lg:p-4 sm:p-2 m-2 rounded-md p-1'>
-        <div className='flex justify-between text-black font-medium'>
-          <p>Lịch sử dự đoán</p>
-          <FaArrowRight />
-        </div>
-        <div className='flex justify-between items-center mt-2 text-black border-black border-b'>
-          <p>Thời gian dự đoán</p>
-          <p>Khu vực</p>
-          <p>Mức độ nguy cơ</p>
-          <p>Xác suất</p>
-          <p>Trạng thái</p>
-        </div>
+          <p className='text-black font-bold  mb-2'>Lịch sử dự đoán</p>
+      
+          <PredictionJobTable data={predictjobs}/>
+
       </div>
     </>
   )
