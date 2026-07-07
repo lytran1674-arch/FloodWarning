@@ -1,48 +1,51 @@
-import { useState } from 'react'
-import { emergencyService } from '../services/emergencyService';
-import type { Emergency } from '../types/emergencyType';
+// Hook lấy vị trí + gọi SOS
+import { useState, useCallback } from "react";
+import { emergencyService } from "../services/emergencyService";
+
 
 export const useEmergency = () => {
-  const [data, setData] = useState<Emergency>()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const CallHotline = async () => {
-    setError("")
-
-    if (!navigator.geolocation) {
-      setError("Trình duyệt không hỗ trợ định vị GPS")
-      return
+  const callSos = useCallback(() => {
+    if (!("geolocation" in navigator)) {
+      setError("Trình duyệt không hỗ trợ định vị");
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
+    setError(null);
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
+        const { latitude, longitude } = position.coords;
         try {
-          const { latitude, longitude } = position.coords
-          const res = await emergencyService.getHotlineTeam(latitude, longitude)
-          setData(res)
+          const team = await emergencyService.getHotlineTeam(latitude, longitude);
 
-          // Gọi điện ngay sau khi lấy được số hotline
-          if (res?.emergencyPhone) {
-            window.location.href = `tel:${res.emergencyPhone}`
+          if (!team?.emergencyPhone) {
+            setError("Không tìm thấy đội cứu hộ gần bạn");
+            return;
           }
+
+          // Chuyển sang bàn phím gọi điện
+          window.location.href = `tel:${team.emergencyPhone}`;
         } catch (err) {
-          console.error(err)
-          setError("Không thể lấy được hotline của đội cứu hộ")
+          setError("Không lấy được thông tin đội cứu hộ, vui lòng thử lại");
         } finally {
-          setLoading(false)
+          setLoading(false);
         }
       },
-      (err) => {
-        console.error(err)
-        setError("Không thể lấy vị trí GPS, vui lòng bật định vị và cấp quyền truy cập vị trí")
-        setLoading(false)
+      (geoErr) => {
+        setLoading(false);
+        setError("Không lấy được vị trí. Vui lòng bật định vị (GPS)");
       },
-      { enableHighAccuracy: true, timeout: 10000 }
-    )
-  }
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  }, []);
 
-  return { data, CallHotline, loading, error }
-}
+  return { callSos, loading, error };
+};

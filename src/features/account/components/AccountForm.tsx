@@ -4,6 +4,8 @@ import { useAppSelector } from "@/hooks/redux.hooks";
 import { Button } from "antd";
 import { MdSystemUpdateAlt } from "react-icons/md";
 import { useState } from "react";
+import { AccountService } from "../services/accountService";
+import { AccountApi } from "../api/accountApi";
 
 interface Props {
   data: Account;
@@ -28,16 +30,22 @@ export const AccountForm = ({ data }: Props) => {
     }));
   };
 
-  const handleUpdate = () => {
-    if (isEditing) {
+const handleUpdate = async () => {
+  if (isEditing) {
+    try {
       console.log("Dữ liệu gửi API:", formData);
 
-      // gọi api update ở đây
+      await AccountApi.updateAccount(formData);
+
+      console.log("Cập nhật thành công");
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Cập nhật thất bại:", error);
     }
-
-    setIsEditing(!isEditing);
-  };
-
+  } else {
+    setIsEditing(true);
+  }
+};
   return (
     <div className="account-form lg:m-12 border rounded-md lg:p-5">
       <h2 className="text-black font-semibold lg:text-3xl sm:text-sm text-xs">

@@ -5,6 +5,7 @@ import { Button } from "antd";
 import { MdSystemUpdateAlt } from "react-icons/md";
 import { useState } from "react";
 import type { ResTeam } from "../types/rescueType";
+import { rescueApi } from "../api/rescureApi";
 
 interface Props {
   data: ResTeam;
@@ -24,16 +25,32 @@ export const InfTeam = ({ data }: Props) => {
       [field]: value,
     }));
   };
+  const user=useAppSelector((state)=>state.auth.user)
+  const teamId=user?.teamId;
+  const isLeaderTeam=user?.isTeamLeader===true
+  const admin=user?.role==="ADMIN"
 
-  const handleUpdate = () => {
-    if (isEditing) {
-      console.log("Dữ liệu gửi API:", formData);
-
-      // gọi api update ở đây
+  const canUpdate= isLeaderTeam ||admin
+ const handleUpdate = async () => {
+  if (isEditing) {
+    if (!teamId) {
+      console.error("Không tìm thấy teamId");
+      return;
     }
 
-    setIsEditing(!isEditing);
-  };
+    try {
+      console.log("Dữ liệu gửi API:", formData);
+
+      await rescueApi.updateResTeam(teamId, formData);
+
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Cập nhật thất bại:", error);
+    }
+  } else {
+    setIsEditing(true);
+  }
+};
 
   return (
     <div className="account-form lg:m-12 border rounded-md lg:p-5">
@@ -84,6 +101,7 @@ export const InfTeam = ({ data }: Props) => {
           onChange={(value) => handleChange("emergencyPhone", value)}
         />
         <div className="flex justify-end">
+        {canUpdate&&
           <Button
             type="primary"
             onClick={handleUpdate}
@@ -92,6 +110,7 @@ export const InfTeam = ({ data }: Props) => {
 
             {isEditing ? "Lưu" : "Cập nhật"}
           </Button>
+          }
         </div>
       </form>
     </div>

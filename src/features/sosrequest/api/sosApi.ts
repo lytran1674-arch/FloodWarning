@@ -1,7 +1,8 @@
 // features/sos/api/sosApi.ts
 
+import { data } from "react-router-dom"
 import type { AssignSos, DetailSos, ListSOS, SoSRequest, SoSResponse } from "../types/sosType"
-import { axiosClient } from "@/api/axiosClient"
+import { axiosClient, publicApi } from "@/api/axiosClient"
 
 const API_URL = "/sos-request"
 
@@ -42,5 +43,20 @@ export const SoSAPI = {
   async getdetailsos(id:string):Promise<DetailSos>{
     const response=await axiosClient.get(`${API_URL}/${id}`)
     return response.data.result
+  },
+  //hủy yêu cầu cứu hộ của người dân ,chỉ được hủy khi pending
+  //chưa có tài khoản
+  async cancelSosRequestAnonymous(sosId:string,data:string):Promise<string>{
+    const response=await publicApi.patch(`${API_URL}/${sosId}/anonymous/cancel`,data)
+      return response.data;
+    
+  }
+,
+  //đã có tài khoản
+  async cancelSosRequest(sosId:string,sodt:string,clientDeviceId:string):Promise<string>{
+    const response=await axiosClient.patch(`${API_URL}/${sosId}/cancel`,
+      {clientDeviceId,sodt}
+    )
+    return response.data;
   }
 }

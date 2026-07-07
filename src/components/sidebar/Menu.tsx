@@ -1,5 +1,7 @@
+
+import { SosCallButton } from "@/features/emergency/components/ButtonCall";
 import { useAppSelector } from "@/hooks/redux.hooks";
-import { Button } from "antd";
+
 import type { LucideIcon } from "lucide-react";
 import type { CSSProperties } from "react";
 import { NavLink } from "react-router-dom";
@@ -86,7 +88,7 @@ export const Menu = ({
       </ul>
         <div className="lg:mt-[100px] lg:ml-[45px] mt-[200px] ml-[30px]">
             {role&&
-      <Button className="border border-red-600 font-bold lg:p-4 bg-red-600 text-white text-xs sm:text-sm lg:text-xl rounded-3xl">Gọi SOS</Button>
+  <SosCallButton/>
 }
         </div>
     </div>

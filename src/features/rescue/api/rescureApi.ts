@@ -131,5 +131,10 @@ async getDetailTeamId(teamId:string):Promise<ResTeam>{
   const response=await axiosClient.get(`/res-team/detail/${teamId}`)
   return response.data.result;
 }
-
+,
+// cập nhật đội cứu hộ 
+async updateResTeam(teamId: string, data: ResTeam): Promise<ResTeam> {
+  const response = await axiosClient.put(`/res-team/${teamId}`, data);
+  return response.data.result;
+}
 };
