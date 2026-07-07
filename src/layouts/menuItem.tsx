@@ -3,6 +3,7 @@ import type { LucideIcon } from "lucide-react"
 import MenuRescuer from "../assets/menurescuer.png"
 import type { CSSProperties } from "react"
 import IconRescuer from "../assets/rescuer.png"
+import { useAppSelector } from "@/hooks/redux.hooks"
 
 
 
@@ -12,8 +13,8 @@ export type MenuItem = {
   path: string
 
 }
-
 export const adminMenu: MenuItem[] = [
+  
   { text: "Thống kê",                       icon: PieChart,  path: "/thongke"            },
   { text: "Quản lý lực lượng cứu hộ",       icon: Files,     path: "/rescue-management"},
   { text: "Quản lý điều hành cứu hộ cấp tỉnh",       icon: Files,     path: "/province_operator-management"},
@@ -23,8 +24,8 @@ export const adminMenu: MenuItem[] = [
   { text: "Quản lý dữ liệu nguy cơ lũ lụt",         icon: Snowflake, path: "/flood-risk" },
   {text:"Quản lý dữ liệu mực nước tổng hợp",icon:GlassWaterIcon, path:"/summary-water"},
   {text:"Quản lý dữ liệu đánh giá", icon:StarHalf,path:"/evaluation"},
-  {text:"Lịch sử chạy dự báo", icon:HistoryIcon,path:"/prediction-jobs"},
   {text:"Quản lý thiết bị", icon:WavesArrowUp,path:"/iot-device" },
+    { text: "Tài khoản ",      icon: User,    path: "/account" },
 ]
 
 export const rescuerMenu: MenuItem[] = [
@@ -34,12 +35,14 @@ export const rescuerMenu: MenuItem[] = [
   {
     text:"Yêu cầu hỗ trợ" ,icon:Files, path:"/support-request"
   },
-  { text: "Yêu cầu đã nhận",      icon: Files,    path: "/received-requests" },
-  {text:"Quản lý đội cứu hội", icon:FileText ,path:"/team-management"}
+  { text: "Yêu cầu đã nhận",      icon: Files,    path: "/received-requests" }
+ 
   ,{text:"Quản lý nhóm cứu hộ" ,icon:FileText, path:"/group-management"},
   
    {text:"Quản lý dữ liệu mực nước tổng hợp",icon:GlassWaterIcon, path:"/summary-water"},
   {text:"Quản lý dữ liệu đánh giá", icon:StarHalf,path:"/evaluation"},
+  
+   {text:"Thông tin đội cứu hội", icon:FileText ,path:"/information-team"},
     { text: "Tài khoản ",      icon: User,    path: "/account" },
 ]
 

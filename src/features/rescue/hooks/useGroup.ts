@@ -1,8 +1,9 @@
-// features/sos/hooks/useGroup.ts
+
 
 import { useEffect, useState } from "react";
 import { groupService } from "../../grouprescue/services/groupService";
-import type { Group } from "../../grouprescue/types/groupType";
+import type { Group } from "../types/rescueType";
+
 
 export const useGroup = (teamId?: string) => {
   const [groups, setGroups] = useState<Group[]>([]);

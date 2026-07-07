@@ -250,7 +250,8 @@ export interface GeoMapMarker {
   type: "sos" | "team"
   selected?: boolean
   disabled?: boolean
-  requesterTeam?: boolean   
+  requesterTeam?: boolean  
+  popup?:string 
 }
 
 interface GeoMapProps {
@@ -272,14 +273,14 @@ interface GeoMapProps {
 
 const DEFAULT_CENTER: [number, number] = [16.047, 108.206]
 
-function buildMarkerIcon(m: { type?: "sos" | "team"; selected?: boolean; disabled?: boolean }): L.DivIcon {
+function buildMarkerIcon(m: { type?: "sos" | "team"; selected?: boolean; disabled?: boolean,requesterTeam?:boolean }): L.DivIcon {
   const isSos = m.type === "sos"
 
  const bg = isSos
   ? "#DC2626"
   : m.requesterTeam
-  ? "#DC2626"  // true -> đỏ
-  : "#2563EB"  
+  ? "#F59E0B"   // vàng - đội đã gửi yêu cầu chi viện
+  : "#2563EB"  // xanh - đội lân cận có thể chi viện
    
 
   const size = isSos ? 26 : m.selected ? 24 : 20
@@ -529,6 +530,23 @@ const GeoMap = ({
             <span className="text-xs text-slate-600">Vị trí của bạn</span>
           </div>
         )}
+
+        {markers.length > 0 && (
+  <div className={`flex flex-col gap-1 ${areas.length > 0 || currentLat != null ? "mt-1 pt-1 border-t border-slate-100" : ""}`}>
+    <div className="flex items-center gap-2">
+      <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#DC2626", border: "2px solid white" }} />
+      <span className="text-xs text-slate-600">Vị trí SOS</span>
+    </div>
+    <div className="flex items-center gap-2">
+      <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#F59E0B", border: "2px solid white" }} />
+      <span className="text-xs text-slate-600">Đội gửi yêu cầu</span>
+    </div>
+    <div className="flex items-center gap-2">
+      <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#2563EB", border: "2px solid white" }} />
+      <span className="text-xs text-slate-600">Đội lân cận</span>
+    </div>
+  </div>
+)}
       </div>
     </div>
   )

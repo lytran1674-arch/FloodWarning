@@ -3,7 +3,7 @@ import type {
     ApprovePayload,
     AssignmentRequestSupport,
     CandidateTeam,
-  RejectPayload,
+  // RejectPayload,
   RequestSupportMyTeam,
   Status,
   SupportRequestListResponse,
@@ -101,9 +101,10 @@ async approveSupportRequest(
   },
 
   //team_leader từ chối yêu cầu hỗ trợ 
-  async rejectsupportrequest(supportRequestItemId:string,payload:{
+  async teamleaderrejectsupportrequets(supportRequestItemId:string,payload:{
    reason:string
   }){
+   
     return axiosClient.post(`${API_URL}/items/${supportRequestItemId}/team_reject`,
       payload
     )

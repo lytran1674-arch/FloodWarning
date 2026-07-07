@@ -1,6 +1,6 @@
 
 type TrangThai= ''
- export type Role= "ADMIN" | " RESCUER" | "CITIZEN"
+ export type Role= "ADMIN" | "RESCUER" | "CITIZEN" | "PROVINCE_OPERATOR"
 
 export interface User{
     id:string

@@ -126,6 +126,10 @@ async pickLeaderGroup(
   return response.data.result;
 },
 
-//team_leader từ chối yêu cầu của người dân 
+// chi tiết 1 đội
+async getDetailTeamId(teamId:string):Promise<ResTeam>{
+  const response=await axiosClient.get(`/res-team/detail/${teamId}`)
+  return response.data.result;
+}
 
 };

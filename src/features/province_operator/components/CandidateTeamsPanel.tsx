@@ -34,6 +34,16 @@ interface CandidateTeamsPanelProps {
 // COMPONENT
 // ======================================================
 
+function normalizeLatLon(lat: number, lon: number): [number, number] {
+  const latValid = lat >= -90 && lat <= 90;
+  const lonAsLatValid = lon >= -90 && lon <= 90;
+
+  if (!latValid && lonAsLatValid) {
+    return [lon, lat];
+  }
+  return [lat, lon];
+}
+
 export function CandidateTeamsPanel({
   teams,
   loading,
@@ -86,6 +96,8 @@ export function CandidateTeamsPanel({
   // ======================================================
 
   const markers: GeoMapMarker[] = useMemo(() => {
+   console.log("sos:", sosLat, sosLon);
+  teams.forEach((t) => console.log(t.teamName, t.lat, t.lon, typeof t.lat, typeof t.lon));
     return [
       ...(sosLat != null && sosLon != null
         ? [
@@ -99,22 +111,25 @@ export function CandidateTeamsPanel({
           ]
         : []),
 
-      ...teams
-        .filter(
-          (team) =>
-            typeof team.lat === "number" && typeof team.lon === "number"
-        )
-        .map((team) => ({
-          id: team.id,
-          lat: team.lat,
-          lon: team.lon,
-          label: team.teamName,
-          type: "team" as const,
-          selected: selectedTeamIds.includes(team.id),
-          disabled:
-            getTotalAvailableGroups(team) === 0 || team.requesterTeam,
-          requesterTeam: team.requesterTeam,
-        })),
+  ...teams
+  .filter(
+    (team) =>
+      typeof team.lat === "number" && typeof team.lon === "number"
+  )
+  .map((team) => {
+    const [lat, lon] = normalizeLatLon(team.lat, team.lon);
+    return {
+      id: team.id,
+      lat,
+      lon,
+      label: team.teamName,
+      type: "team" as const,
+      selected: selectedTeamIds.includes(team.id),
+      disabled:
+        getTotalAvailableGroups(team) === 0 || team.requesterTeam,
+      requesterTeam: team.requesterTeam,
+    };
+  }),
     ];
   }, [teams, sosLat, sosLon, selectedTeamIds]);
 

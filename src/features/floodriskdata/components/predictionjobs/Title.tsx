@@ -55,7 +55,7 @@ export const Title = ({
   date,
   jobType,
   status,
-  onDateChange,
+
   onJobTypeChange,
   onStatusChange,
   onRefresh,

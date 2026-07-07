@@ -41,7 +41,9 @@ import ListProvinceOperatorPage from "@/features/province_operator/pages/ListPro
 import { SoSAnonymous } from "@/features/sosrequest-anonymous/components/SoSAnonymous"
 import SentRequestAnonymousPage from "@/features/sosrequest-anonymous/components/Sentrequestanonymouspage"
 import { MyRequestSupportPage } from "@/features/rescue/pages/MyRequestSupportPage"
-import { PredictionJobs } from "@/features/floodriskdata/pages/PredictionJobs"
+import { AccountPage } from "@/features/account/pages/AccountPage"
+import { InfTeamPage } from "@/features/rescue/pages/InfTeamPage"
+
 
 
 
@@ -71,7 +73,7 @@ const AppRoutes = () => {
         <Route path="/res-groups/:groupId/members" element={<GroupMembersPage />}/>
         <Route path="/create-team" element={<CreateTeam />}/>
         <Route path="/res-group/create" element={<CreateGroupPage />} />
-        <Route path="/team-management" element={<ResTeamPage />}/>
+        <Route path="/group-management" element={<ResGroupPage />}/>
         <Route path="/sent-request" element={<RequestListPage/>}/>
         <Route path="/success" element={<SuccessPage />} />
         
@@ -91,7 +93,8 @@ const AppRoutes = () => {
         {/* <Route path="/province_operator-management" element={<ProvinceOperatorListPage/>}/> */}
          <Route path="/province_operator-management" element={<ListProvinceOperatorPage/>}/>
          <Route path="/support-request" element={<MyRequestSupportPage/>}/>
-         <Route path="/prediction-jobs" element={<PredictionJobs/>}/>
+        <Route path="/account" element={<AccountPage/>}/>
+        <Route path="/information-team" element={<InfTeamPage/>}/>
         </Route>
        
       </Routes>

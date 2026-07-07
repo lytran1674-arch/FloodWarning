@@ -32,7 +32,19 @@ export const useRequestSupport = () => {
       setLoading(false);
     }
   };
-
+// teamleader từ chối yêu cầu hỗ trợ
+  const teamleaderReject=async(id:string,reason:string)=>{
+    try{
+      setLoading(true);
+      await provinceApi.teamleaderrejectsupportrequets(id,{reason})
+      return true;
+    }catch(err){
+      setError("Từ chối thất bại, vui lòng thử lại");
+      return false;
+    }finally{
+      setLoading(false)
+    }
+  }
   useEffect(() => {
     getListRequestSupportMyTeam();
   }, []);
@@ -44,5 +56,6 @@ export const useRequestSupport = () => {
     error,
     getListRequestSupportMyTeam,
     assignGroupToRequest,
+    teamleaderReject
   };
 };

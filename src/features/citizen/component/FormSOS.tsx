@@ -15,7 +15,7 @@ import {
 
 import { useAppSelector } from "../../../hooks/redux.hooks"
 import Counter from "../../../components/ui/Counter"
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef, useMemo } from "react"
 import ConditionSelector from "../../../components/ui/ConditionSelector"
 import { Input } from "../../../components/ui/Input"
 import GeoMap from "../../map/components/GeoMap"
@@ -25,6 +25,55 @@ import type { SoSRequest } from "../../sosrequest/types/sosType"
 import { useSoS } from "../../sosrequest/hooks/useSoS"
 import { useNavigate } from "react-router-dom"
 
+import L from "leaflet";
+
+import "leaflet/dist/leaflet.css";
+import { useMap, useMapEvents } from "react-leaflet"
+import { useArea } from "@/features/areas/hooks/useArea"
+
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
+
+const RecenterMap = ({
+  lat,
+  lng,
+}: {
+  lat: number;
+  lng: number;
+}) => {
+  const map = useMap();
+
+  useEffect(() => {
+    map.setView([lat, lng], 15);
+  }, [lat, lng, map]);
+
+  return null;
+};
+
+const MapClickHandler = ({
+  setLat,
+  setLng,
+}: {
+  setLat: (lat: number) => void;
+  setLng: (lng: number) => void;
+}) => {
+  useMapEvents({
+    click(e) {
+      setLat(e.latlng.lat);
+      setLng(e.latlng.lng);
+    },
+  });
+
+  return null;
+};
 export const FormSOS = () => {
 
   const navigate = useNavigate()
@@ -35,14 +84,70 @@ export const FormSOS = () => {
   const [desc, setDesc] = useState("")
   const [manualLat, setManualLat] = useState("")
   const [manualLon, setManualLon] = useState("")
-
+    const { areas } = useArea();
   const { loading, createSoS, updateSoS } = useSoS()
+  const [searchArea, setSearchArea] =
+    useState("");
 
+  const [openArea, setOpenArea] =
+    useState(false);
+
+  const [file, setFile] =
+    useState<File | null>(null);
   const user = useAppSelector(state => state.auth.user)
+ const [lat, setLat] = useState<
+    number | null
+  >(null);
 
+  const [lon, setLng] = useState<
+    number | null
+  >(null);
+
+   const areaOptions = useMemo(() => {
+      return areas.flatMap((parent) =>
+        (parent.children ?? []).map(
+          (child) => ({
+            id: child.id,
+            label: `${parent.tenkhuvuc} > ${child.tenkhuvuc}`,
+          })
+        )
+      );
+    }, [areas]);
+  
+    const filteredAreas =
+      areaOptions.filter((area) =>
+        area.label
+          .toLowerCase()
+          .includes(searchArea.toLowerCase())
+      );
+  
+    const geocodeAddress = async (
+      fullAddress: string
+    ) => {
+      try {
+        const url =
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+            fullAddress
+          )}`;
+  
+        const response = await fetch(url);
+  
+        const data = await response.json();
+  
+        if (data.length > 0) {
+          setLat(Number(data[0].lat));
+  
+          setLng(Number(data[0].lon));
+        }
+      } catch (error) {
+        console.error(
+          "Geocode error",
+          error
+        );
+      }
+    };
   const {
-    lat,
-    lon,
+  
     loading: locLoading,
     error: locError,
     getLocation,
@@ -109,6 +214,31 @@ export const FormSOS = () => {
 
       return
     }
+    const geocodeAddress = async (
+    fullAddress: string
+  ) => {
+    try {
+      const url =
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+          fullAddress
+        )}`;
+
+      const response = await fetch(url);
+
+      const data = await response.json();
+
+      if (data.length > 0) {
+        setLat(Number(data[0].lat));
+
+        setLng(Number(data[0].lon));
+      }
+    } catch (error) {
+      console.error(
+        "Geocode error",
+        error
+      );
+    }
+  };
 
     // deviceId cố định
     let deviceId =

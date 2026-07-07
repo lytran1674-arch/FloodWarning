@@ -10,18 +10,19 @@ import {
 } from "lucide-react";
 import { rescueApi } from "../api/rescureApi";
 import { Button } from "../../../components/ui/Button";
+import { useAppSelector } from "@/hooks/redux.hooks";
 
 export default function ResGroupPage() {
-  const { teamId } = useParams();
+ 
   const navigate = useNavigate();
   const location = useLocation();
 
   const [groups, setGroups] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const user = useAppSelector((state)=>state.auth.user)
   const canCreateGroup = user?.isTeamLeader === true;
-
+  const teamId=user?.teamId
   useEffect(() => {
     if (!teamId) return;
 
@@ -42,13 +43,7 @@ export default function ResGroupPage() {
 
   return (
     <div className="p-6">
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-4 flex items-center gap-2 text-slate-600 hover:text-slate-900"
-      >
-        <ArrowLeft size={18} />
-        Quay lại
-      </button>
+      
 
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Danh sách Group</h1>

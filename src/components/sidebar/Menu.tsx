@@ -30,7 +30,7 @@ export const Menu = ({
 
     const user = useAppSelector((state) => state.auth.user);
     const role = user?.role==="CITIZEN"
-    const admin = user?.role==="ADMIN"
+
   return (
 
     <div

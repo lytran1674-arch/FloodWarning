@@ -12,6 +12,8 @@ export interface Group {
   status: GroupStatus;
   hasBoat: boolean;
   hasMedical: boolean;
+  hasSearchRescue:boolean
+   hasLogistics:boolean
   notes: string;
 }
 

@@ -1,3 +1,5 @@
+import type { GroupStatus } from "@/features/grouprescue/types/groupType"
+
 export interface CreateTeamRequest{
  name:string
     description:string 
@@ -22,9 +24,12 @@ export interface ResTeam{
   name:string
   description:string
   areaId:string
+  areaName:string
   leaderId:string | null
   leaderName:string |null
-
+  lat:number
+  lon:number
+  emergencyPhone:string
 }
 
 
@@ -40,16 +45,18 @@ export interface ImportResult {
   errors: string[];
 }
 
-type STATUS= "AVAILABLE"
+
 export interface ResGroup{
- id:string
- name:string
- teamId:string
- teamName:string
- status:STATUS
- hasBoat:boolean
- hasMedical:boolean
- notes:string
+  id: string;
+     name: string;
+     teamId: string;
+     teamName: string;
+     status: GroupStatus;
+     hasBoat: boolean;
+     hasMedical: boolean;
+     hasSearchRescue:boolean
+     hasLogistics:boolean
+     notes: string;
 }
 
 
@@ -68,14 +75,16 @@ export interface Team {
 
 // ── Group ─────────────────────────────────────────────────────────────────────
 export interface Group {
-  id: string
-  name: string
-  teamId: string
-  teamName: string
-  status: "AVAILABLE" | "BUSY" | "INACTIVE"
-  hasBoat: boolean
-  hasMedical: boolean
-  notes: string
+  id: string;
+     name: string;
+     teamId: string;
+     teamName: string;
+     status: GroupStatus;
+     hasBoat: boolean;
+     hasMedical: boolean;
+   hasSearchRescue:boolean
+    hasLogistics:boolean
+     notes: string;
 }
 
 // ── Member ────────────────────────────────────────────────────────────────────
