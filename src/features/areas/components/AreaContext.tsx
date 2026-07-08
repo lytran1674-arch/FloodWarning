@@ -15,7 +15,7 @@ export const AreaProvider = ({ children }: { children: ReactNode }) => {
   const [areas, setAreas] = useState<AreaTree[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const token = useAppSelector(state => state.auth.accessToken);
+
 
   const fetchAreas = async () => {
     try {
@@ -30,12 +30,8 @@ export const AreaProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    if (token) {
-      fetchAreas();
-    } else {
-      setAreas([]); // clear khi logout
-    }
-  }, [token]);
+   fetchAreas()
+  }, []);
 
   return (
     <AreaContext.Provider value={{ areas, loading, fetchAreas }}>

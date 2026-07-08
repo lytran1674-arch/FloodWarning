@@ -1,5 +1,3 @@
-
-
 export type SosStatus =
   | "PENDING"
   | "DONE"
@@ -7,21 +5,23 @@ export type SosStatus =
   | "CANCELLED"
 
 export type SosPriority =
-  "CRITICAL"
+  | "CRITICAL"
   | "HIGH"
   | "MEDIUM"
   | "LOW"
 
 export type FilterStatus = 'ALL' | 'PENDING' | 'PROCESSING' | 'DONE' | 'CANCELLED'
-// features/sos/types/sosType.ts
 
-export type RoleGroup="PRIMARY" | "SUPPORT"
+export type RoleGroup = "PRIMARY" | "SUPPORT"
+
 export interface SoSRequest {
-  sodt: string
-  clientDeviceId: string
+  areaId?:string
+  sodt?: string            // optional — chỉ gửi khi tạo SOS anonymous
+  clientDeviceId?: string  // optional — chỉ gửi khi tạo SOS anonymous
   victimCount: number
   lat: number
   lon: number
+  diachi: string           // bổ sung — luôn được gửi theo thực tế API
   accuracy: number
   injured: boolean
   trapped: boolean
@@ -60,44 +60,43 @@ export interface ListSOS {
   createdAt: string
 }
 
-export interface AssignSos{
-  sosId?:string
-  groupId:string
-  role:RoleGroup
-  note?:string
+export interface AssignSos {
+  sosId?: string
+  groupId: string
+  role: RoleGroup
+  note?: string
 }
 
-export interface AssignRespone{
-  code:number
-  result:string
+export interface AssignRespone {
+  code: number
+  result: string
 }
 
-export interface DetailSos{
-  id:string
-  teamId:string
-  teamName:string
-  phoneNumber:string
-  victimCount:number
-  injured:boolean
-  trapped:boolean
-  vulnerable:boolean
-  description:string
-  priority:SosPriority
-  baseSeverityScore:number
-  priorityReason:string
-  eviromentRisk:SosPriority
-  lat:number
-  lon:number
-  address:string
-  status:SosStatus
-  createdAt:string
-  assignments:Assignment[]
-
+export interface DetailSos {
+  id: string
+  teamId: string
+  teamName: string
+  phoneNumber: string
+  victimCount: number
+  injured: boolean
+  trapped: boolean
+  vulnerable: boolean
+  description: string
+  priority: SosPriority
+  baseSeverityScore: number
+  priorityReason: string
+  eviromentRisk: SosPriority
+  lat: number
+  lon: number
+  address: string
+  status: SosStatus
+  createdAt: string
+  assignments: Assignment[]
 }
 
 export interface Assignment {
-  id: string;
-  groupId: string;
-  groupName:string
-  teamId:string
+  id: string
+  groupId: string
+  groupName: string
+  teamId: string
 }

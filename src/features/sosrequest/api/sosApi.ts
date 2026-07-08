@@ -1,7 +1,5 @@
-// features/sos/api/sosApi.ts
-
-import { data } from "react-router-dom"
-import type { AssignSos, DetailSos, ListSOS, SoSRequest, SoSResponse } from "../types/sosType"
+import type { CancelResponse } from "@/features/sosrequest-anonymous/types/sosanonymousType"
+import type { AssignSos, DetailSos, SoSRequest, SoSResponse } from "../types/sosType"
 import { axiosClient, publicApi } from "@/api/axiosClient"
 
 const API_URL = "/sos-request"
@@ -12,51 +10,42 @@ export const SoSAPI = {
     return response.data.result
   },
 
-  async getListSosRequest(): Promise<ListSOS[]> {
+  async getListSosRequest(): Promise<SoSResponse[]> {
     const response = await axiosClient.get(`${API_URL}/my-sos`)
     return response.data.result?.content ?? []
   },
 
-  async getListAnonymousSosRequest(): Promise<ListSOS[]> {
-    const response = await axiosClient.get(`${API_URL}/my-active-anonymous`)
-    return response.data.result?.content ?? []
+  async getListAnonymousSosRequest(
+    sodt: string,
+    clientDeviceId: string
+  ): Promise<SoSResponse[]> {
+    const response = await publicApi.get(`${API_URL}/my-active-anonymous`, {
+      params: { sodt, clientDeviceId },
+    })
+    // Xử lý cả 2 trường hợp: có phân trang (.content) hoặc trả mảng thẳng
+    return response.data.result?.content ?? response.data.result ?? []
   },
-  async updateSos(
-  id: string,
-  data: SoSRequest
-): Promise<SoSResponse> {
 
-  const response =
-    await axiosClient.put(
-      `${API_URL}/${id}`,
-      data
-    )
-
-  return response.data.result
- 
-}
- ,
-  async postassigment(data:AssignSos):Promise<string>{
-    const response=await axiosClient.post("/sos-assignment",data);
+  async updateSos(id: string, data: SoSRequest): Promise<SoSResponse> {
+    const response = await axiosClient.put(`${API_URL}/${id}`, data)
     return response.data.result
   },
-  async getdetailsos(id:string):Promise<DetailSos>{
-    const response=await axiosClient.get(`${API_URL}/${id}`)
+
+  async postassigment(data: AssignSos): Promise<string> {
+    const response = await axiosClient.post("/sos-assignment", data)
     return response.data.result
   },
-  //hủy yêu cầu cứu hộ của người dân ,chỉ được hủy khi pending
-  //chưa có tài khoản
-  async cancelSosRequestAnonymous(sosId:string,data:string):Promise<string>{
-    const response=await publicApi.patch(`${API_URL}/${sosId}/anonymous/cancel`,data)
-      return response.data;
-    
-  }
-,
-  //đã có tài khoản
-  async cancelSosRequest(sosId:string,sodt:string,clientDeviceId:string):Promise<string>{
-    const response=await axiosClient.patch(`${API_URL}/${sosId}/cancel`,
-      {clientDeviceId,sodt}
+
+  async getdetailsos(id: string): Promise<DetailSos> {
+    const response = await axiosClient.get(`${API_URL}/${id}`)
+    return response.data.result
+  },
+
+  // Hủy yêu cầu - người dùng ĐÃ có tài khoản (chỉ hủy khi PENDING)
+  async cancelSosRequest(sosId: string): Promise<CancelResponse> {
+    const response = await axiosClient.patch<CancelResponse>(
+      `${API_URL}/${sosId}/cancel`
     )
-    return response.data;
-  }
+    return response.data
+  },
 }

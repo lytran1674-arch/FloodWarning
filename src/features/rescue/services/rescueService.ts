@@ -1,5 +1,5 @@
 import { rescueApi } from "../api/rescureApi";
-import type { CreateTeamRequest, ResCue, ResTeam } from "../types/rescueType";
+import type { CreateTeamRequest, GroupMember, ResCue, RescueResponse, ResTeam } from "../types/rescueType";
 
 
 export const rescueService = {
@@ -24,5 +24,10 @@ export const rescueService = {
   // chi tiết đội cứu hộ 
   async getDetailTeam(teamId:string):Promise<ResTeam>{
     return await rescueApi.getDetailTeamId(teamId)
+  }
+  ,
+  // xóa member ra khỏi group
+  async RemoveMemberGroup(groupId:string,userId:string):Promise<ResCue>{
+    return await rescueApi.removeMemberGroup(groupId,userId);
   }
 };

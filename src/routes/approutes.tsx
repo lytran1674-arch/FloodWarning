@@ -38,11 +38,12 @@ import  {SupportRequestListPage}  from "@/features/province_operator/pages/Suppp
 import { HomeProvince } from "@/features/province_operator/pages/Home"
 import { SupportRequestReviewPage } from "@/features/province_operator/pages/SupportRequestReviewPage"
 import ListProvinceOperatorPage from "@/features/province_operator/pages/ListProvinceOperatorPage"
-import { SoSAnonymous } from "@/features/sosrequest-anonymous/components/SoSAnonymous"
+import {  SOSRequestAnonymous } from "@/features/sosrequest-anonymous/components/SoSAnonymous"
 import SentRequestAnonymousPage from "@/features/sosrequest-anonymous/components/Sentrequestanonymouspage"
 import { MyRequestSupportPage } from "@/features/rescue/pages/MyRequestSupportPage"
 import { AccountPage } from "@/features/account/pages/AccountPage"
 import { InfTeamPage } from "@/features/rescue/pages/InfTeamPage"
+import SuccessPageAnonymous from "@/features/sosrequest-anonymous/components/SuccessPgae"
 
 
 
@@ -55,8 +56,10 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage/>}/>
-        <Route path="/sos-request-anonymous" element={<SoSAnonymous/>}/>
+        <Route path="/sos-request-anonymous" element={<SOSRequestAnonymous/>}/>
         <Route path="/sent-request-anonymous" element={<SentRequestAnonymousPage />} />
+        <Route path="/success-anonymous" element={<SuccessPageAnonymous/>}/>
+        <Route path="/update-sos-anonymous/:id" element={<UpdateSOSPage />} />
         <Route element={<MainLayout />}>          
           <Route path="/areas-management" element={<Area />} />
           <Route path="/weather-data/:area_id"/>

@@ -125,7 +125,7 @@ export const roleConfig: Record<string,RoleConfig>={
 
 export const defaultConfig:RoleConfig={
     menu:[],
-    bgColor:"bg-white",
+    bgColor:"bg-[#248BD6]",
         hover:"bg-white",
         color:"#ff0000",
 }

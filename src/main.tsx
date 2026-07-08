@@ -7,15 +7,26 @@ import { Provider } from 'react-redux'
 import { store } from './app/store.ts'
 import { BrowserRouter } from 'react-router-dom'
 import "leaflet/dist/leaflet.css";
+import { AreaProvider } from './features/areas/components/AreaContext.tsx';
 
-createRoot(document.getElementById('root')!).render(
-  // StrictMode bị xóa để tránh double mount/fetch trong dev khi deloy lên host thì mở ra
-  //<StrictMode>
+// createRoot(document.getElementById('root')!).render(
+//   // StrictMode bị xóa để tránh double mount/fetch trong dev khi deloy lên host thì mở ra
+//   //<StrictMode>
+//   <Provider store={store}>
+//     <BrowserRouter>
+//       <App />
+//       <ToastContainer />
+//     </BrowserRouter>
+//   </Provider>
+//   //</StrictMode>
+
+createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
     <BrowserRouter>
-      <App />
-      <ToastContainer />
+      <AreaProvider>
+        <App />
+        <ToastContainer />
+      </AreaProvider>
     </BrowserRouter>
   </Provider>
-  //</StrictMode>
 )

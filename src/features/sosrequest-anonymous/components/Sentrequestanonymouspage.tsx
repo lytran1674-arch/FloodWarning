@@ -5,14 +5,23 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, LogIn, Inbox } from "lucide-react";
 import { useSoS } from "../../sosrequest/hooks/useSoS";
 
+// Cần khớp đúng key đã dùng lúc lưu ở FormSOSAnonymous.tsx
+const DEVICE_ID_KEY = "deviceId";
+const ANONYMOUS_SODT_KEY = "sos_anonymous_sodt";
+
 export default function SentRequestAnonymousPage() {
   const navigate = useNavigate();
   const { request, loading, error, listAnonymousSosRequest } = useSoS();
 
+  const sodt = localStorage.getItem(ANONYMOUS_SODT_KEY);
+  const clientDeviceId = localStorage.getItem(DEVICE_ID_KEY);
+  const hasDeviceInfo = !!sodt && !!clientDeviceId;
+
   useEffect(() => {
-    listAnonymousSosRequest();
+    if (!hasDeviceInfo) return; // chưa từng gửi SOS nào trên thiết bị này → không gọi API
+    listAnonymousSosRequest(sodt!, clientDeviceId!);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [hasDeviceInfo]);
 
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto">
@@ -36,7 +45,7 @@ export default function SentRequestAnonymousPage() {
           này. Đăng nhập để xem toàn bộ lịch sử yêu cầu của bạn.
         </p>
         <button
-          onClick={() => navigate("/login")}
+          onClick={() => navigate("/")}
           className="flex items-center gap-1.5 shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-3 py-2 rounded-lg transition-colors"
         >
           <LogIn className="w-4 h-4" />
@@ -44,7 +53,14 @@ export default function SentRequestAnonymousPage() {
         </button>
       </div>
 
-      {loading ? (
+      {!hasDeviceInfo ? (
+        <div className="flex flex-col items-center justify-center text-center py-12 text-gray-400">
+          <Inbox className="w-10 h-10 mb-3 text-gray-300" />
+          <p className="text-sm">
+            Chưa tìm thấy yêu cầu SOS nào được gửi từ thiết bị này
+          </p>
+        </div>
+      ) : loading ? (
         <p className="text-sm text-gray-400">Đang tải...</p>
       ) : error ? (
         <p className="text-sm text-red-500">{error}</p>
@@ -55,7 +71,7 @@ export default function SentRequestAnonymousPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {request.map((item: any) => (
+          {request.map((item) => (
             <div
               key={item.id}
               className="border border-gray-200 rounded-xl p-4 shadow-sm"

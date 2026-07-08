@@ -5,27 +5,33 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import type { SoSResponse, FilterStatus } from '../types/sosType'
 import SosRequestCard from '../components/SosRequestCard'
 import { axiosClient } from '@/api/axiosClient'
-import { AlertCircle, X, ChevronLeft } from 'lucide-react'
-
-
+import { AlertCircle, X, ChevronLeft, Loader2, Inbox } from 'lucide-react'
+import { useSoS } from '../hooks/useSoS'
 
 const filterOptions: { key: FilterStatus; label: string }[] = [
   { key: 'ALL',        label: 'Tất cả'     },
-  { key: 'PENDING',    label: 'Pending'    },
-  { key: 'PROCESSING', label: 'Processing' },
-  { key: 'DONE',       label: 'Done'       },
-  { key: 'CANCELLED',  label: 'Cancelled'  },
+  { key: 'PENDING',    label: 'Chờ xử lý'  },
+  { key: 'PROCESSING', label: 'Đang xử lý' },
+  { key: 'DONE',       label: 'Hoàn thành' },
+  { key: 'CANCELLED',  label: 'Đã hủy'     },
 ]
 
 export const RequestListPage = () => {
   const navigate = useNavigate()
   const location = useLocation()
-    const [,   setModalOpen]   = useState(false)
-  const [,  setSelectedId]  = useState<string | null>(null)
-  const [requests,     setRequests]     = useState<SoSResponse[]>([])
-  const [loading,      setLoading]      = useState(true)
-  const [error,        setError]        = useState<string | null>(null)
+  const [, setModalOpen] = useState(false)
+  const [, setSelectedId] = useState<string | null>(null)
+
+  const [requests, setRequests] = useState<SoSResponse[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [activeFilter, setActiveFilter] = useState<FilterStatus>('ALL')
+
+  const { cancelSosRequest, loading: cancelLoading } = useSoS()
+
+  // ── state cho modal xác nhận hủy ───────────────────────────────
+  const [cancelTargetId, setCancelTargetId] = useState<string | null>(null)
+  const [cancelError, setCancelError] = useState<string | null>(null)
 
   // ── state từ navigate ──────────────────────────────────────────
   const highlightId        = location.state?.highlightId        as string | undefined
@@ -38,27 +44,27 @@ export const RequestListPage = () => {
 
   const highlightRef = useRef<HTMLDivElement | null>(null)
 
-  useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const response = await axiosClient.get('/sos-request/my-sos')
-        const data =
-          response.data?.result?.content ??
-          response.data?.content ??
-          []
-        setRequests(Array.isArray(data) ? data : [])
-      } catch (err: any) {
-        setError(err.response?.data?.message || err.message || 'Đã xảy ra lỗi khi tải dữ liệu')
-      } finally {
-        setLoading(false)
-      }
+  const fetchRequests = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await axiosClient.get('/sos-request/my-sos')
+      const data =
+        response.data?.result?.content ??
+        response.data?.content ??
+        []
+      setRequests(Array.isArray(data) ? data : [])
+    } catch (err: any) {
+      setError(err.response?.data?.message || err.message || 'Đã xảy ra lỗi khi tải dữ liệu')
+    } finally {
+      setLoading(false)
     }
+  }
+
+  useEffect(() => {
     fetchRequests()
   }, [])
 
-  // Scroll đến card highlight sau khi load xong
   useEffect(() => {
     if (!loading && highlightId && highlightRef.current) {
       highlightRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -76,13 +82,62 @@ export const RequestListPage = () => {
       ? requests
       : requests.filter(r => r.status === activeFilter)
 
-      function handleOpenDetail(id: string) {
+  function handleOpenDetail(id: string) {
     setSelectedId(id)
     setModalOpen(true)
   }
 
+  // ── Hủy yêu cầu ─────────────────────────────────────────────────
+  const handleRequestCancel = (id: string) => {
+    setCancelError(null)
+    setCancelTargetId(id)
+  }
+
+  const confirmCancel = async () => {
+    if (!cancelTargetId) return
+    try {
+      setCancelError(null)
+      const res = await cancelSosRequest(cancelTargetId)
+      if (res && res.code === 0) {
+        // Cập nhật lại status trong list ngay, không cần fetch lại toàn bộ
+        setRequests(prev =>
+          prev.map(r =>
+            r.id === cancelTargetId ? { ...r, status: 'CANCELLED' } : r
+          )
+        )
+        setCancelTargetId(null)
+      } else {
+        setCancelError(res?.message || 'Không thể hủy yêu cầu này')
+      }
+    } catch (err: any) {
+      setCancelError(
+        err.response?.data?.message || 'Yêu cầu có thể đã được điều phối, không thể hủy'
+      )
+    }
+  }
+
   return (
-    <div className="p-3 sm:p-5 flex-1 flex flex-col">
+    <div className="p-3 sm:p-5 flex-1 flex flex-col max-w-3xl mx-auto w-full">
+
+      {/* ── Back ── */}
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-3 w-fit transition-colors"
+      >
+        <ChevronLeft className="w-4 h-4" />
+        Quay lại
+      </button>
+
+      {/* ── Heading ── */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className="text-red-500 text-lg">📄</span>
+          <h2 className="text-base sm:text-lg font-semibold text-gray-800">
+            Danh sách yêu cầu đã gửi
+          </h2>
+        </div>
+        <span className="text-xs text-gray-400">{requests.length} yêu cầu</span>
+      </div>
 
       {/* ── Banner: đang có SOS chưa xử lý xong ── */}
       {existingBannerVisible && (
@@ -115,34 +170,17 @@ export const RequestListPage = () => {
         </div>
       )}
 
-      {/* ── Back ── */}
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-3 w-fit transition-colors"
-      >
-        <ChevronLeft className="w-4 h-4" />
-        Quay lại
-      </button>
-
-      {/* ── Heading ── */}
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-red-500 text-base">📄</span>
-        <h2 className="text-sm sm:text-base font-medium text-gray-800">
-          Danh sách yêu cầu đã gửi
-        </h2>
-      </div>
-
-      {/* ── Filter chips — scroll ngang trên mobile ── */}
-      <div className="flex gap-2 mb-3 overflow-x-auto pb-1 scrollbar-none -mx-3 px-3 sm:mx-0 sm:px-0 sm:flex-wrap">
+      {/* ── Filter chips ── */}
+      <div className="flex gap-2 mb-4 overflow-x-auto pb-1 scrollbar-none -mx-3 px-3 sm:mx-0 sm:px-0 sm:flex-wrap sticky top-0 bg-white/80 backdrop-blur z-10 py-1">
         {filterOptions.map(opt => (
           <button
             key={opt.key}
             onClick={() => setActiveFilter(opt.key)}
             className={`
-              px-3.5 py-1 rounded-full text-xs border whitespace-nowrap flex-shrink-0 transition-colors
+              px-3.5 py-1.5 rounded-full text-xs font-medium border whitespace-nowrap flex-shrink-0 transition-colors
               ${activeFilter === opt.key
-                ? 'bg-red-500 text-white border-red-500'
-                : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300'
+                ? 'bg-red-500 text-white border-red-500 shadow-sm'
+                : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
               }
             `}
           >
@@ -152,33 +190,59 @@ export const RequestListPage = () => {
       </div>
 
       {/* ── Cards ── */}
-      <div className="flex flex-col gap-2.5 flex-1">
+      <div className="flex flex-col gap-3 flex-1">
         {loading && (
-          <div className="text-center py-12 text-gray-400 text-sm">Đang tải...</div>
+          <div className="flex flex-col items-center justify-center py-16 text-gray-400 gap-2">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <p className="text-sm">Đang tải danh sách...</p>
+          </div>
         )}
-        {error && (
-          <div className="text-center py-12 text-red-500 text-sm">{error}</div>
+
+        {error && !loading && (
+          <div className="text-center py-16">
+            <p className="text-sm text-red-500 mb-2">{error}</p>
+            <button
+              onClick={fetchRequests}
+              className="text-xs text-red-600 underline hover:text-red-700"
+            >
+              Thử lại
+            </button>
+          </div>
         )}
+
         {!loading && !error && filtered.length === 0 && (
-          <div className="text-center py-12 text-gray-400">
-            <p className="text-3xl mb-2">📭</p>
+          <div className="flex flex-col items-center justify-center py-16 text-gray-400 gap-2">
+            <Inbox className="w-8 h-8 text-gray-300" />
             <p className="text-sm">Không có yêu cầu nào</p>
           </div>
         )}
+
         {!loading && !error && filtered.map(req => (
           <div
             key={req.id}
             ref={req.id === highlightId ? highlightRef : null}
+            className="relative"
           >
             <SosRequestCard
               request={req}
               highlight={req.id === highlightId}
               sosData={req.id === highlightId ? sosData : undefined}
-              onViewDetail={() => handleOpenDetail(req.id)} 
+              onViewDetail={() => handleOpenDetail(req.id)}
             />
+
+            {/* Nút hủy - chỉ hiện khi PENDING */}
+            {req.status === 'PENDING' && (
+              <div className="flex justify-end mt-1.5 px-1">
+                <button
+                  onClick={() => handleRequestCancel(req.id)}
+                  className="text-xs font-medium text-red-500 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-50 transition-colors"
+                >
+                  Hủy yêu cầu
+                </button>
+              </div>
+            )}
           </div>
         ))}
-       
       </div>
 
       {/* ── Pagination ── */}
@@ -188,6 +252,45 @@ export const RequestListPage = () => {
           <button className="px-2.5 py-1 rounded-md bg-red-500 text-white text-xs">1</button>
         </div>
       </div>
+
+      {/* ── Modal xác nhận hủy ── */}
+      {cancelTargetId && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl p-5 w-full max-w-sm shadow-xl">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertCircle className="w-5 h-5 text-red-500" />
+              <h3 className="text-sm font-semibold text-gray-800">
+                Xác nhận hủy yêu cầu
+              </h3>
+            </div>
+            <p className="text-sm text-gray-500 mb-4">
+              Bạn có chắc muốn hủy yêu cầu cứu hộ này? Hành động này không thể hoàn tác.
+            </p>
+
+            {cancelError && (
+              <p className="text-xs text-red-500 mb-3">{cancelError}</p>
+            )}
+
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setCancelTargetId(null)}
+                disabled={cancelLoading}
+                className="px-3.5 py-1.5 rounded-lg text-sm text-gray-500 hover:bg-gray-100 transition-colors"
+              >
+                Không
+              </button>
+              <button
+                onClick={confirmCancel}
+                disabled={cancelLoading}
+                className="px-3.5 py-1.5 rounded-lg text-sm text-white bg-red-500 hover:bg-red-600 transition-colors disabled:opacity-60 flex items-center gap-1.5"
+              >
+                {cancelLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                {cancelLoading ? 'Đang hủy...' : 'Hủy yêu cầu'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

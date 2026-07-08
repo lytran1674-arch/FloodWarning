@@ -1,4 +1,4 @@
-// features/sos/components/FormSOS.tsx
+// features/sosrequest/components/FormSOSAnonymous.tsx
 import { Label } from "../../../components/ui/Label";
 import {
   Map,
@@ -12,18 +12,18 @@ import {
   MapPin,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAppSelector } from "../../../hooks/redux.hooks";
 import Counter from "../../../components/ui/Counter";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import ConditionSelector from "../../../components/ui/ConditionSelector";
 import { Input } from "../../../components/ui/Input";
 import GeoMap from "../../map/components/GeoMap";
 import { useGeoLocation } from "../../map/hooks/useGeolocation";
+import { useArea } from "../../areas/hooks/useArea";
 import { toast } from "react-toastify";
-import type { SoSRequest } from "../../sosrequest/types/sosType";
-import { useSoS } from "../../sosrequest/hooks/useSoS";
 
-// Cấu hình toast như snackbar (dùng chung)
+import { usesosrequestanonymous } from "../../sosrequest-anonymous/hooks/usesosrequestanonymous";
+import type { SoSRequest } from "@/features/sosrequest/types/sosType";
+
 const showSnackbar = (message: string, type: 'success' | 'error' | 'warning' = 'success') => {
   toast[type](message, {
     position: "top-center",
@@ -36,22 +36,36 @@ const showSnackbar = (message: string, type: 'success' | 'error' | 'warning' = '
   });
 };
 
-export const SoSAnonymous = () => {
+// Key dùng chung để lưu định danh thiết bị/số điện thoại anonymous
+const DEVICE_ID_KEY = "deviceId";
+const ANONYMOUS_SODT_KEY = "sos_anonymous_sodt";
+
+export const SOSRequestAnonymous = () => {
   const [count, setCount] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
   const [phone, setPhone] = useState("");
   const [desc, setDesc] = useState("");
-  const [manualLat, setManualLat] = useState("");
-  const [manualLon, setManualLon] = useState("");
-  const [validationErrors, setValidationErrors] = useState<{ phone?: string; desc?: string; coords?: string }>({});
 
-  const { loading, createSoS } = useSoS();
-  const user = useAppSelector((state) => state.auth.user);
+  const [addressDetail, setAddressDetail] = useState("");
+  const [selectedArea, setSelectedArea] = useState<string | null>(null);
+  const [selectedAreaLabel, setSelectedAreaLabel] = useState("");
+  const [searchArea, setSearchArea] = useState("");
+  const [openArea, setOpenArea] = useState(false);
 
-  // Người ĐÃ có tài khoản (đăng nhập) → dùng luôn SĐT tài khoản, khóa không cho sửa
-  // Người CHƯA có tài khoản (anonymous) → bắt buộc phải tự nhập SĐT
-  const isLoggedIn = !!user;
+  const [geocodedLat, setGeocodedLat] = useState<number | null>(null);
+  const [geocodedLon, setGeocodedLon] = useState<number | null>(null);
+  const [geocoding, setGeocoding] = useState(false);
 
+  const [validationErrors, setValidationErrors] = useState<{
+    phone?: string;
+    desc?: string;
+    coords?: string;
+    area?: string;
+  }>({});
+
+  const { loading, createSosAnonymous } = usesosrequestanonymous();
+  const { areas } = useArea();
+  console.log("areas:", areas);
   const {
     lat,
     lon,
@@ -60,64 +74,96 @@ export const SoSAnonymous = () => {
     getLocation,
   } = useGeoLocation();
 
+  
   const fetchedRef = useRef<boolean>(false);
   const navigate = useNavigate();
 
-  // Nếu đã đăng nhập: tự động điền SĐT từ tài khoản
+  // Khôi phục số điện thoại đã nhập lần trước (nếu có), tiện cho người dùng không phải gõ lại
   useEffect(() => {
-    if (isLoggedIn && user?.sodt) setPhone(user.sodt);
-  }, [isLoggedIn, user]);
+    const savedPhone = localStorage.getItem(ANONYMOUS_SODT_KEY);
+    if (savedPhone) setPhone(savedPhone);
+  }, []);
 
-  // Lấy vị trí một lần
   useEffect(() => {
     if (fetchedRef.current) return;
     fetchedRef.current = true;
     getLocation();
   }, [getLocation]);
 
-  // Parse tọa độ thủ công
-  const parsedManualLat = manualLat !== "" ? parseFloat(manualLat) : null;
-  const parsedManualLon = manualLon !== "" ? parseFloat(manualLon) : null;
-  const isManualMode =
-    parsedManualLat !== null &&
-    parsedManualLon !== null &&
-    !isNaN(parsedManualLat) &&
-    !isNaN(parsedManualLon);
+  const areaOptions = useMemo(() => {
+    return areas.flatMap((parent) =>
+      (parent.children ?? []).map((child) => ({
+        id: child.id,
+        label: `${parent.tenkhuvuc} > ${child.tenkhuvuc}`,
+      }))
+    );
+  }, [areas]);
 
-  const effectiveLat = isManualMode ? parsedManualLat : lat;
-  const effectiveLon = isManualMode ? parsedManualLon : lon;
+  const filteredAreas = areaOptions.filter((area) =>
+    area.label.toLowerCase().includes(searchArea.toLowerCase())
+  );
 
-  // Validation
+  const geocodeAddress = async (fullAddress: string) => {
+    try {
+      setGeocoding(true);
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+        fullAddress
+      )}&countrycodes=vn`;
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.length > 0) {
+        setGeocodedLat(Number(data[0].lat));
+        setGeocodedLon(Number(data[0].lon));
+        setValidationErrors((prev) => ({ ...prev, coords: undefined }));
+      } else {
+        setGeocodedLat(null);
+        setGeocodedLon(null);
+      }
+    } catch (error) {
+      console.error("Geocode error", error);
+    } finally {
+      setGeocoding(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!addressDetail || !selectedAreaLabel) return;
+
+    const fullAddress = `${addressDetail}, ${selectedAreaLabel}`;
+    const timer = setTimeout(() => {
+      geocodeAddress(fullAddress);
+    }, 700);
+
+    return () => clearTimeout(timer);
+  }, [addressDetail, selectedAreaLabel]);
+
+  const isUsingGeocode = !lat && geocodedLat !== null;
+  const effectiveLat = lat ?? geocodedLat;
+  const effectiveLon = lon ?? geocodedLon;
+  const fullAddress = `${addressDetail}${addressDetail && selectedAreaLabel ? ", " : ""}${selectedAreaLabel}`;
+
   const validateForm = (): boolean => {
-    const errors: { phone?: string; desc?: string; coords?: string } = {};
+    const errors: typeof validationErrors = {};
 
-    // Số điện thoại — bắt buộc với TẤT CẢ, nhưng đặc biệt quan trọng với người chưa có tài khoản
-    // vì đây là cách duy nhất để liên hệ lại / định danh yêu cầu SOS của họ
-    const phoneRegex = /^(0[3|5|7|8|9])+([0-9]{8})$/; // ví dụ cho VN
+    const phoneRegex = /^(0[3|5|7|8|9])+([0-9]{8})$/;
     if (!phone.trim()) {
-      errors.phone = isLoggedIn
-        ? "Vui lòng nhập số điện thoại"
-        : "Bạn chưa có tài khoản — vui lòng nhập số điện thoại để chúng tôi có thể liên hệ";
+      errors.phone = "Vui lòng nhập số điện thoại";
     } else if (!phoneRegex.test(phone.trim())) {
       errors.phone = "Số điện thoại không hợp lệ (phải bắt đầu bằng 0 và có 10-11 số)";
     }
 
-    // Mô tả (không bắt buộc nhưng nếu có thì tối thiểu 5 ký tự)
     if (desc.trim() && desc.trim().length < 5) {
       errors.desc = "Mô tả phải có ít nhất 5 ký tự (nếu có)";
     }
 
-    // Tọa độ
-    if (!isManualMode && (!effectiveLat || !effectiveLon)) {
-      errors.coords = "Vui lòng bật GPS hoặc nhập tọa độ thủ công";
+    if (!selectedArea) {
+      errors.area = "Vui lòng chọn khu vực";
     }
-    if (isManualMode) {
-      if (parsedManualLat! < -90 || parsedManualLat! > 90) {
-        errors.coords = "Vĩ độ phải nằm trong khoảng -90..90";
-      }
-      if (parsedManualLon! < -180 || parsedManualLon! > 180) {
-        errors.coords = "Kinh độ phải nằm trong khoảng -180..180";
-      }
+
+    if (!effectiveLat || !effectiveLon) {
+      errors.coords = "Vui lòng bật GPS hoặc nhập địa chỉ để xác định vị trí";
     }
 
     setValidationErrors(errors);
@@ -134,47 +180,52 @@ export const SoSAnonymous = () => {
     e.preventDefault();
 
     if (!validateForm()) {
-      // Hiển thị lỗi đầu tiên bằng snackbar
       const firstError = Object.values(validationErrors)[0];
       if (firstError) showSnackbar(firstError, "warning");
       return;
     }
 
-    let deviceId = localStorage.getItem("deviceId");
+    // Lấy hoặc tạo mới clientDeviceId — định danh thiết bị cho người chưa đăng nhập
+    let deviceId = localStorage.getItem(DEVICE_ID_KEY);
     if (!deviceId) {
       deviceId = crypto.randomUUID();
-      localStorage.setItem("deviceId", deviceId);
+      localStorage.setItem(DEVICE_ID_KEY, deviceId);
     }
 
     const payload: SoSRequest = {
+
       sodt: phone,
       clientDeviceId: deviceId,
       victimCount: count,
       lat: effectiveLat!,
       lon: effectiveLon!,
-      accuracy: isManualMode ? 0 : 10,
+      diachi: fullAddress,
+      accuracy: isUsingGeocode ? 0 : 10,
       injured: selected.includes("Bị thương"),
       trapped: selected.includes("Mắc kẹt"),
       vulnerable: selected.includes("Có người già/trẻ em/mang thai"),
       mota: desc,
-    };
+      };
+
+      console.log(payload);
 
     try {
-      const response = await createSoS(payload);
+      const response = await createSosAnonymous(payload);
 
-      // Nếu đã tồn tại SOS đang xử lý
+      // Lưu lại sodt để dùng cho việc xem/hủy yêu cầu sau này
+      localStorage.setItem(ANONYMOUS_SODT_KEY, phone);
+
       if (response?.alreadyExists) {
         showSnackbar(
           "Bạn đang có yêu cầu SOS đang được xử lý. Vui lòng theo dõi hoặc cập nhật.",
           "warning"
         );
-        navigate(`/update-sos/${response.id}`, {
-          state: { sosData: response },
+        navigate(`/update-sos-anonymous/${response.id}`, {
+          state: { sosData: response, sodt: phone, clientDeviceId: deviceId },
         });
         return;
       }
 
-      // Gửi thành công
       showSnackbar("Gửi SOS thành công!", "success");
       navigate("/success");
     } catch (err: any) {
@@ -191,7 +242,7 @@ export const SoSAnonymous = () => {
     "Bình thường",
   ];
 
-  const isSubmitting = loading || locLoading;
+  const isSubmitting = loading || locLoading || geocoding;
   const isLocationReady = !!effectiveLat && !!effectiveLon;
 
   return (
@@ -200,6 +251,15 @@ export const SoSAnonymous = () => {
         <h2 className="text-center text-red-600 text-xl sm:text-2xl lg:text-3xl font-bold">
           CỨU HỘ KHẨN CẤP
         </h2>
+
+        {/* Thông báo dành riêng cho khách chưa đăng nhập */}
+        <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
+          <TriangleAlert className="text-amber-500 w-4 h-4 mt-0.5 shrink-0" />
+          <p className="text-xs text-amber-700">
+            Bạn đang gửi yêu cầu với tư cách khách. Vui lòng nhập đúng số điện thoại
+            để có thể xem lại hoặc hủy yêu cầu sau này trên cùng thiết bị.
+          </p>
+        </div>
 
         {/* Vị trí */}
         <section className="space-y-3">
@@ -210,66 +270,127 @@ export const SoSAnonymous = () => {
             Vị trí
           </Label>
 
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <MapPin className="text-slate-400 w-4 h-4" />
-              <span className="text-sm text-slate-500 font-medium">
-                Nhập tọa độ thủ công (tuỳ chọn)
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs text-slate-400">Latitude (vĩ độ)</label>
-                <input
-                  type="number"
-                  step="0.00001"
-                  value={manualLat}
-                  onChange={(e) => setManualLat(e.target.value)}
-                  placeholder="VD: 10.84940"
-                  className={`w-full border rounded-xl px-3 py-2 text-sm outline-none transition-all ${
-                    isManualMode
-                      ? "border-blue-400 bg-blue-50 focus:ring-2 focus:ring-blue-100"
-                      : "border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
-                  }`}
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs text-slate-400">Longitude (kinh độ)</label>
-                <input
-                  type="number"
-                  step="0.00001"
-                  value={manualLon}
-                  onChange={(e) => setManualLon(e.target.value)}
-                  placeholder="VD: 106.77160"
-                  className={`w-full border rounded-xl px-3 py-2 text-sm outline-none transition-all ${
-                    isManualMode
-                      ? "border-blue-400 bg-blue-50 focus:ring-2 focus:ring-blue-100"
-                      : "border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
-                  }`}
-                />
-              </div>
-            </div>
-
-            {isManualMode ? (
-              <p className="text-xs text-blue-600 flex items-center gap-1 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
-                <MapPin className="w-3 h-3" />
-                Đang dùng tọa độ thủ công: {parsedManualLat!.toFixed(5)},{" "}
-                {parsedManualLon!.toFixed(5)}
-              </p>
+          <button
+            type="button"
+            onClick={getLocation}
+            disabled={locLoading}
+            className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 text-sm font-medium transition-all duration-200 ${
+              locLoading
+                ? "border-blue-200 text-blue-400 bg-blue-50 cursor-not-allowed"
+                : lat
+                ? "border-green-400 text-green-600 bg-green-50 hover:bg-green-100"
+                : "border-red-300 text-red-500 bg-red-50 hover:bg-red-100"
+            }`}
+          >
+            {locLoading ? (
+              <>
+                <Loader className="w-4 h-4 animate-spin" />
+                Đang lấy vị trí GPS...
+              </>
+            ) : lat ? (
+              <>
+                <Navigation className="w-4 h-4" />
+                GPS: {lat.toFixed(5)}, {lon?.toFixed(5)} · Nhấn để cập nhật
+              </>
             ) : (
-              <p className="text-xs text-slate-400 flex items-center gap-1">
-                <Navigation className="w-3 h-3" />
-                Để trống để dùng GPS tự động
-              </p>
+              <>
+                <Navigation className="w-4 h-4" />
+                Nhấn để lấy vị trí GPS của bạn
+              </>
             )}
-            {validationErrors.coords && (
-              <p className="text-xs text-red-500">{validationErrors.coords}</p>
+          </button>
+
+          {locError && (
+            <p className="text-xs text-red-500 flex items-center gap-1">
+              <TriangleAlert className="w-3 h-3" />
+              {locError} — bạn có thể nhập địa chỉ bên dưới thay thế
+            </p>
+          )}
+
+          <div className="flex items-center gap-2 py-1">
+            <div className="flex-1 h-px bg-slate-200" />
+            <span className="text-xs text-slate-400">hoặc nhập địa chỉ</span>
+            <div className="flex-1 h-px bg-slate-200" />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs text-slate-400">Địa chỉ chi tiết</label>
+            <input
+              type="text"
+              value={addressDetail}
+              onChange={(e) => setAddressDetail(e.target.value)}
+              placeholder="Ví dụ: 12 Nguyễn Huệ, Ấp 2..."
+              className="w-full border rounded-xl px-3 py-2 text-sm outline-none border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs text-slate-400">Khu vực</label>
+            <div className="relative">
+              <input
+                value={searchArea}
+                onFocus={() => setOpenArea(true)}
+                onChange={(e) => {
+                  setSearchArea(e.target.value);
+                  setOpenArea(true);
+                  if (selectedArea) {
+                    setSelectedArea(null);
+                    setSelectedAreaLabel("");
+                  }
+                }}
+                placeholder="Tìm kiếm khu vực..."
+                className="w-full border rounded-xl px-3 py-2 text-sm outline-none border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              />
+
+              {openArea && (
+                <div className="absolute z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border bg-white shadow-lg">
+                  {filteredAreas.length > 0 ? (
+                    filteredAreas.map((area) => (
+                      <button
+                        key={area.id}
+                        type="button"
+                        className="block w-full px-4 py-2.5 text-left text-sm hover:bg-slate-100"
+                        onClick={() => {
+                          setSelectedArea(area.id);
+                          setSelectedAreaLabel(area.label);
+                          setSearchArea(area.label);
+                          setOpenArea(false);
+                        }}
+                      >
+                        {area.label}
+                      </button>
+                    ))
+                  ) : (
+                    <div className="p-3 text-sm text-gray-500">
+                      Không tìm thấy khu vực
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            {validationErrors.area && (
+              <p className="text-xs text-red-500">{validationErrors.area}</p>
             )}
           </div>
 
+          {geocoding && (
+            <p className="text-xs text-blue-600 flex items-center gap-1">
+              <Loader className="w-3 h-3 animate-spin" />
+              Đang xác định vị trí từ địa chỉ...
+            </p>
+          )}
+          {isUsingGeocode && !geocoding && (
+            <p className="text-xs text-blue-600 flex items-center gap-1 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
+              <MapPin className="w-3 h-3" />
+              Đã xác định vị trí từ địa chỉ: {geocodedLat?.toFixed(5)}, {geocodedLon?.toFixed(5)}
+            </p>
+          )}
+          {validationErrors.coords && (
+            <p className="text-xs text-red-500">{validationErrors.coords}</p>
+          )}
+
           <div className="relative h-56 rounded-xl overflow-hidden border border-slate-200">
-            {locLoading && !isManualMode && (
+            {locLoading && (
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-50/80 gap-2">
                 <Loader className="w-6 h-6 animate-spin text-red-500" />
                 <span className="text-sm text-slate-500">Đang xác định vị trí...</span>
@@ -283,48 +404,6 @@ export const SoSAnonymous = () => {
               className="w-full h-full"
             />
           </div>
-
-          <button
-            type="button"
-            onClick={getLocation}
-            disabled={locLoading}
-            className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 text-sm font-medium transition-all duration-200 ${
-              locLoading
-                ? "border-blue-200 text-blue-400 bg-blue-50 cursor-not-allowed"
-                : isManualMode
-                ? "border-slate-300 text-slate-400 bg-slate-50 hover:bg-slate-100"
-                : lat
-                ? "border-green-400 text-green-600 bg-green-50 hover:bg-green-100"
-                : "border-red-300 text-red-500 bg-red-50 hover:bg-red-100"
-            }`}
-          >
-            {locLoading ? (
-              <>
-                <Loader className="w-4 h-4 animate-spin" />
-                Đang lấy vị trí...
-              </>
-            ) : lat ? (
-              <>
-                <Navigation className="w-4 h-4" />
-                GPS: {lat.toFixed(5)}, {lon?.toFixed(5)} · Nhấn để cập nhật
-                {isManualMode && (
-                  <span className="text-xs opacity-60">(đang bị ghi đè)</span>
-                )}
-              </>
-            ) : (
-              <>
-                <Navigation className="w-4 h-4" />
-                Nhấn để lấy vị trí GPS của bạn
-              </>
-            )}
-          </button>
-
-          {locError && !isManualMode && (
-            <p className="text-xs text-red-500 flex items-center gap-1">
-              <TriangleAlert className="w-3 h-3" />
-              {locError}
-            </p>
-          )}
         </section>
 
         {/* Số người */}
@@ -357,29 +436,19 @@ export const SoSAnonymous = () => {
           />
         </section>
 
-        {/* SĐT */}
+        {/* SĐT — bắt buộc nhập tay vì chưa có tài khoản */}
         <section className="space-y-3">
           <Label
             icon={PhoneCall}
             className="text-red-600 font-semibold text-lg sm:text-sm lg:text-xl"
           >
-            Số điện thoại {!isLoggedIn && <span className="text-red-600">*</span>}
+            Số điện thoại
           </Label>
-
-          {!isLoggedIn && (
-            <p className="text-xs text-orange-600 bg-orange-50 border border-orange-200 rounded-lg px-3 py-1.5">
-              Bạn chưa có tài khoản — vui lòng nhập số điện thoại để lực lượng cứu hộ
-              có thể liên hệ với bạn.
-            </p>
-          )}
-
           <Input
             value={phone}
             onChange={setPhone}
             placeholder="Nhập số điện thoại liên hệ"
             className="w-full"
-            required={!isLoggedIn}
-            disabled={isLoggedIn}
           />
           {validationErrors.phone && (
             <p className="text-xs text-red-500">{validationErrors.phone}</p>

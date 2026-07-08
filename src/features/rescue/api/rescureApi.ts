@@ -1,5 +1,6 @@
 
-import type { CreateTeamRequest,  ResCue, ResGroup, ResTeam } from "../types/rescueType";
+import { data } from "react-router-dom";
+import type { CreateTeamRequest,  GroupMember,  ResCue, RescueResponse, ResGroup, ResTeam } from "../types/rescueType";
 import { axiosClient } from "@/api/axiosClient";
 
 
@@ -136,5 +137,11 @@ async getDetailTeamId(teamId:string):Promise<ResTeam>{
 async updateResTeam(teamId: string, data: ResTeam): Promise<ResTeam> {
   const response = await axiosClient.put(`/res-team/${teamId}`, data);
   return response.data.result;
+},
+
+// xóa member ra khỏi group
+async removeMemberGroup(groupId:string,userId:string):Promise<ResCue>{
+  const response=await axiosClient.delete(`/res-groups/${groupId}/members/${userId}`)
+  return response.data
 }
 };

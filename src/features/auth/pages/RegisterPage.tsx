@@ -2,8 +2,15 @@ import { Phone } from "lucide-react";
 import SOSImage from "../../../assets/sos.png";
 import { Button } from "../../../components/ui/Button";
 import { RegisterForm } from "../components/RegisterForm";
+import { useNavigate } from "react-router-dom";
+
 
 export const RegisterPage = () => {
+  const navigate=useNavigate();
+
+  const handleOnclick=()=>{
+    navigate("/sos-request-anonymous")
+  }
   return (
     <div
       className="
@@ -26,6 +33,7 @@ export const RegisterPage = () => {
         
         {/* Nút SOS lớn */}
         <Button
+        onClick={handleOnclick}
           imageSrc={SOSImage}
           className="
             w-80 h-16 

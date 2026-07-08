@@ -12,6 +12,10 @@ export interface CreateTeamRequest{
     
 
 }
+export interface RescueResponse{
+  code:number
+  message:string
+}
 export interface ResCue{
   userId:string
   fullName:string 
