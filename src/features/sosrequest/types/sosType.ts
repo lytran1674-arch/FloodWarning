@@ -100,3 +100,7 @@ export interface Assignment {
   groupName: string
   teamId: string
 }
+
+
+export type LocationSource= "MANUAL_ADDRESS" | "GPS_FROM_CALL_EVENT"
+export type SosSource="HOTLINE_OPERATOR" | "DIRECT"

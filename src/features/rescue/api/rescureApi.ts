@@ -144,4 +144,10 @@ async removeMemberGroup(groupId:string,userId:string):Promise<ResCue>{
   const response=await axiosClient.delete(`/res-groups/${groupId}/members/${userId}`)
   return response.data
 }
+,
+// xóa member ra khỏi team
+async removeMemberteam(teamId:string,userId:string):Promise<ResCue>{
+  const response=await axiosClient.delete(`/res-team/${teamId}/members/${userId}`)
+  return response.data
+}
 };

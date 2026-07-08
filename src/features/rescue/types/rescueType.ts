@@ -1,5 +1,5 @@
 import type { GroupStatus } from "@/features/grouprescue/types/groupType"
-
+export type GroupType="HOTLINE" | "OPERATIONAL"
 export interface CreateTeamRequest{
  name:string
     description:string 
@@ -61,6 +61,7 @@ export interface ResGroup{
      hasSearchRescue:boolean
      hasLogistics:boolean
      notes: string;
+     groupType:GroupType
 }
 
 

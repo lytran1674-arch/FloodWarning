@@ -10,6 +10,7 @@ import {
   FileText,
   Phone,
   MapPin,
+  X,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Counter from "../../../components/ui/Counter";
@@ -36,7 +37,6 @@ const showSnackbar = (message: string, type: 'success' | 'error' | 'warning' = '
   });
 };
 
-// Key dùng chung để lưu định danh thiết bị/số điện thoại anonymous
 const DEVICE_ID_KEY = "deviceId";
 const ANONYMOUS_SODT_KEY = "sos_anonymous_sodt";
 
@@ -49,7 +49,6 @@ export const SOSRequestAnonymous = () => {
   const [addressDetail, setAddressDetail] = useState("");
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
   const [selectedAreaLabel, setSelectedAreaLabel] = useState("");
-  // Tên khu vực "sạch" dùng để geocode (VD: "Phường Bến Nghé, Quận 1") — tách riêng khỏi label hiển thị "Quận 1 > Phường Bến Nghé"
   const [selectedAreaGeoName, setSelectedAreaGeoName] = useState("");
   const [searchArea, setSearchArea] = useState("");
   const [openArea, setOpenArea] = useState(false);
@@ -57,10 +56,7 @@ export const SOSRequestAnonymous = () => {
   const [geocodedLat, setGeocodedLat] = useState<number | null>(null);
   const [geocodedLon, setGeocodedLon] = useState<number | null>(null);
   const [geocoding, setGeocoding] = useState(false);
-
-  // Nguồn vị trí đang được người dùng chọn để dùng: GPS thật hoặc địa chỉ nhập tay.
-  // null = chưa xác định (chưa có GPS lẫn địa chỉ)
-  const [locationMode, setLocationMode] = useState<"gps" | "address" | null>(null);
+  const [geocodeNotFound, setGeocodeNotFound] = useState(false);
 
   const [validationErrors, setValidationErrors] = useState<{
     phone?: string;
@@ -80,9 +76,10 @@ export const SOSRequestAnonymous = () => {
   } = useGeoLocation();
 
   const fetchedRef = useRef<boolean>(false);
+  const areaBoxRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
 
-  // Khôi phục số điện thoại đã nhập lần trước (nếu có), tiện cho người dùng không phải gõ lại
+  // Khôi phục số điện thoại
   useEffect(() => {
     const savedPhone = localStorage.getItem(ANONYMOUS_SODT_KEY);
     if (savedPhone) setPhone(savedPhone);
@@ -94,15 +91,18 @@ export const SOSRequestAnonymous = () => {
     getLocation();
   }, [getLocation]);
 
-  // Khi GPS tự động lấy được lúc mount, chỉ nhận làm nguồn vị trí nếu người dùng
-  // chưa chủ động chọn nhập địa chỉ trước đó.
+  // Đóng dropdown
   useEffect(() => {
-    if (lat && locationMode === null) {
-      setLocationMode("gps");
-    }
-  }, [lat, locationMode]);
+    if (!openArea) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (areaBoxRef.current && !areaBoxRef.current.contains(e.target as Node)) {
+        setOpenArea(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openArea]);
 
-  // areaOptions: label hiển thị dùng "Cha > Con", nhưng lưu thêm geoName "Con, Cha" để geocode chính xác hơn
   const areaOptions = useMemo(() => {
     return areas.flatMap((parent) =>
       (parent.children ?? []).map((child) => ({
@@ -117,11 +117,10 @@ export const SOSRequestAnonymous = () => {
     area.label.toLowerCase().includes(searchArea.toLowerCase())
   );
 
-  // Geocode với fallback: thử địa chỉ đầy đủ trước, nếu không ra kết quả thì thử lại chỉ với tên khu vực
-  // để tối thiểu vẫn rơi đúng vào khu vực đã chọn thay vì null hoặc lệch lung tung.
   const geocodeAddress = async (fullAddress: string, fallbackAreaName?: string) => {
     try {
       setGeocoding(true);
+      setGeocodeNotFound(false);
 
       const tryGeocode = async (q: string) => {
         const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
@@ -132,6 +131,8 @@ export const SOSRequestAnonymous = () => {
       };
 
       let data = await tryGeocode(fullAddress);
+      console.log("Geocode query:", fullAddress);
+console.log("Geocode result:", data);
 
       if ((!data || data.length === 0) && fallbackAreaName) {
         data = await tryGeocode(fallbackAreaName);
@@ -141,59 +142,87 @@ export const SOSRequestAnonymous = () => {
         setGeocodedLat(Number(data[0].lat));
         setGeocodedLon(Number(data[0].lon));
         setValidationErrors((prev) => ({ ...prev, coords: undefined }));
+        setGeocodeNotFound(false);
       } else {
         setGeocodedLat(null);
         setGeocodedLon(null);
+        setGeocodeNotFound(true);
       }
     } catch (error) {
       console.error("Geocode error", error);
+      setGeocodeNotFound(true);
     } finally {
       setGeocoding(false);
     }
   };
 
-  useEffect(() => {
-    if (locationMode !== "address") return;
-    if (!addressDetail || !selectedAreaGeoName) return;
+  const hasAddress = !!addressDetail.trim();
 
-    const fullAddress = `${addressDetail}, ${selectedAreaGeoName}`;
+  // Gọi geocode khi có địa chỉ và đã chọn khu vực
+  useEffect(() => {
+      console.log("useEffect geocode", {
+    addressDetail,
+    hasAddress,
+    selectedAreaGeoName,
+  });
+    if (!hasAddress || !selectedAreaGeoName) {
+      // Nếu không có địa chỉ hoặc chưa chọn khu vực, xóa geocode cũ
+      if (!hasAddress) {
+        setGeocodedLat(null);
+        setGeocodedLon(null);
+        setGeocodeNotFound(false);
+      }
+      return;
+    }
+
     const timer = setTimeout(() => {
+     const fullAddress =
+`${addressDetail}, ${selectedAreaGeoName}, Việt Nam`;
       geocodeAddress(fullAddress, selectedAreaGeoName);
     }, 700);
 
     return () => clearTimeout(timer);
-  }, [addressDetail, selectedAreaGeoName, locationMode]);
+  }, [addressDetail, selectedAreaGeoName, hasAddress]);
 
-  // Toạ độ dùng thật sự phụ thuộc HOÀN TOÀN vào locationMode:
-  // - "gps": luôn dùng toạ độ GPS thật, bỏ qua địa chỉ/geocode dù có
-  // - "address": luôn dùng toạ độ geocode từ địa chỉ, bỏ qua GPS dù có
-  const isUsingGeocode = locationMode === "address" && geocodedLat !== null;
-  const effectiveLat = locationMode === "address" ? geocodedLat : lat;
-  const effectiveLon = locationMode === "address" ? geocodedLon : lon;
-  const fullAddress = `${addressDetail}${addressDetail && selectedAreaLabel ? ", " : ""}${selectedAreaLabel}`;
+// Nếu người dùng nhập địa chỉ thì chỉ dùng tọa độ từ địa chỉ.
+// Nếu không nhập địa chỉ thì dùng GPS.
+const usingGeocode = hasAddress;
+
+const effectiveLat = hasAddress ? geocodedLat : lat;
+const effectiveLon = hasAddress ? geocodedLon : lon;
+  // Địa chỉ đầy đủ dùng để hiển thị và gửi lên: nếu có địa chỉ, dùng addressDetail + selectedAreaGeoName (có dấu phẩy)
+  const fullAddress = hasAddress
+    ? `${addressDetail}${addressDetail && selectedAreaGeoName ? ", " : ""}${selectedAreaGeoName || ""}`
+    : "";
 
   const validateForm = (): boolean => {
     const errors: typeof validationErrors = {};
-
     const phoneRegex = /^(0[3|5|7|8|9])+([0-9]{8})$/;
     if (!phone.trim()) {
       errors.phone = "Vui lòng nhập số điện thoại";
     } else if (!phoneRegex.test(phone.trim())) {
       errors.phone = "Số điện thoại không hợp lệ (phải bắt đầu bằng 0 và có 10-11 số)";
     }
-
     if (desc.trim() && desc.trim().length < 5) {
       errors.desc = "Mô tả phải có ít nhất 5 ký tự (nếu có)";
     }
-
-    if (!selectedArea) {
+    if (hasAddress && !selectedArea) {
+      errors.area = "Vui lòng chọn khu vực để xác định vị trí";
+    }
+    if (!hasAddress && !selectedArea) {
       errors.area = "Vui lòng chọn khu vực";
     }
-
-    if (!effectiveLat || !effectiveLon) {
-      errors.coords = "Vui lòng bật GPS hoặc nhập địa chỉ để xác định vị trí";
-    }
-
+   if (hasAddress) {
+  if (!geocodedLat || !geocodedLon) {
+    errors.coords =
+      "Không xác định được vị trí từ địa chỉ. Vui lòng kiểm tra lại địa chỉ.";
+  }
+} else {
+  if (!lat || !lon) {
+    errors.coords =
+      "Không lấy được vị trí GPS. Vui lòng bật GPS.";
+  }
+}
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -204,30 +233,35 @@ export const SOSRequestAnonymous = () => {
     );
   };
 
-  // Người dùng bấm nút lấy GPS -> ưu tiên GPS, xoá phần địa chỉ/geocode đang nhập dở
   const handleUseGps = () => {
-    setLocationMode("gps");
     setAddressDetail("");
+    setSearchArea("");
+    setSelectedArea(null);
+    setSelectedAreaLabel("");
+    setSelectedAreaGeoName("");
     setGeocodedLat(null);
     setGeocodedLon(null);
+    setGeocodeNotFound(false);
     getLocation();
   };
 
-  // Người dùng gõ địa chỉ -> chuyển sang dùng địa chỉ, không dùng GPS nữa
   const handleAddressChange = (value: string) => {
     setAddressDetail(value);
-    if (value.trim()) {
-      setLocationMode("address");
-    } else if (lat) {
-      // Xoá hết địa chỉ đã nhập thì quay lại dùng GPS nếu đang có sẵn
-      setLocationMode("gps");
-      setGeocodedLat(null);
-      setGeocodedLon(null);
-    } else {
-      setLocationMode(null);
+    setGeocodeNotFound(false);
+    if (!value.trim()) {
       setGeocodedLat(null);
       setGeocodedLon(null);
     }
+  };
+
+  const handleSelectArea = (area: { id: string; label: string; geoName: string }) => {
+      console.log(area);
+    setSelectedArea(area.id);
+    setSelectedAreaLabel(area.label);
+    setSelectedAreaGeoName(area.geoName);
+    setSearchArea(area.label);
+    setOpenArea(false);
+    setValidationErrors((prev) => ({ ...prev, area: undefined }));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -239,12 +273,24 @@ export const SOSRequestAnonymous = () => {
       return;
     }
 
-    // Lấy hoặc tạo mới clientDeviceId — định danh thiết bị cho người chưa đăng nhập
     let deviceId = localStorage.getItem(DEVICE_ID_KEY);
     if (!deviceId) {
       deviceId = crypto.randomUUID();
       localStorage.setItem(DEVICE_ID_KEY, deviceId);
     }
+
+    // Nếu đang geocode và chưa có kết quả, đợi (nhưng submit đã disabled, vẫn an toàn)
+    // Chọn accuracy dựa trên nguồn
+    const accuracy = usingGeocode ? 150 : 10;
+    console.log({
+  hasAddress,
+  geocodedLat,
+  geocodedLon,
+  gpsLat: lat,
+  gpsLon: lon,
+  effectiveLat,
+  effectiveLon,
+});
 
     const payload: SoSRequest = {
       sodt: phone,
@@ -253,24 +299,18 @@ export const SOSRequestAnonymous = () => {
       lat: effectiveLat!,
       lon: effectiveLon!,
       diachi: fullAddress,
-      // Quan trọng: gửi kèm khu vực người dùng CHỌN THỦ CÔNG lên backend, để backend match đội
-      // cứu hộ theo khu vực này thay vì (hoặc kèm với) suy luận point-in-polygon từ lat/lon geocode,
-      // vốn có thể lệch ra ngoài ranh giới khu vực thật.
-      areaId    : selectedArea!,
-      // Geocode kém chính xác hơn GPS thật -> accuracy (sai số, đơn vị mét) phải LỚN hơn, không phải 0.
-      accuracy: isUsingGeocode ? 150 : 10,
+      areaId: selectedArea ?? undefined,
+      accuracy: accuracy,
       injured: selected.includes("Bị thương"),
       trapped: selected.includes("Mắc kẹt"),
       vulnerable: selected.includes("Có người già/trẻ em/mang thai"),
       mota: desc,
     };
 
-    console.log(payload);
+    console.log("[SOS submit] payload:", payload);
 
     try {
       const response = await createSosAnonymous(payload);
-
-      // Lưu lại sodt để dùng cho việc xem/hủy yêu cầu sau này
       localStorage.setItem(ANONYMOUS_SODT_KEY, phone);
 
       if (response?.alreadyExists) {
@@ -301,7 +341,12 @@ export const SOSRequestAnonymous = () => {
   ];
 
   const isSubmitting = loading || locLoading || geocoding;
-  const isLocationReady = !!effectiveLat && !!effectiveLon;
+  // Chỉ cho phép submit nếu có vị trí (GPS hoặc geocode) và không trong quá trình geocode
+ const isLocationReady = hasAddress
+  ? !!geocodedLat && !!geocodedLon && !geocoding
+  : !!lat && !!lon;
+  // Nếu đã có địa chỉ nhưng chưa chọn khu vực, không cho submit
+  const isAreaMissing = hasAddress && !selectedArea;
 
   return (
     <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg border p-2 sm:p-6 lg:p-8 mt-5">
@@ -326,14 +371,15 @@ export const SOSRequestAnonymous = () => {
             Vị trí
           </Label>
 
+          {/* Nút GPS - bị disable khi có địa chỉ */}
           <button
             type="button"
             onClick={handleUseGps}
-            disabled={locLoading}
+            disabled={locLoading || hasAddress}
             className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 text-sm font-medium transition-all duration-200 ${
-              locLoading
-                ? "border-blue-200 text-blue-400 bg-blue-50 cursor-not-allowed"
-                : locationMode === "gps" && lat
+              locLoading || hasAddress
+                ? "border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed"
+                : lat
                 ? "border-green-400 text-green-600 bg-green-50 hover:bg-green-100"
                 : "border-red-300 text-red-500 bg-red-50 hover:bg-red-100"
             }`}
@@ -343,7 +389,12 @@ export const SOSRequestAnonymous = () => {
                 <Loader className="w-4 h-4 animate-spin" />
                 Đang lấy vị trí GPS...
               </>
-            ) : locationMode === "gps" && lat ? (
+            ) : hasAddress ? (
+              <>
+                <Navigation className="w-4 h-4" />
+                Đang dùng vị trí từ địa chỉ (không thể dùng GPS)
+              </>
+            ) : lat ? (
               <>
                 <Navigation className="w-4 h-4" />
                 GPS: {lat.toFixed(5)}, {lon?.toFixed(5)} · Nhấn để cập nhật
@@ -356,7 +407,19 @@ export const SOSRequestAnonymous = () => {
             )}
           </button>
 
-          {locError && (
+          {/* Nút xoá địa chỉ */}
+          {hasAddress && (
+            <button
+              type="button"
+              onClick={handleUseGps}
+              className="text-sm text-red-500 hover:text-red-700 flex items-center gap-1 mt-1"
+            >
+              <X className="w-4 h-4" />
+              Xoá địa chỉ để dùng GPS
+            </button>
+          )}
+
+          {locError && !hasAddress && (
             <p className="text-xs text-red-500 flex items-center gap-1">
               <TriangleAlert className="w-3 h-3" />
               {locError} — bạn có thể nhập địa chỉ bên dưới thay thế
@@ -378,14 +441,9 @@ export const SOSRequestAnonymous = () => {
               placeholder="Ví dụ: 12 Nguyễn Huệ, Ấp 2..."
               className="w-full border rounded-xl px-3 py-2 text-sm outline-none border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
             />
-            {locationMode === "address" && (
-              <p className="text-[11px] text-slate-400">
-                Đang dùng vị trí theo địa chỉ nhập tay (bỏ qua GPS).
-              </p>
-            )}
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1" ref={areaBoxRef}>
             <label className="text-xs text-slate-400">Khu vực</label>
             <div className="relative">
               <input
@@ -403,7 +461,6 @@ export const SOSRequestAnonymous = () => {
                 placeholder="Tìm kiếm khu vực..."
                 className="w-full border rounded-xl px-3 py-2 text-sm outline-none border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
               />
-
               {openArea && (
                 <div className="absolute z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border bg-white shadow-lg">
                   {filteredAreas.length > 0 ? (
@@ -412,17 +469,7 @@ export const SOSRequestAnonymous = () => {
                         key={area.id}
                         type="button"
                         className="block w-full px-4 py-2.5 text-left text-sm hover:bg-slate-100"
-                        onClick={() => {
-                          setSelectedArea(area.id);
-                          setSelectedAreaLabel(area.label);
-                          setSelectedAreaGeoName(area.geoName);
-                          setSearchArea(area.label);
-                          setOpenArea(false);
-                          // Chọn khu vực để geocode nghĩa là người dùng đang dùng luồng địa chỉ
-                          if (addressDetail.trim()) {
-                            setLocationMode("address");
-                          }
-                        }}
+                        onClick={() => handleSelectArea(area)}
                       >
                         {area.label}
                       </button>
@@ -440,16 +487,28 @@ export const SOSRequestAnonymous = () => {
             )}
           </div>
 
+          {hasAddress && !selectedAreaGeoName && !geocoding && (
+            <p className="text-xs text-slate-400">
+              Vui lòng chọn khu vực để xác định vị trí chính xác từ địa chỉ.
+            </p>
+          )}
+
           {geocoding && (
             <p className="text-xs text-blue-600 flex items-center gap-1">
               <Loader className="w-3 h-3 animate-spin" />
               Đang xác định vị trí từ địa chỉ...
             </p>
           )}
-          {isUsingGeocode && !geocoding && (
+          {usingGeocode && !geocoding && (
             <p className="text-xs text-blue-600 flex items-center gap-1 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
               <MapPin className="w-3 h-3" />
               Đã xác định vị trí từ địa chỉ: {geocodedLat?.toFixed(5)}, {geocodedLon?.toFixed(5)}
+            </p>
+          )}
+          {geocodeNotFound && !geocoding && hasAddress && (
+            <p className="text-xs text-amber-600 flex items-center gap-1 bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5">
+              <TriangleAlert className="w-3 h-3" />
+              Không xác định được vị trí từ địa chỉ. Vui lòng kiểm tra lại địa chỉ.
             </p>
           )}
           {validationErrors.coords && (
@@ -457,7 +516,7 @@ export const SOSRequestAnonymous = () => {
           )}
 
           <div className="relative h-56 rounded-xl overflow-hidden border border-slate-200">
-            {locLoading && (
+            {locLoading && !hasAddress && (
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-50/80 gap-2">
                 <Loader className="w-6 h-6 animate-spin text-red-500" />
                 <span className="text-sm text-slate-500">Đang xác định vị trí...</span>
@@ -539,9 +598,9 @@ export const SOSRequestAnonymous = () => {
 
         <button
           type="submit"
-          disabled={isSubmitting || !isLocationReady}
+          disabled={isSubmitting || !isLocationReady || isAreaMissing}
           className={`w-full text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
-            isSubmitting || !isLocationReady
+            isSubmitting || !isLocationReady || isAreaMissing
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-red-600 hover:opacity-90"
           }`}
@@ -549,6 +608,9 @@ export const SOSRequestAnonymous = () => {
           {isSubmitting ? <Loader className="w-5 h-5 animate-spin" /> : <Phone />}
           GỬI SOS
         </button>
+        {isAreaMissing && (
+          <p className="text-xs text-red-500 text-center">Vui lòng chọn khu vực để xác định vị trí</p>
+        )}
       </form>
     </div>
   );

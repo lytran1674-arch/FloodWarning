@@ -17,6 +17,7 @@ import {
 import L from "leaflet";
 
 import "leaflet/dist/leaflet.css";
+import { useAppSelector } from "@/hooks/redux.hooks";
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 
@@ -64,6 +65,8 @@ const MapClickHandler = ({
 
 export const CreateTeam = () => {
   const navigate = useNavigate();
+  const user=useAppSelector((state)=>state.auth.user)
+const admin=user?.role==="ADMIN"
 
   const { areas } = useArea();
 
@@ -685,7 +688,7 @@ export const CreateTeam = () => {
                             member.phone
                           }
                         </td>
-
+                          {admin&&(
                         <td className="p-3 text-center">
 
                           <button
@@ -703,6 +706,7 @@ export const CreateTeam = () => {
                           </button>
 
                         </td>
+                        )}
                       </tr>
                     )
                   )}

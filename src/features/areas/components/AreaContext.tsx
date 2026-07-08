@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { AreaTree } from "../types/areaType";
 import { areaService } from "../services/areaService";
-import { useAppSelector } from "../../../hooks/redux.hooks";
+
 
 type AreaContextType = {
   areas: AreaTree[];

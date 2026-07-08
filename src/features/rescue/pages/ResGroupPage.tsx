@@ -7,6 +7,7 @@ import {
   Plus,
   LifeBuoy,
   Package,
+  Users,
 } from "lucide-react";
 import { rescueApi } from "../api/rescureApi";
 import { Button } from "../../../components/ui/Button";
@@ -41,13 +42,22 @@ export default function ResGroupPage() {
     load();
   }, [teamId, location.key]);
 
+  const handleOnClick=()=>{
+    navigate(`/team/${teamId}/available-members`)
+    console.log(teamId)
+  }
   return (
     <div className="p-6">
       
 
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Danh sách Group</h1>
-
+        <div className="flex justify-end lg:gap-2">
+        <Button className="border border-blue-500 text-blue-600 rounded-md lg:p-2"
+        onClick={handleOnClick}>
+          <Users/>
+          Thành viên chưa có Group
+        </Button>
         {canCreateGroup && (
           <Button
             onClick={() => navigate("/res-group/create")}
@@ -57,6 +67,7 @@ export default function ResGroupPage() {
             Thêm nhóm cứu hộ
           </Button>
         )}
+        </div>
       </div>
 
       {loading && (

@@ -44,6 +44,7 @@ import { MyRequestSupportPage } from "@/features/rescue/pages/MyRequestSupportPa
 import { AccountPage } from "@/features/account/pages/AccountPage"
 import { InfTeamPage } from "@/features/rescue/pages/InfTeamPage"
 import SuccessPageAnonymous from "@/features/sosrequest-anonymous/components/SuccessPgae"
+import MemberWithoutGroupPage from "@/features/rescue/pages/MemberWithoutGroupPage"
 
 
 
@@ -98,6 +99,9 @@ const AppRoutes = () => {
          <Route path="/support-request" element={<MyRequestSupportPage/>}/>
         <Route path="/account" element={<AccountPage/>}/>
         <Route path="/information-team" element={<InfTeamPage/>}/>
+
+        {/**Trang danh sách thành viên chưa có group */} 
+        <Route path="/team/:teamId/available-members" element={<MemberWithoutGroupPage/>} />
         </Route>
        
       </Routes>

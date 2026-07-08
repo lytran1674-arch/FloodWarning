@@ -29,5 +29,9 @@ export const rescueService = {
   // xóa member ra khỏi group
   async RemoveMemberGroup(groupId:string,userId:string):Promise<ResCue>{
     return await rescueApi.removeMemberGroup(groupId,userId);
+  },
+  // xóa member ra khỏi team 
+  async RemoveMemberTeam(groupId:string,userId:string):Promise<ResCue>{
+    return await rescueApi.removeMemberteam(groupId,userId)
   }
 };
