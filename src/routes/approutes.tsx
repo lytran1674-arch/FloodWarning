@@ -18,7 +18,7 @@ import { CreateTeam } from "../features/rescue/pages/CreateTeam"
 import { HomeRescue } from "../features/rescue/pages/Home"
 
 import { CreateGroupPage } from "@/features/rescue/pages/Creategrouppage"
-import { SOSRequest } from "@/features/sosrequest/components/FormSos"
+
 
 import {RequestListPage} from "@/features/sosrequest/pages/RequestListPage"
 import SuccessPage from "@/features/sosrequest/pages/SuccessPage"
@@ -26,7 +26,7 @@ import { SOSASSGINPAGE} from "@/features/rescue/pages/SOSASSGINPAGE"
 import TeamSOSPage from "@/features/rescue/components/ListSOSTeam"
 
 import { NearestDevicePage } from "@/features/citizen/component/NearestDevicePage"
-import { UpdateSOSPage } from "@/features/sosrequest/pages/Updatesospage"
+
 
 
 import { SummaryWaterPage } from "@/features/water-level/pages/SummaryWaterPage"
@@ -38,13 +38,20 @@ import  {SupportRequestListPage}  from "@/features/province_operator/pages/Suppp
 import { HomeProvince } from "@/features/province_operator/pages/Home"
 import { SupportRequestReviewPage } from "@/features/province_operator/pages/SupportRequestReviewPage"
 import ListProvinceOperatorPage from "@/features/province_operator/pages/ListProvinceOperatorPage"
-import {  SOSRequestAnonymous } from "@/features/sosrequest-anonymous/components/SoSAnonymous"
+
 import SentRequestAnonymousPage from "@/features/sosrequest-anonymous/components/Sentrequestanonymouspage"
 import { MyRequestSupportPage } from "@/features/rescue/pages/MyRequestSupportPage"
 import { AccountPage } from "@/features/account/pages/AccountPage"
 import { InfTeamPage } from "@/features/rescue/pages/InfTeamPage"
 import SuccessPageAnonymous from "@/features/sosrequest-anonymous/components/SuccessPgae"
 import MemberWithoutGroupPage from "@/features/rescue/pages/MemberWithoutGroupPage"
+import HotlineOperatorDashboard from "@/features/emergency/pages/test/HotlineOperatorDashboard"
+import { SOSRequestAnonymous } from "@/features/sosrequest-anonymous/components/SoSAnonymous"
+
+import { FormSOS } from "@/features/sosrequest/components/FormSos"
+import { UpdateSOSPageAnonymous } from "@/features/sosrequest-anonymous/pages/UpdateSosPage"
+import { UpdateSOSPage } from "@/features/sosrequest/pages/Updatesospage"
+
 
 
 
@@ -60,7 +67,7 @@ const AppRoutes = () => {
         <Route path="/sos-request-anonymous" element={<SOSRequestAnonymous/>}/>
         <Route path="/sent-request-anonymous" element={<SentRequestAnonymousPage />} />
         <Route path="/success-anonymous" element={<SuccessPageAnonymous/>}/>
-        <Route path="/update-sos-anonymous/:id" element={<UpdateSOSPage />} />
+        <Route path="/update-sos-anonymous/:id" element={<UpdateSOSPageAnonymous />} />
         <Route element={<MainLayout />}>          
           <Route path="/areas-management" element={<Area />} />
           <Route path="/weather-data/:area_id"/>
@@ -70,7 +77,7 @@ const AppRoutes = () => {
          <Route path="/flood-risk" element={<FloodRisk/>} />
          {/*CITIZEN */}
         <Route path="/dashboard" element={<Home/>}/> 
-         <Route path="/request-sos" element={<SOSRequest />}/>
+         <Route path="/request-sos" element={<FormSOS />}/>
         <Route path="/myalert" element={<AlertPage />}/>
          <Route path="/rescue-management" element={<ResTeamPage/>}/>
         <Route path="/res-teams/:teamId/groups"element={<ResGroupPage />}/>
@@ -85,7 +92,7 @@ const AppRoutes = () => {
         <Route path="/team-sos" element={<TeamSOSPage />}/>
         <Route path="/water-data" element={<NearestDevicePage/>}/>
 
-        <Route path="/update-sos/:id" element={<UpdateSOSPage />} />
+        <Route path="/update-sos/:id" element={<UpdateSOSPage/>} />
         <Route path="/success" element={<SuccessPage/>}/>
         <Route path="/summary-water" element={<SummaryWaterPage/>}/>
         <Route path="/sum-water" element={<SumWaterPage/>}/>
@@ -102,6 +109,7 @@ const AppRoutes = () => {
 
         {/**Trang danh sách thành viên chưa có group */} 
         <Route path="/team/:teamId/available-members" element={<MemberWithoutGroupPage/>} />
+        <Route path="/hotline" element={<HotlineOperatorDashboard/>}/>
         </Route>
        
       </Routes>

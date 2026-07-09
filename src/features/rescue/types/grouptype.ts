@@ -2,6 +2,9 @@
 
   export type GroupStatus = "AVAILABLE" | "BUSY" | "UNAVAILABLE" | string;
 
+
+//OPERATIONAL: Nhóm thực thi nhiệm vụ
+//HOTLINE:nhóm trực hotline
   export interface Group {
     id: string;
     name: string;
@@ -13,6 +16,7 @@
     hasSearchRescue:boolean
     hasLogistics:boolean
     notes: string;
+
   }
 
   export interface PageInfo {

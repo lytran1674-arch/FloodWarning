@@ -1,4 +1,230 @@
 
+// // import { useEffect, useRef } from "react"
+// // import L from "leaflet"
+// // import "leaflet/dist/leaflet.css"
+// // import type { AreaMapItem } from "../types/mapType"
+// // import { RISK_COLORS } from "../types/mapType"
+// // import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png"
+// // import markerIcon from "leaflet/dist/images/marker-icon.png"
+// // import markerShadow from "leaflet/dist/images/marker-shadow.png"
+
+// // delete (L.Icon.Default.prototype as any)._getIconUrl
+// // L.Icon.Default.mergeOptions({
+// //   iconUrl: markerIcon,
+// //   iconRetinaUrl: markerIcon2x,
+// //   shadowUrl: markerShadow,
+// // })
+
+// // interface GeoMapProps {
+// //   areas?: AreaMapItem[]
+// //   selectedAreaId?: string
+// //   userAreaId?: string
+// //   provinceName?: string
+// //   loading?: boolean
+// //   className?: string
+// //   onAreaClick?: (area: AreaMapItem) => void
+// //   currentLat?: number | null
+// //   currentLon?: number | null
+// //   showCurrentPin?: boolean
+// //   centerOnUser?: boolean
+// // }
+
+// // const DEFAULT_CENTER: [number, number] = [16.047, 108.206]
+
+// // const GeoMap = ({
+// //   areas = [],
+// //   selectedAreaId,
+// //   userAreaId,
+// //   provinceName,
+// //   loading = false,
+// //   className = "",
+// //   onAreaClick,
+// //   currentLat,
+// //   currentLon,
+// //   showCurrentPin = true,
+// //   centerOnUser = false,
+// // }: GeoMapProps) => {
+// //   const mapRef = useRef<L.Map | null>(null)
+// //   const layerRef = useRef<L.LayerGroup | null>(null)
+// //   const userMarkerRef = useRef<L.Marker | null>(null)
+// //   const divRef = useRef<HTMLDivElement>(null)
+
+// //   // INIT MAP
+// //   useEffect(() => {
+// //     if (!divRef.current || mapRef.current) return
+
+// //     mapRef.current = L.map(divRef.current, {
+// //       center: DEFAULT_CENTER,
+// //       zoom: 6,
+// //       zoomControl: true,
+// //     })
+
+// //     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+// //       attribution: "© OpenStreetMap",
+// //       maxZoom: 19,
+// //     }).addTo(mapRef.current)
+
+// //     layerRef.current = L.layerGroup().addTo(mapRef.current)
+
+// //     return () => {
+// //       mapRef.current?.remove()
+// //       mapRef.current = null
+// //     }
+// //   }, [])
+
+// //   // DRAW AREAS
+// //   useEffect(() => {
+// //     if (!mapRef.current || !layerRef.current) return
+
+// //     layerRef.current.clearLayers()
+// //     if (areas.length === 0) return
+
+// //     const allBounds: L.LatLngBounds[] = []
+
+// //     areas.forEach((area) => {
+// //       if (!area.geometry) return
+
+// //       const isUserArea = String(area.id) === String(userAreaId)
+// //       const isSelectedArea = String(area.id) === String(selectedAreaId)
+// //       const colors = RISK_COLORS[area.riskLevel]
+
+// //       const layer = L.geoJSON(area.geometry as any, {
+// //         style: {
+// //           fillColor: colors.fill,
+// //           fillOpacity: isSelectedArea ? 0.9 : 0.6,
+// //           color: isSelectedArea ? "#2563EB" : isUserArea ? "#1E40AF" : colors.stroke,
+// //           weight: isSelectedArea ? 4 : isUserArea ? 3 : 1.5,
+// //         },
+// //       })
+
+// //       layer.bindTooltip(
+// //         `<div style="font-size:13px;font-weight:600">${area.tenkhuvuc}</div>
+// //          <div style="font-size:12px;color:${colors.stroke}">${colors.label}</div>
+// //          ${isSelectedArea ? `<div style="font-size:11px;color:#2563EB">🔍 Khu vực đang chọn</div>` : ""}`,
+// //         { sticky: true, opacity: 0.95 }
+// //       )
+
+// //       layer.on("click", () => onAreaClick?.(area))
+// //       layer.on("mouseover", () => layer.setStyle({ fillOpacity: 0.9 }))
+// //       layer.on("mouseout", () => layer.setStyle({ fillOpacity: isSelectedArea ? 0.9 : 0.6 }))
+// //       layer.addTo(layerRef.current!)
+
+// //       try {
+// //         const bounds = layer.getBounds()
+// //         allBounds.push(bounds)
+// //         if (selectedAreaId && isSelectedArea) {
+// //           mapRef.current?.fitBounds(bounds, { padding: [30, 30], animate: true })
+// //         }
+// //       } catch (err) {
+// //         console.log(err)
+// //       }
+// //     })
+
+// //     if (!selectedAreaId && allBounds.length > 0) {
+// //       const combined = allBounds.reduce((acc, b) => acc.extend(b))
+// //       mapRef.current.fitBounds(combined, { padding: [20, 20], animate: true })
+// //     }
+// //   }, [areas, selectedAreaId, userAreaId, onAreaClick])
+
+// //   // USER LOCATION MARKER
+// //   useEffect(() => {
+// //     if (!mapRef.current) return
+
+// //     if (userMarkerRef.current) {
+// //       userMarkerRef.current.remove()
+// //       userMarkerRef.current = null
+// //     }
+
+// //     if (!showCurrentPin || currentLat == null || currentLon == null) return
+
+// //     const locationIcon = L.divIcon({
+// //       html: `<div style="
+// //         width:18px;height:18px;
+// //         background:#2563EB;
+// //         border:3px solid white;
+// //         border-radius:50%;
+// //         box-shadow:0 0 0 3px rgba(37,99,235,0.35),0 2px 8px rgba(0,0,0,0.3);
+// //       "></div>`,
+// //       className: "",
+// //       iconSize: [18, 18],
+// //       iconAnchor: [9, 9],
+// //       popupAnchor: [0, -12],
+// //     })
+
+// //     userMarkerRef.current = L.marker([currentLat, currentLon], { icon: locationIcon })
+// //       .addTo(mapRef.current)
+// //       .bindPopup(
+// //         `<div style="font-size:13px;font-weight:500;color:#1E40AF">📍 Vị trí của bạn</div>
+// //          <div style="font-size:11px;color:#64748B;margin-top:2px">
+// //            ${currentLat.toFixed(5)}, ${currentLon.toFixed(5)}
+// //          </div>`,
+// //         { closeButton: false }
+// //       )
+
+// //     if (centerOnUser) {
+// //       mapRef.current.flyTo([currentLat, currentLon], 14, { animate: true, duration: 1 })
+// //     }
+// //   }, [currentLat, currentLon, showCurrentPin, centerOnUser])
+
+// //   return (
+// //     // ✅ FIX: wrapper có h-full, div ref có minHeight để Leaflet render đúng
+// //     <div className={`relative w-full h-full ${className}`}>
+// //       <div
+// //         ref={divRef}
+// //         className="w-full rounded-xl z-0"
+// //         style={{ height: "100%", minHeight: 300 }}
+// //       />
+
+// //       {loading && (
+// //         <div className="absolute inset-0 bg-white/70 flex items-center justify-center rounded-xl z-10">
+// //           <div className="flex items-center gap-2 text-blue-600">
+// //             <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
+// //               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+// //               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+// //             </svg>
+// //             <span className="text-sm">Đang tải bản đồ...</span>
+// //           </div>
+// //         </div>
+// //       )}
+
+// //       {provinceName && (
+// //         <div className="absolute top-2 left-2 z-10 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow text-sm font-medium text-slate-700">
+// //           📍 {provinceName}
+// //         </div>
+// //       )}
+
+// //       <div className="absolute bottom-2 right-2 z-10 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg shadow">
+// //         {areas.length > 0 && (
+// //           <>
+// //             <p className="text-xs font-medium text-slate-500 mb-1.5">Mức độ nguy cơ</p>
+// //             {(Object.entries(RISK_COLORS) as [keyof typeof RISK_COLORS, typeof RISK_COLORS[keyof typeof RISK_COLORS]][]).map(
+// //               ([key, val]) => (
+// //                 <div key={key} className="flex items-center gap-2 mb-1">
+// //                   <div className="w-4 h-3 rounded-sm border" style={{ background: val.fill, borderColor: val.stroke }} />
+// //                   <span className="text-xs text-slate-600">{val.label}</span>
+// //                 </div>
+// //               )
+// //             )}
+// //           </>
+// //         )}
+// //         {currentLat != null && (
+// //           <div className={`flex items-center gap-2 ${areas.length > 0 ? "mt-1 pt-1 border-t border-slate-100" : ""}`}>
+// //             <div style={{
+// //               width: 12, height: 12, borderRadius: "50%",
+// //               background: "#2563EB", border: "2px solid white",
+// //               boxShadow: "0 0 0 2px rgba(37,99,235,0.4)", flexShrink: 0,
+// //             }} />
+// //             <span className="text-xs text-slate-600">Vị trí của bạn</span>
+// //           </div>
+// //         )}
+// //       </div>
+// //     </div>
+// //   )
+// // }
+
+// // export default GeoMap
+
+
 // import { useEffect, useRef } from "react"
 // import L from "leaflet"
 // import "leaflet/dist/leaflet.css"
@@ -15,6 +241,20 @@
 //   shadowUrl: markerShadow,
 // })
 
+// // 👇 Marker rời rạc (vd: vị trí SOS, đội cứu hộ gần khu vực)
+// export interface GeoMapMarker {
+//   id: string
+//   lat: number
+//   lon: number
+//   label: string
+//   type: "sos" | "team"
+//   selected?: boolean
+//   disabled?: boolean
+//   requesterTeam?: boolean  
+//   popup?:string 
+
+// }
+
 // interface GeoMapProps {
 //   areas?: AreaMapItem[]
 //   selectedAreaId?: string
@@ -27,9 +267,47 @@
 //   currentLon?: number | null
 //   showCurrentPin?: boolean
 //   centerOnUser?: boolean
+//   markers?: GeoMapMarker[]
+//   onMarkerClick?: (id: string) => void
+//   fitToMarkers?: boolean
+  
 // }
 
 // const DEFAULT_CENTER: [number, number] = [16.047, 108.206]
+
+// function buildMarkerIcon(m: { type?: "sos" | "team"; selected?: boolean; disabled?: boolean,requesterTeam?:boolean }): L.DivIcon {
+//   const isSos = m.type === "sos"
+
+//  const bg = isSos
+//   ? "#DC2626"
+//   : m.requesterTeam
+//   ? "#F59E0B"   // vàng - đội đã gửi yêu cầu chi viện
+//   : "#2563EB"  // xanh - đội lân cận có thể chi viện
+   
+
+//   const size = isSos ? 26 : m.selected ? 24 : 20
+//   const border = m.selected ? "4px solid #1D4ED8" : "3px solid white"
+//   const opacity = m.disabled ? 0.55 : 1
+//   const cursor = m.disabled ? "not-allowed" : "pointer"
+
+//   return L.divIcon({
+//     html: `<div style="
+//       width:${size}px;height:${size}px;
+//       background:${bg};
+//       border:${border};
+//       border-radius:50%;
+//       opacity:${opacity};
+//       cursor:${cursor};
+//       box-shadow:0 2px 6px rgba(0,0,0,0.35);
+//       display:flex;align-items:center;justify-content:center;
+//       color:white;font-size:11px;font-weight:700;
+//     ">${isSos ? "!" : ""}</div>`,
+//     className: "",
+//     iconSize: [size, size],
+//     iconAnchor: [size / 2, size / 2],
+//     popupAnchor: [0, -size / 2],
+//   })
+// }
 
 // const GeoMap = ({
 //   areas = [],
@@ -43,10 +321,14 @@
 //   currentLon,
 //   showCurrentPin = true,
 //   centerOnUser = false,
+//   markers = [],
+//   onMarkerClick,
+//   fitToMarkers = false,
 // }: GeoMapProps) => {
 //   const mapRef = useRef<L.Map | null>(null)
 //   const layerRef = useRef<L.LayerGroup | null>(null)
 //   const userMarkerRef = useRef<L.Marker | null>(null)
+//   const markersLayerRef = useRef<L.LayerGroup | null>(null)
 //   const divRef = useRef<HTMLDivElement>(null)
 
 //   // INIT MAP
@@ -65,6 +347,7 @@
 //     }).addTo(mapRef.current)
 
 //     layerRef.current = L.layerGroup().addTo(mapRef.current)
+//     markersLayerRef.current = L.layerGroup().addTo(mapRef.current)
 
 //     return () => {
 //       mapRef.current?.remove()
@@ -166,6 +449,38 @@
 //     }
 //   }, [currentLat, currentLon, showCurrentPin, centerOnUser])
 
+//   // 👇 MARKERS RỜI RẠC (vd: vị trí SOS, danh sách đội cứu hộ gần khu vực)
+//   useEffect(() => {
+//     if (!mapRef.current || !markersLayerRef.current) return
+//     markersLayerRef.current.clearLayers()
+//     if (markers.length === 0) return
+
+//     const bounds: L.LatLngExpression[] = []
+
+//     markers.forEach((m) => {
+//       const icon = buildMarkerIcon(m)
+//       const marker = L.marker([m.lat, m.lon], { icon })
+
+//       if (m.label) {
+//         marker.bindTooltip(m.label, { sticky: true, opacity: 0.95 })
+//       }
+//       if (m.popup) {
+//         marker.bindPopup(m.popup, { closeButton: false })
+//       }
+
+//       if (!m.disabled) {
+//         marker.on("click", () => onMarkerClick?.(m.id))
+//       }
+//       marker.addTo(markersLayerRef.current!)
+
+//       bounds.push([m.lat, m.lon])
+//     })
+
+//     if (fitToMarkers && bounds.length > 0) {
+//       mapRef.current.fitBounds(L.latLngBounds(bounds), { padding: [30, 30], animate: true })
+//     }
+//   }, [markers, onMarkerClick, fitToMarkers])
+
 //   return (
 //     // ✅ FIX: wrapper có h-full, div ref có minHeight để Leaflet render đúng
 //     <div className={`relative w-full h-full ${className}`}>
@@ -217,13 +532,29 @@
 //             <span className="text-xs text-slate-600">Vị trí của bạn</span>
 //           </div>
 //         )}
+
+//         {markers.length > 0 && (
+//   <div className={`flex flex-col gap-1 ${areas.length > 0 || currentLat != null ? "mt-1 pt-1 border-t border-slate-100" : ""}`}>
+//     <div className="flex items-center gap-2">
+//       <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#DC2626", border: "2px solid white" }} />
+//       <span className="text-xs text-slate-600">Vị trí SOS</span>
+//     </div>
+//     <div className="flex items-center gap-2">
+//       <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#F59E0B", border: "2px solid white" }} />
+//       <span className="text-xs text-slate-600">Đội gửi yêu cầu</span>
+//     </div>
+//     <div className="flex items-center gap-2">
+//       <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#2563EB", border: "2px solid white" }} />
+//       <span className="text-xs text-slate-600">Đội lân cận</span>
+//     </div>
+//   </div>
+// )}
 //       </div>
 //     </div>
 //   )
 // }
 
 // export default GeoMap
-
 
 import { useEffect, useRef } from "react"
 import L from "leaflet"
@@ -241,7 +572,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 })
 
-// 👇 Marker rời rạc (vd: vị trí SOS, đội cứu hộ gần khu vực)
 export interface GeoMapMarker {
   id: string
   lat: number
@@ -250,8 +580,8 @@ export interface GeoMapMarker {
   type: "sos" | "team"
   selected?: boolean
   disabled?: boolean
-  requesterTeam?: boolean  
-  popup?:string 
+  requesterTeam?: boolean
+  popup?: string
 }
 
 interface GeoMapProps {
@@ -269,19 +599,19 @@ interface GeoMapProps {
   markers?: GeoMapMarker[]
   onMarkerClick?: (id: string) => void
   fitToMarkers?: boolean
+  onMapClick?: (lat: number, lon: number) => void // ⬅️ thêm mới, thay cho children
 }
 
 const DEFAULT_CENTER: [number, number] = [16.047, 108.206]
 
-function buildMarkerIcon(m: { type?: "sos" | "team"; selected?: boolean; disabled?: boolean,requesterTeam?:boolean }): L.DivIcon {
+function buildMarkerIcon(m: { type?: "sos" | "team"; selected?: boolean; disabled?: boolean; requesterTeam?: boolean }): L.DivIcon {
   const isSos = m.type === "sos"
 
- const bg = isSos
-  ? "#DC2626"
-  : m.requesterTeam
-  ? "#F59E0B"   // vàng - đội đã gửi yêu cầu chi viện
-  : "#2563EB"  // xanh - đội lân cận có thể chi viện
-   
+  const bg = isSos
+    ? "#DC2626"
+    : m.requesterTeam
+    ? "#F59E0B"
+    : "#2563EB"
 
   const size = isSos ? 26 : m.selected ? 24 : 20
   const border = m.selected ? "4px solid #1D4ED8" : "3px solid white"
@@ -322,12 +652,19 @@ const GeoMap = ({
   markers = [],
   onMarkerClick,
   fitToMarkers = false,
+  onMapClick,
 }: GeoMapProps) => {
   const mapRef = useRef<L.Map | null>(null)
   const layerRef = useRef<L.LayerGroup | null>(null)
   const userMarkerRef = useRef<L.Marker | null>(null)
   const markersLayerRef = useRef<L.LayerGroup | null>(null)
   const divRef = useRef<HTMLDivElement>(null)
+  const onMapClickRef = useRef(onMapClick)
+
+  // giữ ref luôn mới nhất để không phải re-bind sự kiện click mỗi lần render
+  useEffect(() => {
+    onMapClickRef.current = onMapClick
+  }, [onMapClick])
 
   // INIT MAP
   useEffect(() => {
@@ -346,6 +683,11 @@ const GeoMap = ({
 
     layerRef.current = L.layerGroup().addTo(mapRef.current)
     markersLayerRef.current = L.layerGroup().addTo(mapRef.current)
+
+    // ⬅️ bắt sự kiện click trên bản đồ, gọi callback từ props (qua ref)
+    mapRef.current.on("click", (e: L.LeafletMouseEvent) => {
+      onMapClickRef.current?.(e.latlng.lat, e.latlng.lng)
+    })
 
     return () => {
       mapRef.current?.remove()
@@ -447,7 +789,7 @@ const GeoMap = ({
     }
   }, [currentLat, currentLon, showCurrentPin, centerOnUser])
 
-  // 👇 MARKERS RỜI RẠC (vd: vị trí SOS, danh sách đội cứu hộ gần khu vực)
+  // MARKERS RỜI RẠC
   useEffect(() => {
     if (!mapRef.current || !markersLayerRef.current) return
     markersLayerRef.current.clearLayers()
@@ -480,7 +822,6 @@ const GeoMap = ({
   }, [markers, onMarkerClick, fitToMarkers])
 
   return (
-    // ✅ FIX: wrapper có h-full, div ref có minHeight để Leaflet render đúng
     <div className={`relative w-full h-full ${className}`}>
       <div
         ref={divRef}
@@ -532,24 +873,24 @@ const GeoMap = ({
         )}
 
         {markers.length > 0 && (
-  <div className={`flex flex-col gap-1 ${areas.length > 0 || currentLat != null ? "mt-1 pt-1 border-t border-slate-100" : ""}`}>
-    <div className="flex items-center gap-2">
-      <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#DC2626", border: "2px solid white" }} />
-      <span className="text-xs text-slate-600">Vị trí SOS</span>
-    </div>
-    <div className="flex items-center gap-2">
-      <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#F59E0B", border: "2px solid white" }} />
-      <span className="text-xs text-slate-600">Đội gửi yêu cầu</span>
-    </div>
-    <div className="flex items-center gap-2">
-      <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#2563EB", border: "2px solid white" }} />
-      <span className="text-xs text-slate-600">Đội lân cận</span>
-    </div>
-  </div>
-)}
+          <div className={`flex flex-col gap-1 ${areas.length > 0 || currentLat != null ? "mt-1 pt-1 border-t border-slate-100" : ""}`}>
+            <div className="flex items-center gap-2">
+              <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#DC2626", border: "2px solid white" }} />
+              <span className="text-xs text-slate-600">Vị trí SOS</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#F59E0B", border: "2px solid white" }} />
+              <span className="text-xs text-slate-600">Đội gửi yêu cầu</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#2563EB", border: "2px solid white" }} />
+              <span className="text-xs text-slate-600">Đội lân cận</span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
 }
 
-export default GeoMap
+export default GeoMap 

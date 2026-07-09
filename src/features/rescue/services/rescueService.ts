@@ -1,5 +1,5 @@
 import { rescueApi } from "../api/rescureApi";
-import type { CreateTeamRequest, GroupMember, ResCue, RescueResponse, ResTeam } from "../types/rescueType";
+import type { CreateTeamRequest, ResCue, ResTeam } from "../types/rescueType";
 
 
 export const rescueService = {

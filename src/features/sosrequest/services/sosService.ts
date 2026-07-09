@@ -34,4 +34,6 @@ export const sosService = {
   async cancelSosRequest(sosId: string): Promise<CancelResponse> {
     return await SoSAPI.cancelSosRequest(sosId)
   },
+
+  
 }

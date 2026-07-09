@@ -155,8 +155,8 @@ export interface RequestSupportMyTeam{
   status:Status
  items:RequestSupportMyTeamItems[];
  reason:string
-  requestById:string
-  requestByName:string
+  requestedById:string
+  requestedByName:string
   approvedById:string
   approvedByName:string
   createdAt:string

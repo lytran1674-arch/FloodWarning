@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom'
 import { authAPI } from '../api/authApi'
 import { setCredentials } from '../store/authSlice'
 import type { AppDispatch } from '../../../app/store'
+import { flushPendingFcmToken } from '@/utils/firebaseNotification'
+
 
 export const LoginForm: React.FC = () => {
   const [email, setEmail]       = useState("")
@@ -28,30 +30,45 @@ export const LoginForm: React.FC = () => {
       setIsLoading(true)
       setError("")
 
-      // ✅ Gửi đúng field name mà API yêu cầu
       const res = await authAPI.login({
-  loginInfo: email,
-  password,
-})
+        loginInfo: email,
+        password,
+      })
 
-      // ✅ Lấy đúng từ res.data.result theo response Postman
-      const { accessToken, role, authenticated,hoten,id ,areaId,teamId,teamName,isTeamLeader,isGroupLeader,sodt,refreshToken} = res.data.result
-  console.log("LOGIN RESULT:", res.data.result);
+      const { accessToken, role, authenticated, hoten, id, areaId, teamId, teamName, isTeamLeader, isGroupLeader, sodt,groupType, refreshToken } = res.data.result
+      console.log("LOGIN RESULT:", res.data.result);
+
       if (!authenticated) {
         setError("Đăng nhập thất bại!")
         return
       }
 
-      // ✅ Lưu accessToken vào Redux
-      dispatch(setCredentials({ user: { role,hoten,id,areaId,teamId,teamName,isTeamLeader,isGroupLeader,sodt,refreshToken}, accessToken}))
+      // Lưu accessToken vào Redux
+      dispatch(setCredentials({ user: { role, hoten, id, areaId, teamId, teamName, isTeamLeader, isGroupLeader, sodt, groupType,refreshToken }, accessToken }))
 
-      // ✅ Role trả về chữ HOA theo API
+      // Lưu userId riêng vào localStorage — dùng để fcmService biết token hiện tại thuộc về ai
+      localStorage.setItem("userId", id)
+
+      // Gửi lại FCM token đang chờ (nếu trước đó user đã cho phép thông báo lúc chưa đăng nhập),
+      // hoặc cập nhật lại chủ sở hữu token nếu thiết bị này vừa được dùng bởi user khác trước đó
+      flushPendingFcmToken(accessToken, id).catch((err) => {
+        console.error("Lỗi khi đồng bộ FCM token sau đăng nhập:", err)
+      })
+
+      // Role trả về chữ HOA theo API
       switch (role) {
         case "ADMIN":   navigate("/areas-management"); break
-        case "RESCUER": navigate("/team-sos");             break
+         case "RESCUER":
+    if (groupType === "HOTLINE") {
+      navigate("/hotline");
+    } else {
+      navigate("/team-sos");
+    }
+    break;
         case "CITIZEN": navigate("/dashboard");             break
         case "PROVINCE_OPERATOR": navigate("/homeprovince"); break
         default:        navigate("/")
+
       }
 
     } catch (err: any) {
@@ -78,7 +95,6 @@ export const LoginForm: React.FC = () => {
           HỆ THỐNG CẢNH BÁO VÀ CỨU HỘ LŨ LỤT
         </h2>
 
-        {/* Hiển thị lỗi */}
         {error && (
           <div className="mb-3 px-3 py-2 bg-red-50 border border-red-300 rounded-lg text-red-600 text-sm text-center">
             {error}

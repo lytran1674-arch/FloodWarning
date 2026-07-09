@@ -1,9 +1,9 @@
-import { BellIcon, Calendar, Files, FileText, GlassWater, GlassWaterIcon, HistoryIcon, Home, MapPin, PieChart, Send, SigmaIcon, Snowflake, StarHalf, User, WavesArrowUp } from "lucide-react"
+import { BellIcon, Calendar, Files, FileText, GlassWater, GlassWaterIcon, Home, MapPin, PieChart, Send, SigmaIcon, Snowflake, StarHalf, User, WavesArrowUp } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import MenuRescuer from "../assets/menurescuer.png"
 import type { CSSProperties } from "react"
 import IconRescuer from "../assets/rescuer.png"
-import { useAppSelector } from "@/hooks/redux.hooks"
+
 
 
 
@@ -44,6 +44,7 @@ export const rescuerMenu: MenuItem[] = [
   
    {text:"Thông tin đội cứu hội", icon:FileText ,path:"/information-team"},
     { text: "Tài khoản ",      icon: User,    path: "/account" },
+    { text: "HotLine ",      icon: User,    path: "/hotline" }
 ]
 
 export const userMenu: MenuItem[] = [

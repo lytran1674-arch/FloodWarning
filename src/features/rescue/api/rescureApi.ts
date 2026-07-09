@@ -1,6 +1,5 @@
 
-import { data } from "react-router-dom";
-import type { CreateTeamRequest,  GroupMember,  ResCue, RescueResponse, ResGroup, ResTeam } from "../types/rescueType";
+import type { CreateTeamRequest,    ResCue, ResGroup, ResTeam } from "../types/rescueType";
 import { axiosClient } from "@/api/axiosClient";
 
 

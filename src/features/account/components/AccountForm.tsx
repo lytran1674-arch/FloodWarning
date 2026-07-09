@@ -4,7 +4,7 @@ import { useAppSelector } from "@/hooks/redux.hooks";
 import { Button } from "antd";
 import { MdSystemUpdateAlt } from "react-icons/md";
 import { useState } from "react";
-import { AccountService } from "../services/accountService";
+
 import { AccountApi } from "../api/accountApi";
 
 interface Props {

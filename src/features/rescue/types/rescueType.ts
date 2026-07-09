@@ -1,5 +1,8 @@
 import type { GroupStatus } from "@/features/grouprescue/types/groupType"
-export type GroupType="HOTLINE" | "OPERATIONAL"
+
+export type GROUPTYPE= "HOTLINE" | "OPERATIONAL"
+//OPERATIONAL: Nhóm thực thi nhiệm vụ
+//HOTLINE:nhóm trực hotline
 export interface CreateTeamRequest{
  name:string
     description:string 
@@ -51,7 +54,7 @@ export interface ImportResult {
 
 
 export interface ResGroup{
-  id: string;
+    id: string;
      name: string;
      teamId: string;
      teamName: string;
@@ -61,7 +64,7 @@ export interface ResGroup{
      hasSearchRescue:boolean
      hasLogistics:boolean
      notes: string;
-     groupType:GroupType
+
 }
 
 
@@ -128,7 +131,7 @@ export interface SosRequest {
   dia_chi: string
   latitude: number | null
   longitude: number | null
-  status: SosStatus
+  status: string
   area_id: number
   area_name: string
   assigned_group_id: string | null

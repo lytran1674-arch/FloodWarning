@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { axiosClient } from "@/api/axiosClient";
 import { useNavigate } from "react-router-dom";
 
+
 interface TeamSOS {
   id: string;
   priority: string;
@@ -89,16 +90,16 @@ export default function TeamSOSPage() {
                 </span>
               </div>
 
-              <div className="mt-4 flex justify-end">
-                <button
-                  onClick={() =>
-                    navigate(`/sos-assign/${sos.id}`)
-                  }
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                >
-                  Phân công
-                </button>
-              </div>
+             {sos.status === "PENDING" && (
+  <div className="mt-4 flex justify-end">
+    <button
+      onClick={() => navigate(`/sos-assign/${sos.id}`)}
+      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+    >
+      Phân công
+    </button>
+  </div>
+)}
             </div>
           ))}
         </div>

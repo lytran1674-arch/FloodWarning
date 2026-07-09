@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useResCue } from '../hooks/useResCue'
 import { useAppSelector } from '@/hooks/redux.hooks';
 import { InfTeam } from '../components/InfTeam';

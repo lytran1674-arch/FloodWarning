@@ -13,12 +13,11 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Counter from "../../../components/ui/Counter";
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ConditionSelector from "../../../components/ui/ConditionSelector";
 import { Input } from "../../../components/ui/Input";
 import GeoMap from "../../map/components/GeoMap";
 import { useGeoLocation } from "../../map/hooks/useGeolocation";
-import { useArea } from "../../areas/hooks/useArea";
 import { toast } from "react-toastify";
 
 import { usesosrequestanonymous } from "../../sosrequest-anonymous/hooks/usesosrequestanonymous";
@@ -40,32 +39,27 @@ const showSnackbar = (message: string, type: 'success' | 'error' | 'warning' = '
 const DEVICE_ID_KEY = "deviceId";
 const ANONYMOUS_SODT_KEY = "sos_anonymous_sodt";
 
+// Giới hạn toạ độ Việt Nam (tương đối) để validate cơ bản khi nhập tay
+const VN_LAT_RANGE: [number, number] = [8, 24];
+const VN_LON_RANGE: [number, number] = [102, 110];
+
 export const SOSRequestAnonymous = () => {
   const [count, setCount] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
   const [phone, setPhone] = useState("");
   const [desc, setDesc] = useState("");
 
-  const [addressDetail, setAddressDetail] = useState("");
-  const [selectedArea, setSelectedArea] = useState<string | null>(null);
-  const [selectedAreaLabel, setSelectedAreaLabel] = useState("");
-  const [searchArea, setSearchArea] = useState("");
-  const [openArea, setOpenArea] = useState(false);
-
-  const [geocodedLat, setGeocodedLat] = useState<number | null>(null);
-  const [geocodedLon, setGeocodedLon] = useState<number | null>(null);
-  const [geocoding, setGeocoding] = useState(false);
+  // Toạ độ nhập tay (thay cho việc nhập địa chỉ + geocode)
+  const [manualLat, setManualLat] = useState("");
+  const [manualLon, setManualLon] = useState("");
 
   const [validationErrors, setValidationErrors] = useState<{
     phone?: string;
     desc?: string;
     coords?: string;
-    area?: string;
   }>({});
 
   const { loading, createSosAnonymous } = usesosrequestanonymous();
-  const { areas } = useArea();
-  console.log("areas:", areas);
   const {
     lat,
     lon,
@@ -74,7 +68,6 @@ export const SOSRequestAnonymous = () => {
     getLocation,
   } = useGeoLocation();
 
-  
   const fetchedRef = useRef<boolean>(false);
   const navigate = useNavigate();
 
@@ -90,59 +83,34 @@ export const SOSRequestAnonymous = () => {
     getLocation();
   }, [getLocation]);
 
-  const areaOptions = useMemo(() => {
-    return areas.flatMap((parent) =>
-      (parent.children ?? []).map((child) => ({
-        id: child.id,
-        label: `${parent.tenkhuvuc} > ${child.tenkhuvuc}`,
-      }))
-    );
-  }, [areas]);
+  // Parse toạ độ nhập tay
+  const parsedManualLat = manualLat.trim() !== "" ? Number(manualLat) : null;
+  const parsedManualLon = manualLon.trim() !== "" ? Number(manualLon) : null;
 
-  const filteredAreas = areaOptions.filter((area) =>
-    area.label.toLowerCase().includes(searchArea.toLowerCase())
-  );
+  const hasManualInput = manualLat.trim() !== "" || manualLon.trim() !== "";
 
-  const geocodeAddress = async (fullAddress: string) => {
-    try {
-      setGeocoding(true);
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-        fullAddress
-      )}&countrycodes=vn`;
+  const isManualLatValid =
+    parsedManualLat !== null &&
+    !Number.isNaN(parsedManualLat) &&
+    parsedManualLat >= VN_LAT_RANGE[0] &&
+    parsedManualLat <= VN_LAT_RANGE[1];
 
-      const response = await fetch(url);
-      const data = await response.json();
+  const isManualLonValid =
+    parsedManualLon !== null &&
+    !Number.isNaN(parsedManualLon) &&
+    parsedManualLon >= VN_LON_RANGE[0] &&
+    parsedManualLon <= VN_LON_RANGE[1];
 
-      if (data.length > 0) {
-        setGeocodedLat(Number(data[0].lat));
-        setGeocodedLon(Number(data[0].lon));
-        setValidationErrors((prev) => ({ ...prev, coords: undefined }));
-      } else {
-        setGeocodedLat(null);
-        setGeocodedLon(null);
-      }
-    } catch (error) {
-      console.error("Geocode error", error);
-    } finally {
-      setGeocoding(false);
-    }
-  };
+  // Chỉ coi là "đang dùng toạ độ nhập tay" khi cả 2 giá trị hợp lệ
+  const isUsingManualCoords = isManualLatValid && isManualLonValid;
 
-  useEffect(() => {
-    if (!addressDetail || !selectedAreaLabel) return;
+  // Nếu có toạ độ nhập tay hợp lệ -> ưu tiên dùng, bỏ qua GPS
+  const effectiveLat = isUsingManualCoords ? parsedManualLat : lat;
+  const effectiveLon = isUsingManualCoords ? parsedManualLon : lon;
 
-    const fullAddress = `${addressDetail}, ${selectedAreaLabel}`;
-    const timer = setTimeout(() => {
-      geocodeAddress(fullAddress);
-    }, 700);
-
-    return () => clearTimeout(timer);
-  }, [addressDetail, selectedAreaLabel]);
-
-  const isUsingGeocode = !lat && geocodedLat !== null;
-  const effectiveLat = lat ?? geocodedLat;
-  const effectiveLon = lon ?? geocodedLon;
-  const fullAddress = `${addressDetail}${addressDetail && selectedAreaLabel ? ", " : ""}${selectedAreaLabel}`;
+  // GPS bị disable khi người dùng đã nhập tay toạ độ (kể cả khi chưa đủ/ chưa hợp lệ,
+  // để tránh vừa nhập tay vừa lỡ tay bấm GPS ghi đè)
+  const isGpsDisabled = hasManualInput;
 
   const validateForm = (): boolean => {
     const errors: typeof validationErrors = {};
@@ -158,12 +126,13 @@ export const SOSRequestAnonymous = () => {
       errors.desc = "Mô tả phải có ít nhất 5 ký tự (nếu có)";
     }
 
-    if (!selectedArea) {
-      errors.area = "Vui lòng chọn khu vực";
-    }
-
-    if (!effectiveLat || !effectiveLon) {
-      errors.coords = "Vui lòng bật GPS hoặc nhập địa chỉ để xác định vị trí";
+    if (hasManualInput) {
+      // Người dùng đã chọn nhập tay -> phải nhập đủ và hợp lệ cả lat lẫn lon
+      if (!isManualLatValid || !isManualLonValid) {
+        errors.coords = "Toạ độ nhập tay không hợp lệ. Vĩ độ 8-24, Kinh độ 102-110";
+      }
+    } else if (!effectiveLat || !effectiveLon) {
+      errors.coords = "Vui lòng bật GPS hoặc nhập toạ độ để xác định vị trí";
     }
 
     setValidationErrors(errors);
@@ -193,21 +162,19 @@ export const SOSRequestAnonymous = () => {
     }
 
     const payload: SoSRequest = {
-
       sodt: phone,
       clientDeviceId: deviceId,
       victimCount: count,
       lat: effectiveLat!,
       lon: effectiveLon!,
-      diachi: fullAddress,
-      accuracy: isUsingGeocode ? 0 : 10,
+      accuracy: isUsingManualCoords ? 0 : 10,
       injured: selected.includes("Bị thương"),
       trapped: selected.includes("Mắc kẹt"),
       vulnerable: selected.includes("Có người già/trẻ em/mang thai"),
       mota: desc,
-      };
+    };
 
-      console.log(payload);
+    console.log(payload);
 
     try {
       const response = await createSosAnonymous(payload);
@@ -227,7 +194,7 @@ export const SOSRequestAnonymous = () => {
       }
 
       showSnackbar("Gửi SOS thành công!", "success");
-      navigate("/success");
+      navigate("/success-anonymous");
     } catch (err: any) {
       console.error(err);
       const msg = err?.response?.data?.message || err?.message || "Gửi SOS thất bại";
@@ -242,7 +209,7 @@ export const SOSRequestAnonymous = () => {
     "Bình thường",
   ];
 
-  const isSubmitting = loading || locLoading || geocoding;
+  const isSubmitting = loading || locLoading;
   const isLocationReady = !!effectiveLat && !!effectiveLon;
 
   return (
@@ -273,10 +240,12 @@ export const SOSRequestAnonymous = () => {
           <button
             type="button"
             onClick={getLocation}
-            disabled={locLoading}
+            disabled={locLoading || isGpsDisabled}
             className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 text-sm font-medium transition-all duration-200 ${
               locLoading
                 ? "border-blue-200 text-blue-400 bg-blue-50 cursor-not-allowed"
+                : isGpsDisabled
+                ? "border-slate-200 text-slate-400 bg-slate-50 cursor-not-allowed"
                 : lat
                 ? "border-green-400 text-green-600 bg-green-50 hover:bg-green-100"
                 : "border-red-300 text-red-500 bg-red-50 hover:bg-red-100"
@@ -287,7 +256,7 @@ export const SOSRequestAnonymous = () => {
                 <Loader className="w-4 h-4 animate-spin" />
                 Đang lấy vị trí GPS...
               </>
-            ) : lat ? (
+            ) : lat && !isGpsDisabled ? (
               <>
                 <Navigation className="w-4 h-4" />
                 GPS: {lat.toFixed(5)}, {lon?.toFixed(5)} · Nhấn để cập nhật
@@ -300,89 +269,68 @@ export const SOSRequestAnonymous = () => {
             )}
           </button>
 
-          {locError && (
+          {isGpsDisabled && (
+            <p className="text-xs text-slate-500 flex items-center gap-1">
+              <TriangleAlert className="w-3 h-3" />
+              GPS đang tắt vì bạn đã nhập toạ độ tay. Xoá 2 ô toạ độ bên dưới để dùng lại GPS.
+            </p>
+          )}
+
+          {locError && !isGpsDisabled && (
             <p className="text-xs text-red-500 flex items-center gap-1">
               <TriangleAlert className="w-3 h-3" />
-              {locError} — bạn có thể nhập địa chỉ bên dưới thay thế
+              {locError} — bạn có thể nhập toạ độ bên dưới thay thế
             </p>
           )}
 
           <div className="flex items-center gap-2 py-1">
             <div className="flex-1 h-px bg-slate-200" />
-            <span className="text-xs text-slate-400">hoặc nhập địa chỉ</span>
+            <span className="text-xs text-slate-400">hoặc nhập toạ độ tay</span>
             <div className="flex-1 h-px bg-slate-200" />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-xs text-slate-400">Địa chỉ chi tiết</label>
-            <input
-              type="text"
-              value={addressDetail}
-              onChange={(e) => setAddressDetail(e.target.value)}
-              placeholder="Ví dụ: 12 Nguyễn Huệ, Ấp 2..."
-              className="w-full border rounded-xl px-3 py-2 text-sm outline-none border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-xs text-slate-400">Khu vực</label>
-            <div className="relative">
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1">
+              <label className="text-xs text-slate-400">Vĩ độ (lat)</label>
               <input
-                value={searchArea}
-                onFocus={() => setOpenArea(true)}
-                onChange={(e) => {
-                  setSearchArea(e.target.value);
-                  setOpenArea(true);
-                  if (selectedArea) {
-                    setSelectedArea(null);
-                    setSelectedAreaLabel("");
-                  }
-                }}
-                placeholder="Tìm kiếm khu vực..."
+                type="number"
+                step="any"
+                value={manualLat}
+                onChange={(e) => setManualLat(e.target.value)}
+                placeholder="VD: 10.77653"
                 className="w-full border rounded-xl px-3 py-2 text-sm outline-none border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
               />
-
-              {openArea && (
-                <div className="absolute z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border bg-white shadow-lg">
-                  {filteredAreas.length > 0 ? (
-                    filteredAreas.map((area) => (
-                      <button
-                        key={area.id}
-                        type="button"
-                        className="block w-full px-4 py-2.5 text-left text-sm hover:bg-slate-100"
-                        onClick={() => {
-                          setSelectedArea(area.id);
-                          setSelectedAreaLabel(area.label);
-                          setSearchArea(area.label);
-                          setOpenArea(false);
-                        }}
-                      >
-                        {area.label}
-                      </button>
-                    ))
-                  ) : (
-                    <div className="p-3 text-sm text-gray-500">
-                      Không tìm thấy khu vực
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
-            {validationErrors.area && (
-              <p className="text-xs text-red-500">{validationErrors.area}</p>
-            )}
+            <div className="space-y-1">
+              <label className="text-xs text-slate-400">Kinh độ (lon)</label>
+              <input
+                type="number"
+                step="any"
+                value={manualLon}
+                onChange={(e) => setManualLon(e.target.value)}
+                placeholder="VD: 106.70098"
+                className="w-full border rounded-xl px-3 py-2 text-sm outline-none border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              />
+            </div>
           </div>
 
-          {geocoding && (
-            <p className="text-xs text-blue-600 flex items-center gap-1">
-              <Loader className="w-3 h-3 animate-spin" />
-              Đang xác định vị trí từ địa chỉ...
-            </p>
+          {hasManualInput && (
+            <button
+              type="button"
+              onClick={() => {
+                setManualLat("");
+                setManualLon("");
+              }}
+              className="text-xs text-slate-500 underline underline-offset-2 hover:text-slate-700"
+            >
+              Xoá toạ độ nhập tay, dùng lại GPS
+            </button>
           )}
-          {isUsingGeocode && !geocoding && (
+
+          {isUsingManualCoords && (
             <p className="text-xs text-blue-600 flex items-center gap-1 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
               <MapPin className="w-3 h-3" />
-              Đã xác định vị trí từ địa chỉ: {geocodedLat?.toFixed(5)}, {geocodedLon?.toFixed(5)}
+              Đang dùng toạ độ nhập tay: {parsedManualLat?.toFixed(5)}, {parsedManualLon?.toFixed(5)}
             </p>
           )}
           {validationErrors.coords && (

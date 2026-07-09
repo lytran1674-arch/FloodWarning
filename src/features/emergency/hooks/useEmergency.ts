@@ -2,14 +2,20 @@
 import { useState, useCallback } from "react";
 import { emergencyService } from "../services/emergencyService";
 
-
 export const useEmergency = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const callSos = useCallback(() => {
+  // Nhận callerPhoneNumber từ nơi gọi (component có input số điện thoại),
+  // vì getEmergencyContact bắt buộc field này trong payload.
+  const callSos = useCallback((callerPhoneNumber: string) => {
     if (!("geolocation" in navigator)) {
       setError("Trình duyệt không hỗ trợ định vị");
+      return;
+    }
+
+    if (!callerPhoneNumber?.trim()) {
+      setError("Vui lòng nhập số điện thoại");
       return;
     }
 
@@ -20,7 +26,11 @@ export const useEmergency = () => {
       async (position) => {
         const { latitude, longitude } = position.coords;
         try {
-          const team = await emergencyService.getHotlineTeam(latitude, longitude);
+          const team = await emergencyService.getEmergencyContact({
+            lat: latitude,
+            lon: longitude,
+            callerPhoneNumber: callerPhoneNumber.trim(),
+          });
 
           if (!team?.emergencyPhone) {
             setError("Không tìm thấy đội cứu hộ gần bạn");
@@ -35,7 +45,7 @@ export const useEmergency = () => {
           setLoading(false);
         }
       },
-      (geoErr) => {
+      (_geoErr) => {
         setLoading(false);
         setError("Không lấy được vị trí. Vui lòng bật định vị (GPS)");
       },

@@ -51,7 +51,7 @@ export default function ListMyRequestSupport() {
   const navigate = useNavigate();
   const user = useAppSelector((state) => state.auth.user);
   const isLeaderTeam = user?.isTeamLeader === true;
-const [assignSuccess, setAssignSuccess] = useState<string | null>(null);
+const [, setAssignSuccess] = useState<string | null>(null);
   const {
     groups,
     loading: loadingGroups,
@@ -281,7 +281,7 @@ const closeAssignModal = () => {
                   </p>
 
                   <p className="mt-1 text-sm text-gray-500">
-                    Người yêu cầu: {request.requestByName}
+                    Người yêu cầu: {request.requestedByName}
                   </p>
 
                   <p className="mt-1 text-sm text-gray-500">

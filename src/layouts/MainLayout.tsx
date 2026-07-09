@@ -9,7 +9,7 @@ import { AreaProvider } from "../features/areas/components/AreaContext";
 export const MainLayout = () => {
   const [openMenu, setOpenMenu] = useState(false);
   const { user, isAuthenticated } = useAuth();
-
+  const [openLogout, setOpenLogout] = useState(false);
   if (!isAuthenticated) return <Navigate to="/" />;
 
   const config = roleConfig[user?.role as string] ?? defaultConfig;
@@ -17,9 +17,10 @@ export const MainLayout = () => {
   return (
     <AreaProvider> {/* ✅ wrap toàn bộ layout, không bị unmount khi navigate */}
       <div className="w-full min-h-screen">
-        <Header openMenu={openMenu} setOpenMenu={setOpenMenu} />
+        <Header openMenu={openMenu} setOpenMenu={setOpenMenu} openLogout={openLogout} setOpenLogout={setOpenLogout} />
 
         <Menu
+  
           bgColor={config.bgColor}
           hover={config.hover}
           items={config.menu}

@@ -1,5 +1,5 @@
 import type { CancelResponse } from "@/features/sosrequest-anonymous/types/sosanonymousType"
-import type { AssignSos, DetailSos, SoSRequest, SoSResponse } from "../types/sosType"
+import type { AssignSos, DetailSos, DetailSoSCitizen, SoSRequest, SoSResponse } from "../types/sosType"
 import { axiosClient, publicApi } from "@/api/axiosClient"
 
 const API_URL = "/sos-request"
@@ -19,9 +19,9 @@ export const SoSAPI = {
     sodt: string,
     clientDeviceId: string
   ): Promise<SoSResponse[]> {
-    const response = await publicApi.get(`${API_URL}/my-active-anonymous`, {
-      params: { sodt, clientDeviceId },
-    })
+    const response = await publicApi.post(`${API_URL}/my-active-anonymous`, 
+{sodt, clientDeviceId} )
+    
     // Xử lý cả 2 trường hợp: có phân trang (.content) hoặc trả mảng thẳng
     return response.data.result?.content ?? response.data.result ?? []
   },
@@ -48,4 +48,10 @@ export const SoSAPI = {
     )
     return response.data
   },
+
+  //chi tiết sos của ng dân (đã có tài khoản)
+  async getDetailSoS(sosId:string):Promise<DetailSoSCitizen>{
+    const response=await axiosClient.get(`${API_URL}/my/${sosId}`)
+    return response.data.result
+  }
 }

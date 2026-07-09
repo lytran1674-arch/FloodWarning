@@ -6,7 +6,7 @@ export const useAvailableMembers = (teamId?: string) => {
   const [members, setMembers] = useState<ResCue[]>([]);
   const [groups, setGroups] = useState<ResGroup[]>([]);
   const [loading, setLoading] = useState(false);
-
+  
   const fetchData = useCallback(async () => {
     if (!teamId) return;
 

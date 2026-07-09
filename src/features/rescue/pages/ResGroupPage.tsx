@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import {
   Ship,
   Cross,
-  ArrowLeft,
   Plus,
   LifeBuoy,
   Package,
@@ -14,24 +13,32 @@ import { Button } from "../../../components/ui/Button";
 import { useAppSelector } from "@/hooks/redux.hooks";
 
 export default function ResGroupPage() {
- 
   const navigate = useNavigate();
   const location = useLocation();
 
   const [groups, setGroups] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const user = useAppSelector((state)=>state.auth.user)
+  const user = useAppSelector((state) => state.auth.user);
+
   const canCreateGroup = user?.isTeamLeader === true;
-  const teamId=user?.teamId
+
+  // teamId từ URL (Admin)
+  const { teamId: paramTeamId } = useParams<{ teamId: string }>();
+
+  // Nếu không có trên URL thì lấy của Team Leader
+  const teamId = paramTeamId ?? user?.teamId ?? null;
+
   useEffect(() => {
     if (!teamId) return;
 
     const load = async () => {
       try {
         setLoading(true);
+
         const data = await rescueApi.getGroupByTeam(teamId);
-        setGroups(data);
+
+        setGroups(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error(error);
       } finally {
@@ -42,41 +49,54 @@ export default function ResGroupPage() {
     load();
   }, [teamId, location.key]);
 
-  const handleOnClick=()=>{
-    navigate(`/team/${teamId}/available-members`)
-    console.log(teamId)
-  }
+  const handleOnClick = () => {
+    if (!teamId) return;
+
+    navigate(`/team/${teamId}/available-members`);
+  };
+
   return (
     <div className="p-6">
-      
-
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Danh sách Group</h1>
-        <div className="flex justify-end lg:gap-2">
-        <Button className="border border-blue-500 text-blue-600 rounded-md lg:p-2"
-        onClick={handleOnClick}>
-          <Users/>
-          Thành viên chưa có Group
-        </Button>
-        {canCreateGroup && (
+
+        <div className="flex gap-2">
           <Button
-            onClick={() => navigate("/res-group/create")}
-            className="text-black bg-yellow-600 lg:text-xl sm:text-sm text-sm md:text-xl border border-yellow-400 h-10 p-4 rounded-md"
+            className="border border-blue-500 text-blue-600 rounded-md p-2"
+            onClick={handleOnClick}
+            disabled={!teamId}
           >
-            <Plus />
-            Thêm nhóm cứu hộ
+            <Users />
+            Thành viên chưa có Group
           </Button>
-        )}
+
+          {canCreateGroup && (
+            <Button
+              onClick={() => navigate("/res-group/create")}
+              className="bg-yellow-500 text-black border border-yellow-400 rounded-md p-2"
+            >
+              <Plus />
+              Thêm nhóm cứu hộ
+            </Button>
+          )}
         </div>
       </div>
 
-      {loading && (
-        <div className="py-10 text-center">Đang tải dữ liệu...</div>
+      {!teamId && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-600">
+          Không xác định được đội cứu hộ.
+        </div>
       )}
 
-      {!loading && groups.length === 0 && (
+      {loading && (
+        <div className="py-10 text-center">
+          Đang tải dữ liệu...
+        </div>
+      )}
+
+      {!loading && teamId && groups.length === 0 && (
         <div className="rounded-lg border p-6 text-center text-slate-500">
-          Chưa có nhóm cứu hộ nào
+          Chưa có nhóm cứu hộ nào.
         </div>
       )}
 
@@ -84,11 +104,16 @@ export default function ResGroupPage() {
         {groups.map((group) => (
           <div
             key={group.id}
-            onClick={() => navigate(`/res-groups/${group.id}/members`)}
-            className="cursor-pointer rounded-xl border p-4 transition hover:bg-slate-50 hover:shadow-sm"
+            onClick={() =>
+              navigate(`/res-groups/${group.id}/members`)
+            }
+            className="cursor-pointer rounded-xl border p-4 hover:bg-slate-50 hover:shadow-sm"
           >
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-lg">{group.name}</h3>
+              <h3 className="text-lg font-semibold">
+                {group.name}
+              </h3>
+
               <span className="rounded-full bg-slate-100 px-3 py-1 text-sm">
                 {group.status}
               </span>
@@ -101,18 +126,21 @@ export default function ResGroupPage() {
                   <span>Có xuồng</span>
                 </div>
               )}
+
               {group.hasMedical && (
                 <div className="flex items-center gap-1 text-red-600">
                   <Cross size={16} />
                   <span>Y tế</span>
                 </div>
               )}
+
               {group.hasSearchRescue && (
                 <div className="flex items-center gap-1 text-orange-600">
                   <LifeBuoy size={16} />
                   <span>Tìm kiếm cứu nạn</span>
                 </div>
               )}
+
               {group.hasLogistics && (
                 <div className="flex items-center gap-1 text-emerald-600">
                   <Package size={16} />

@@ -6,10 +6,12 @@ import { sosService } from "../services/sosService"
 import type {
   AssignSos,
   DetailSos,
+  DetailSoSCitizen,
   SoSRequest,
   SoSResponse,
 } from "../types/sosType"
 import type { CancelResponse } from "@/features/sosrequest-anonymous/types/sosanonymousType"
+import { SoSAPI } from "../api/sosApi"
 
 export const useSoS = () => {
   // =========================
@@ -25,7 +27,7 @@ export const useSoS = () => {
   // =========================
   const [request, setRequest] = useState<SoSResponse[]>([])   // đồng bộ về SoSResponse[]
   const [detailSOS, setDetailSOS] = useState<DetailSos | null>(null)
-
+ const [detailSOSCitizen, setDetailSOSCitizen] = useState<DetailSoSCitizen | null>(null)
   // =========================
   // CREATE SOS
   // =========================
@@ -234,6 +236,34 @@ export const useSoS = () => {
     setDetailSOS(null)
   }
 
+  const getDetailSoSForOwner = useCallback(
+    async (id: string): Promise<DetailSoSCitizen | null> => {
+      try {
+        if (!id) return null
+
+        setLoading(true)
+        setError(null)
+
+        const data = await SoSAPI.getDetailSoS(id)
+          // : await sosService.getDetailSoSAnonymous(id)
+
+        setDetailSOSCitizen(data)
+        return data
+      } catch (err: any) {
+        console.error("GET DETAIL SOS (OWNER) ERROR:", err)
+        const message =
+          err?.response?.data?.message || "Không thể tải chi tiết SOS"
+        setError(message)
+        toast.error(message)
+        return null
+      } finally {
+        setLoading(false)
+      }
+    },
+    []
+  )
+
+
   // =========================
   // RETURN
   // =========================
@@ -263,5 +293,6 @@ export const useSoS = () => {
 
     // cancel result
     cancel,
+    getDetailSoSForOwner
   }
 }

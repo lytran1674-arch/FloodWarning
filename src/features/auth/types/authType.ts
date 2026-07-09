@@ -1,3 +1,4 @@
+import type { GROUPTYPE } from "@/features/rescue/types/rescueType"
 
 type TrangThai= ''
  export type Role= "ADMIN" | "RESCUER" | "CITIZEN" | "PROVINCE_OPERATOR"
@@ -21,6 +22,7 @@ export interface User{
     isLeader?:boolean
     isTeamLeader?:boolean
     isGroupLeader?:boolean
+    groupType?:GROUPTYPE
     refreshToken?:string
 }
 

@@ -73,7 +73,7 @@ function forceLogout() {
   localStorage.removeItem("user");
 
   store.dispatch(logout());
-  window.location.href = "/login";
+  window.location.href = "/";
 }
 
 // ================= RESPONSE INTERCEPTOR =================

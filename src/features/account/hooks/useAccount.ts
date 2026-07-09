@@ -26,6 +26,7 @@ useEffect(()=>{
 })
 
 return {
+    error,
     account,
     loading
 }

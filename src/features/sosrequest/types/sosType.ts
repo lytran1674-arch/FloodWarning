@@ -14,6 +14,13 @@ export type FilterStatus = 'ALL' | 'PENDING' | 'PROCESSING' | 'DONE' | 'CANCELLE
 
 export type RoleGroup = "PRIMARY" | "SUPPORT"
 
+export type LocationSource= "MANUAL_ADDRESS" | "GPS_FROM_CALL_EVENT"
+export type SosSource="HOTLINE_OPERATOR" | "DIRECT"
+
+//HOTLINE_OPERATOR: tạo từ HOTLINE
+//DIRECT : dân tự tạo
+//MANUAL_ADDRESS: hotline nhập tay khi dân gọi điện thoại thường
+//GPS_FROM_CALL_EVENT: lấy từ call event khi gọi qua web
 export interface SoSRequest {
   areaId?:string
   sodt?: string            // optional — chỉ gửi khi tạo SOS anonymous
@@ -21,8 +28,8 @@ export interface SoSRequest {
   victimCount: number
   lat: number
   lon: number
-  diachi: string           // bổ sung — luôn được gửi theo thực tế API
-  accuracy: number
+  // diachi: string           // bổ sung — luôn được gửi theo thực tế API
+  accuracy?: number
   injured: boolean
   trapped: boolean
   vulnerable: boolean
@@ -39,6 +46,9 @@ export interface SoSResponse {
   victimCount: number
   priorityReason: string
   mota: string
+  sosSource?:string
+  callEventId?:string
+  trackingCode?:string
   createdAt: string
   sodt?: string
   lat?: number
@@ -101,6 +111,43 @@ export interface Assignment {
   teamId: string
 }
 
+export interface SoSRequestHotLine{
+  id: string
+  alreadyExists: boolean
+  priority: SosPriority
+  status: SosStatus
+  environmentRisk: string
+  victimCount: number
+  priorityReason: string
+  mota: string
+  sosSource:SosSource
+  callEventId:string
+  createdAt: string
+ 
+  
+}
 
-export type LocationSource= "MANUAL_ADDRESS" | "GPS_FROM_CALL_EVENT"
-export type SosSource="HOTLINE_OPERATOR" | "DIRECT"
+export interface DetailSoSCitizen{
+  id:string
+  trackingCode:string
+  phoneNumber:string
+  victimCount:number
+  injured:boolean
+  trapped:boolean
+  vulnerable:boolean
+  description:string
+  lat:number
+  lon:number
+  address?:string
+  status:string
+  createdAt:string
+  assignments:DetailSoSCitizenItem[]
+}
+
+export interface DetailSoSCitizenItem{
+  groupName:string
+  groupLeaderName:string
+  groupLeaderPhone:string
+  status:string
+  role:String
+}

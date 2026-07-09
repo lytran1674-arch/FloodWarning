@@ -8,7 +8,7 @@ import { toast } from "react-toastify"
 export const useSoS = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [request, setRequest] = useState<ListSOS[]>([])
+  const [request] = useState<ListSOS[]>([])
   const [submit, setSubmitting] = useState(false)
 
   // Tạo mới hoặc cập nhật — BE tự phân biệt qua sodt + clientDeviceId
@@ -26,18 +26,18 @@ export const useSoS = () => {
     }
   }
 
-  const listSosRequest = async () => {
-    try {
-      setLoading(true)
-      setError("")
-      const data = await sosService.getListSosRequest()
-      setRequest(data)
-    } catch (error) {
-      console.log(error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  // const listSosRequest = async () => {
+  //   try {
+  //     setLoading(true)
+  //     setError("")
+  //     const data = await sosService.getListSosRequest()
+  //     setRequest(data)
+  //   } catch (error) {
+  //     console.log(error)
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
 
   
 
@@ -67,7 +67,7 @@ const assignment = async (payload: AssignSos): Promise<boolean> => {
 }
 
   return {
-    listSosRequest,
+    // listSosRequest,
     createSoS,
     updateSoS,
     assignment,

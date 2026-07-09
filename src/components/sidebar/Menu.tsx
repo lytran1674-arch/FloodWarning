@@ -1,5 +1,5 @@
 
-import { SosCallButton } from "@/features/emergency/components/ButtonCall";
+import { CallHotlineButton } from "@/features/emergency/components/test/CallHotlineButton";
 import { useAppSelector } from "@/hooks/redux.hooks";
 
 import type { LucideIcon } from "lucide-react";
@@ -19,6 +19,7 @@ type Props = {
   openMenu: boolean;
   hover?: string;
   bgStyle?: CSSProperties;
+
 };
 
 export const Menu = ({
@@ -26,6 +27,7 @@ export const Menu = ({
   bgColor = "",
   color = "#000000",       // 👈 mặc định đen
   openMenu,
+
   hover = "",
   bgStyle,
 }: Props) => {
@@ -88,7 +90,7 @@ export const Menu = ({
       </ul>
         <div className="lg:mt-[100px] lg:ml-[45px] mt-[200px] ml-[30px]">
             {role&&
-  <SosCallButton/>
+  <CallHotlineButton/>
 }
         </div>
     </div>

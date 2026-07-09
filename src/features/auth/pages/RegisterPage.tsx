@@ -1,8 +1,9 @@
-import { Phone } from "lucide-react";
+
 import SOSImage from "../../../assets/sos.png";
 import { Button } from "../../../components/ui/Button";
 import { RegisterForm } from "../components/RegisterForm";
 import { useNavigate } from "react-router-dom";
+import { CallHotlineButton } from "@/features/emergency/components/test/CallHotlineButton";
 
 
 export const RegisterPage = () => {
@@ -46,7 +47,7 @@ export const RegisterPage = () => {
         />
 
         {/* Nút Gọi 116 */}
-        <Button 
+        {/* <Button 
           className="
             flex items-center justify-center gap-3 
             bg-red-600 hover:bg-red-700 
@@ -63,7 +64,8 @@ export const RegisterPage = () => {
         >
           <Phone className="w-6 h-6" />
           Gọi 116
-        </Button>
+        </Button> */}
+        <CallHotlineButton/>
 
       </div>
     </div>

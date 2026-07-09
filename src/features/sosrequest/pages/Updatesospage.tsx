@@ -1,10 +1,7 @@
 // features/sos/pages/UpdateSOSPage.tsx
-//
-// Nhận: navigate(`/update-sos/${response.id}`, { state: { sosData: response } })
-// PUT  /sos-request/{id}  (Image 4)
 
 import { useLocation, useParams, useNavigate } from "react-router-dom"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useSoS } from "../hooks/useSoS"
 import { toast } from "react-toastify"
 import {
@@ -29,25 +26,15 @@ import ConditionSelector from "../../../components/ui/ConditionSelector"
 import { Input } from "../../../components/ui/Input"
 import { Label } from "../../../components/ui/Label"
 
-// Shape của response từ BE (Image 1, 2, 3)
-interface SoSResponseData {
-  id: string
-  alreadyExists: boolean
-  priority: string
-  status: "PENDING" | "PROCESSING" | string
-  baseSeverityScore: number
-  environmentRisk: string
-  victimCount: number
-  priorityReason: string
-  mota: string
-  createdAt: string
-  sodt?: string
-  injured?: boolean
-  trapped?: boolean
-  vulnerable?: boolean
-  lat?: number
-  lon?: number
-}
+// ======================================================
+// Dùng Record<string, any> thay vì interface cứng, vì dữ liệu
+// có thể đến từ 2 nguồn khác field:
+// - response createSoS (alreadyExists) -> chưa rõ tên field
+// - DetailSoSCitizen (qua getDetailSoSForOwner) -> đã xác nhận
+//   dùng phoneNumber/description (KHÔNG phải sodt/mota)
+// Field-mapping bên dưới fallback cả 2 để an toàn.
+// ======================================================
+type SoSResponseData = Record<string, any>;
 
 const STATUS_MAP: Record<string, { label: string; color: string; dot: string }> = {
   PENDING: {
@@ -82,20 +69,71 @@ export const UpdateSOSPage = () => {
   const { id } = useParams<{ id: string }>()
   const { state } = useLocation()
   const navigate = useNavigate()
-  const { updateSoS, loading } = useSoS()
+  const { updateSoS, getDetailSoSForOwner, loading } = useSoS()
 
-  // Lấy data SOS cũ từ navigate state (BE đã trả về đủ trong response alreadyExists=true)
-  const sosData: SoSResponseData | undefined = state?.sosData
+  const initialSosData: SoSResponseData | undefined = state?.sosData
 
-  // Pre-fill từ sosData
-  const [count, setCount] = useState(sosData?.victimCount ?? 1)
-  const [selected, setSelected] = useState<string[]>(
-    sosData ? conditionsFromData(sosData) : []
-  )
-  const [phone, setPhone] = useState(sosData?.sodt ?? "")
-  const [desc, setDesc] = useState(sosData?.mota ?? "")
-  const [manualLat, setManualLat] = useState(sosData?.lat?.toString() ?? "")
-  const [manualLon, setManualLon] = useState(sosData?.lon?.toString() ?? "")
+  const [sosData, setSosData] = useState<SoSResponseData | undefined>(initialSosData)
+  const [fetchingDetail, setFetchingDetail] = useState(false)
+  const prefillDoneRef = useRef(false)
+
+  const [count, setCount] = useState(1)
+  const [selected, setSelected] = useState<string[]>([])
+  const [phone, setPhone] = useState("")
+  const [desc, setDesc] = useState("")
+  const [manualLat, setManualLat] = useState("")
+  const [manualLon, setManualLon] = useState("")
+
+  // ======================================================
+  // PREFILL FORM TỪ sosData (dùng field-mapping fallback vì
+  // 2 nguồn dữ liệu có thể lệch tên field)
+  // ======================================================
+  const applyPrefill = (data: SoSResponseData) => {
+    setCount(data.victimCount ?? 1)
+    setSelected(conditionsFromData(data))
+    setPhone(data.phoneNumber ?? data.sodt ?? "")
+    setDesc(data.description ?? data.mota ?? "")
+    setManualLat(data.lat != null ? String(data.lat) : "")
+    setManualLon(data.lon != null ? String(data.lon) : "")
+  }
+
+  // ======================================================
+  // Nếu có sẵn state.sosData (vừa navigate từ trang khác) ->
+  // prefill luôn, không cần gọi API.
+  // Nếu KHÔNG có state (F5 lại trang) -> tự gọi
+  // getDetailSoSForOwner(id) để lấy lại dữ liệu, tránh form
+  // hiện trắng trơn.
+  // ======================================================
+  useEffect(() => {
+    if (prefillDoneRef.current) return
+
+    if (initialSosData) {
+      applyPrefill(initialSosData)
+      prefillDoneRef.current = true
+      return
+    }
+
+    if (!id) return
+
+    (async () => {
+      setFetchingDetail(true)
+      try {
+        const detail = await getDetailSoSForOwner(id)
+        if (detail) {
+          setSosData(detail as unknown as SoSResponseData)
+          applyPrefill(detail as unknown as SoSResponseData)
+        } else {
+          toast.error("Không tìm thấy yêu cầu SOS này")
+        }
+      } catch (err) {
+        console.error("Không lấy được dữ liệu SOS cũ:", err)
+        toast.error("Không tải được dữ liệu cũ, vui lòng thử lại")
+      } finally {
+        setFetchingDetail(false)
+        prefillDoneRef.current = true
+      }
+    })()
+  }, [id, initialSosData, getDetailSoSForOwner])
 
   const {
     lat: gpsLat,
@@ -157,13 +195,21 @@ export const UpdateSOSPage = () => {
     }
 
     try {
-      // PUT /sos-request/{id}  (Image 4)
       await updateSoS(id, payload)
       toast.success("Đã cập nhật yêu cầu SOS thành công")
       navigate("/sent-request")
     } catch {
       toast.error("Cập nhật thất bại, vui lòng thử lại")
     }
+  }
+
+  // Đang tải chi tiết (trường hợp F5, chưa có state) -> hiện loading
+  if (fetchingDetail) {
+    return (
+      <div className="max-w-4xl mx-auto mt-10 flex justify-center">
+        <Loader className="w-6 h-6 animate-spin text-red-500" />
+      </div>
+    )
   }
 
   return (

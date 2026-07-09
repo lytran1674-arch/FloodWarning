@@ -2,6 +2,7 @@ import { LoginForm } from "../components/LoginForm";
 import SOSImage from "../../../assets/sos.png";
 import { Button } from "../../../components/ui/Button";
 import { useNavigate } from "react-router-dom";
+import { CallHotlineButton } from "@/features/emergency/components/test/CallHotlineButton";
 
 export const LoginPage = () => {
   const navigate=useNavigate();
@@ -36,6 +37,7 @@ export const LoginPage = () => {
             p-0
           "
         />
+        <CallHotlineButton/>
       </div>
 
       {/* Form đăng nhập */}
