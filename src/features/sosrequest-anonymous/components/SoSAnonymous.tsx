@@ -11,7 +11,7 @@ import {
   Phone,
   MapPin,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import Counter from "../../../components/ui/Counter";
 import React, { useState, useEffect, useRef } from "react";
 import ConditionSelector from "../../../components/ui/ConditionSelector";
@@ -20,8 +20,8 @@ import GeoMap from "../../map/components/GeoMap";
 import { useGeoLocation } from "../../map/hooks/useGeolocation";
 import { toast } from "react-toastify";
 
-import { usesosrequestanonymous } from "../../sosrequest-anonymous/hooks/usesosrequestanonymous";
 import type { SoSRequest } from "@/features/sosrequest/types/sosType";
+import { useSoS } from "@/features/sosrequest/hooks/useSoS";
 
 const showSnackbar = (message: string, type: 'success' | 'error' | 'warning' = 'success') => {
   toast[type](message, {
@@ -35,21 +35,39 @@ const showSnackbar = (message: string, type: 'success' | 'error' | 'warning' = '
   });
 };
 
-// Key dùng chung để lưu định danh thiết bị/số điện thoại anonymous
 const DEVICE_ID_KEY = "deviceId";
 const ANONYMOUS_SODT_KEY = "sos_anonymous_sodt";
 
-// Giới hạn toạ độ Việt Nam (tương đối) để validate cơ bản khi nhập tay
 const VN_LAT_RANGE: [number, number] = [8, 24];
 const VN_LON_RANGE: [number, number] = [102, 110];
 
+// ======================================================
+// LOCATION STATE truyền qua khi navigate từ luồng "alreadyExists"
+// sosData: dữ liệu SOS cũ để prefill lại toàn bộ form.
+// Dùng Record<string, any> vì sosData có thể đến từ response
+// createSoS (SoSResponse, dùng sodt/mota) HOẶC từ DetailSoSCitizen
+// (qua getDetailSoSForOwner, dùng phoneNumber/description) —
+// 2 nguồn lệch tên field, nên field-mapping xử lý fallback cả 2.
+// ======================================================
+interface UpdateLocationState {
+  sosData?: Record<string, any>;
+  sodt?: string;
+  clientDeviceId?: string;
+}
+
 export const SOSRequestAnonymous = () => {
+  // id có trên URL (/update-sos/:id) -> đang ở chế độ CẬP NHẬT
+  const { id: sosIdParam } = useParams<{ id?: string }>();
+  const location = useLocation();
+  const locationState = (location.state as UpdateLocationState | null) ?? {};
+
+  const isEditMode = !!sosIdParam;
+
   const [count, setCount] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
   const [phone, setPhone] = useState("");
   const [desc, setDesc] = useState("");
 
-  // Toạ độ nhập tay (thay cho việc nhập địa chỉ + geocode)
   const [manualLat, setManualLat] = useState("");
   const [manualLon, setManualLon] = useState("");
 
@@ -59,7 +77,10 @@ export const SOSRequestAnonymous = () => {
     coords?: string;
   }>({});
 
-  const { loading, createSosAnonymous } = usesosrequestanonymous();
+  // getDetailSoSForOwner trả về DetailSoSCitizen — tự chọn đúng
+  // API /my hoặc /anonymous theo trạng thái đăng nhập
+  const { loading, createSoS, updateSoS, getDetailSoSForOwner } = useSoS();
+
   const {
     lat,
     lon,
@@ -69,21 +90,80 @@ export const SOSRequestAnonymous = () => {
   } = useGeoLocation();
 
   const fetchedRef = useRef<boolean>(false);
+  const prefillDoneRef = useRef<boolean>(false);
   const navigate = useNavigate();
 
-  // Khôi phục số điện thoại đã nhập lần trước (nếu có), tiện cho người dùng không phải gõ lại
+  // ======================================================
+  // PREFILL DỮ LIỆU CŨ KHI Ở CHẾ ĐỘ CẬP NHẬT
+  // Ưu tiên dùng sosData có sẵn trong location.state (không cần
+  // gọi lại API); nếu người dùng vào thẳng URL /update-sos/:id
+  // mà không qua navigate (F5 lại trang, không có state) thì
+  // tự gọi getDetailSoSForOwner(id) để lấy lại dữ liệu.
+  //
+  // Field xác nhận qua Postman cho DetailSoSCitizen:
+  // phoneNumber, description, lat, lon, victimCount,
+  // injured, trapped, vulnerable (KHÔNG phải sodt/mota).
+  // Vẫn giữ fallback ?? sodt / ?? mota phòng trường hợp
+  // sosData đến từ response createSoS (SoSResponse) dùng tên
+  // field khác.
+  // ======================================================
   useEffect(() => {
+    if (!isEditMode || prefillDoneRef.current) return;
+
+    const prefillFromData = (data: Record<string, any>) => {
+      setPhone(data.phoneNumber ?? data.sodt ?? "");
+      setDesc(data.description ?? data.mota ?? "");
+      setCount(data.victimCount ?? 1);
+
+      const restoredSelected: string[] = [];
+      if (data.injured) restoredSelected.push("Bị thương");
+      if (data.trapped) restoredSelected.push("Mắc kẹt");
+      if (data.vulnerable) restoredSelected.push("Có người già/trẻ em/mang thai");
+      setSelected(restoredSelected);
+
+      if (data.lat != null && data.lon != null) {
+        setManualLat(String(data.lat));
+        setManualLon(String(data.lon));
+      }
+
+      prefillDoneRef.current = true;
+    };
+
+    if (locationState.sosData) {
+      // có sẵn dữ liệu truyền qua navigate -> dùng luôn, khỏi gọi API
+      prefillFromData(locationState.sosData);
+    } else if (sosIdParam) {
+      // không có state (F5 lại trang) -> gọi API lấy lại chi tiết,
+      // tự chọn đúng /my hoặc /anonymous theo trạng thái đăng nhập
+      (async () => {
+        try {
+          const detail = await getDetailSoSForOwner(sosIdParam);
+          if (detail) prefillFromData(detail as unknown as Record<string, any>);
+        } catch (err) {
+          console.error("Không lấy được dữ liệu SOS cũ:", err);
+          showSnackbar("Không tải được dữ liệu cũ, vui lòng nhập lại", "warning");
+        }
+      })();
+    }
+  }, [isEditMode, sosIdParam, locationState.sosData, getDetailSoSForOwner]);
+
+  // Khôi phục sđt đã lưu — CHỈ áp dụng khi tạo mới, không ghi đè
+  // lên sđt vừa prefill ở chế độ cập nhật
+  useEffect(() => {
+    if (isEditMode) return;
     const savedPhone = localStorage.getItem(ANONYMOUS_SODT_KEY);
     if (savedPhone) setPhone(savedPhone);
-  }, []);
+  }, [isEditMode]);
 
+  // Tự động lấy GPS CHỈ khi tạo mới (không có tọa độ cũ để prefill).
+  // Ở chế độ cập nhật, đã có tọa độ cũ điền sẵn, không cần tự bấm GPS.
   useEffect(() => {
+    if (isEditMode) return;
     if (fetchedRef.current) return;
     fetchedRef.current = true;
     getLocation();
-  }, [getLocation]);
+  }, [isEditMode, getLocation]);
 
-  // Parse toạ độ nhập tay
   const parsedManualLat = manualLat.trim() !== "" ? Number(manualLat) : null;
   const parsedManualLon = manualLon.trim() !== "" ? Number(manualLon) : null;
 
@@ -101,15 +181,11 @@ export const SOSRequestAnonymous = () => {
     parsedManualLon >= VN_LON_RANGE[0] &&
     parsedManualLon <= VN_LON_RANGE[1];
 
-  // Chỉ coi là "đang dùng toạ độ nhập tay" khi cả 2 giá trị hợp lệ
   const isUsingManualCoords = isManualLatValid && isManualLonValid;
 
-  // Nếu có toạ độ nhập tay hợp lệ -> ưu tiên dùng, bỏ qua GPS
   const effectiveLat = isUsingManualCoords ? parsedManualLat : lat;
   const effectiveLon = isUsingManualCoords ? parsedManualLon : lon;
 
-  // GPS bị disable khi người dùng đã nhập tay toạ độ (kể cả khi chưa đủ/ chưa hợp lệ,
-  // để tránh vừa nhập tay vừa lỡ tay bấm GPS ghi đè)
   const isGpsDisabled = hasManualInput;
 
   const validateForm = (): boolean => {
@@ -127,7 +203,6 @@ export const SOSRequestAnonymous = () => {
     }
 
     if (hasManualInput) {
-      // Người dùng đã chọn nhập tay -> phải nhập đủ và hợp lệ cả lat lẫn lon
       if (!isManualLatValid || !isManualLonValid) {
         errors.coords = "Toạ độ nhập tay không hợp lệ. Vĩ độ 8-24, Kinh độ 102-110";
       }
@@ -154,8 +229,9 @@ export const SOSRequestAnonymous = () => {
       return;
     }
 
-    // Lấy hoặc tạo mới clientDeviceId — định danh thiết bị cho người chưa đăng nhập
-    let deviceId = localStorage.getItem(DEVICE_ID_KEY);
+    let deviceId =
+      locationState.clientDeviceId || localStorage.getItem(DEVICE_ID_KEY);
+
     if (!deviceId) {
       deviceId = crypto.randomUUID();
       localStorage.setItem(DEVICE_ID_KEY, deviceId);
@@ -174,12 +250,18 @@ export const SOSRequestAnonymous = () => {
       mota: desc,
     };
 
-    console.log(payload);
-
     try {
-      const response = await createSosAnonymous(payload);
+      if (isEditMode && sosIdParam) {
+        // CHẾ ĐỘ CẬP NHẬT
+        await updateSoS(sosIdParam, payload);
+        localStorage.setItem(ANONYMOUS_SODT_KEY, phone);
+        showSnackbar("Cập nhật yêu cầu SOS thành công!", "success");
+        navigate("/sent-request-anonymous", { state: { updated: true } });
+        return;
+      }
 
-      // Lưu lại sodt để dùng cho việc xem/hủy yêu cầu sau này
+      // CHẾ ĐỘ TẠO MỚI
+      const response = await createSoS(payload);
       localStorage.setItem(ANONYMOUS_SODT_KEY, phone);
 
       if (response?.alreadyExists) {
@@ -216,24 +298,12 @@ export const SOSRequestAnonymous = () => {
     <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg border p-2 sm:p-6 lg:p-8 mt-5">
       <form className="space-y-2" onSubmit={handleSubmit}>
         <h2 className="text-center text-red-600 text-xl sm:text-2xl lg:text-3xl font-bold">
-          CỨU HỘ KHẨN CẤP
+          {isEditMode ? "CẬP NHẬT YÊU CẦU CỨU HỘ" : "CỨU HỘ KHẨN CẤP"}
         </h2>
-
-        {/* Thông báo dành riêng cho khách chưa đăng nhập */}
-        <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
-          <TriangleAlert className="text-amber-500 w-4 h-4 mt-0.5 shrink-0" />
-          <p className="text-xs text-amber-700">
-            Bạn đang gửi yêu cầu với tư cách khách. Vui lòng nhập đúng số điện thoại
-            để có thể xem lại hoặc hủy yêu cầu sau này trên cùng thiết bị.
-          </p>
-        </div>
 
         {/* Vị trí */}
         <section className="space-y-3">
-          <Label
-            icon={Map}
-            className="text-red-600 font-semibold text-lg lg:text-xl sm:text-sm"
-          >
+          <Label icon={Map} className="text-red-600 font-semibold text-lg lg:text-xl sm:text-sm">
             Vị trí
           </Label>
 
@@ -330,7 +400,7 @@ export const SOSRequestAnonymous = () => {
           {isUsingManualCoords && (
             <p className="text-xs text-blue-600 flex items-center gap-1 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
               <MapPin className="w-3 h-3" />
-              Đang dùng toạ độ nhập tay: {parsedManualLat?.toFixed(5)}, {parsedManualLon?.toFixed(5)}
+              Đang dùng toạ độ: {parsedManualLat?.toFixed(5)}, {parsedManualLon?.toFixed(5)}
             </p>
           )}
           {validationErrors.coords && (
@@ -377,19 +447,12 @@ export const SOSRequestAnonymous = () => {
               Tình trạng
             </p>
           </div>
-          <ConditionSelector
-            options={options}
-            values={selected}
-            onToggle={handleToggle}
-          />
+          <ConditionSelector options={options} values={selected} onToggle={handleToggle} />
         </section>
 
-        {/* SĐT — bắt buộc nhập tay vì chưa có tài khoản */}
+        {/* SĐT */}
         <section className="space-y-3">
-          <Label
-            icon={PhoneCall}
-            className="text-red-600 font-semibold text-lg sm:text-sm lg:text-xl"
-          >
+          <Label icon={PhoneCall} className="text-red-600 font-semibold text-lg sm:text-sm lg:text-xl">
             Số điện thoại
           </Label>
           <Input
@@ -405,10 +468,7 @@ export const SOSRequestAnonymous = () => {
 
         {/* Mô tả */}
         <section className="space-y-3">
-          <Label
-            icon={FileText}
-            className="text-red-600 font-semibold text-lg sm:text-sm lg:text-xl"
-          >
+          <Label icon={FileText} className="text-red-600 font-semibold text-lg sm:text-sm lg:text-xl">
             Mô tả tình trạng
           </Label>
           <textarea
@@ -433,7 +493,7 @@ export const SOSRequestAnonymous = () => {
           }`}
         >
           {isSubmitting ? <Loader className="w-5 h-5 animate-spin" /> : <Phone />}
-          GỬI SOS
+          {isEditMode ? "CẬP NHẬT SOS" : "GỬI SOS"}
         </button>
       </form>
     </div>

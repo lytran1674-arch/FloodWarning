@@ -1,5 +1,5 @@
 import type { CancelResponse } from "@/features/sosrequest-anonymous/types/sosanonymousType"
-import type { AssignSos, DetailSos, DetailSoSCitizen, SoSRequest, SoSResponse } from "../types/sosType"
+import type { AssignSos, DetailSos, DetailSoSCitizen, SentedSupportRequest, SoSRequest, SoSResponse } from "../types/sosType"
 import { axiosClient, publicApi } from "@/api/axiosClient"
 
 const API_URL = "/sos-request"
@@ -53,5 +53,11 @@ export const SoSAPI = {
   async getDetailSoS(sosId:string):Promise<DetailSoSCitizen>{
     const response=await axiosClient.get(`${API_URL}/my/${sosId}`)
     return response.data.result
+  },
+
+  // yêu cầu hỗ trợ đã gửi 
+  async SentedSupportRequest():Promise<SentedSupportRequest[]>{
+    const response=await axiosClient.get("/support-request/my-created")
+    return response.data.result?.content??[]
   }
 }

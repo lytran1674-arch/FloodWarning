@@ -38,6 +38,7 @@ export const LoginForm: React.FC = () => {
       const { accessToken, role, authenticated, hoten, id, areaId, teamId, teamName, isTeamLeader, isGroupLeader, sodt,groupType, refreshToken } = res.data.result
       console.log("LOGIN RESULT:", res.data.result);
 
+
       if (!authenticated) {
         setError("Đăng nhập thất bại!")
         return
@@ -48,6 +49,8 @@ export const LoginForm: React.FC = () => {
 
       // Lưu userId riêng vào localStorage — dùng để fcmService biết token hiện tại thuộc về ai
       localStorage.setItem("userId", id)
+      localStorage.removeItem("sos_anonymous_sodt");
+localStorage.removeItem("deviceId");
 
       // Gửi lại FCM token đang chờ (nếu trước đó user đã cho phép thông báo lúc chưa đăng nhập),
       // hoặc cập nhật lại chủ sở hữu token nếu thiết bị này vừa được dùng bởi user khác trước đó

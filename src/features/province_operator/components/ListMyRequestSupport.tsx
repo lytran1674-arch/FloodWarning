@@ -1,7 +1,7 @@
 // src/features/province_operator/pages/ListMyRequestSupport.tsx
 
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+
 import { useRequestSupport } from "../hooks/useRequestSupport";
 import { useAppSelector } from "@/hooks/redux.hooks";
 import { useGroup } from "@/features/rescue/hooks/useGroup";
@@ -38,8 +38,14 @@ const matchesSupportType = (g: Group, supportType: string): boolean => {
       return false;
   }
 };
+interface Props {
+  onSelectSos: (sosId: string) => void;
+}
 
-export default function ListMyRequestSupport() {
+
+export default function ListMyRequestSupport({
+  onSelectSos,
+}: Props) {
   const {
     requestsupport,
     loading,
@@ -48,7 +54,7 @@ export default function ListMyRequestSupport() {
     assignGroupToRequest,
   } = useRequestSupport();
 
-  const navigate = useNavigate();
+
   const user = useAppSelector((state) => state.auth.user);
   const isLeaderTeam = user?.isTeamLeader === true;
 const [, setAssignSuccess] = useState<string | null>(null);
@@ -354,12 +360,18 @@ const closeAssignModal = () => {
       </button>
     )}
 
-  <button
-    onClick={() => navigate(`/support-request/${request.id}`)}
-    className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
-  >
-    Xem chi tiết
-  </button>
+ <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    onSelectSos(request.sosId);
+  }}
+  className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+>
+  Xem chi tiết
+</button>
 </div>
             </div>
           ))}

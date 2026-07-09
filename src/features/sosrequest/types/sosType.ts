@@ -1,3 +1,5 @@
+
+
 export type SosStatus =
   | "PENDING"
   | "DONE"
@@ -150,4 +152,31 @@ export interface DetailSoSCitizenItem{
   groupLeaderPhone:string
   status:string
   role:String
+}
+
+export interface SentedSupportRequest{
+  id:string
+  sosId:string
+  status:string
+  reason:string
+  createdAt:string
+  reviewedAt:string
+  items:SupportRequestItem[]
+}
+
+export interface SupportRequestItem{
+  id:string
+  supportType:string
+  status:string
+  requiredGroupCount:number
+  assignedGroupCount:number
+  assignedTeamName:number
+  provinceNote:string
+  teamResponse:string
+  assignedGroups:Assign[]
+}
+export interface Assign{
+  groupId:string
+  groupName:string
+  status:string
 }

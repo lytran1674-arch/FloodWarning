@@ -290,7 +290,7 @@ export const useSoS = () => {
     // custom setters
     setRequest,
     setDetailSOS,
-
+detailSOSCitizen,
     // cancel result
     cancel,
     getDetailSoSForOwner

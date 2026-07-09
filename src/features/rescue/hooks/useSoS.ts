@@ -1,15 +1,18 @@
 // features/sos/hooks/useSoS.ts
 
-import { useState } from "react"
-import type { AssignSos, ListSOS, SoSRequest, SoSResponse } from "../../sosrequest/types/sosType"
+import { useEffect, useState } from "react"
+import type { AssignSos, ListSOS, SentedSupportRequest, SoSRequest, SoSResponse } from "../../sosrequest/types/sosType"
 import { sosService } from "../../sosrequest/services/sosService"
 import { toast } from "react-toastify"
+
+import { SoSAPI } from "@/features/sosrequest/api/sosApi"
 
 export const useSoS = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [request] = useState<ListSOS[]>([])
   const [submit, setSubmitting] = useState(false)
+   const [requests, setRequests] = useState<SentedSupportRequest[]>([]);
 
   // Tạo mới hoặc cập nhật — BE tự phân biệt qua sodt + clientDeviceId
   // Trả về SoSResponse với alreadyExists để FormSOS xử lý navigate
@@ -26,6 +29,19 @@ export const useSoS = () => {
     }
   }
 
+  const fetchData = async () => {
+    setLoading(true);
+
+    try {
+      const data = await SoSAPI.SentedSupportRequest();
+      setRequests(data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  
+
   // const listSosRequest = async () => {
   //   try {
   //     setLoading(true)
@@ -40,6 +56,9 @@ export const useSoS = () => {
   // }
 
   
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const updateSoS = async (
     id: string,
@@ -75,5 +94,7 @@ const assignment = async (payload: AssignSos): Promise<boolean> => {
     loading,
     error,
     request,
+    requests,
+    refresh:fetchData
   }
 }

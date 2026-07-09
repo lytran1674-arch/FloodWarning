@@ -51,6 +51,9 @@ import { SOSRequestAnonymous } from "@/features/sosrequest-anonymous/components/
 import { FormSOS } from "@/features/sosrequest/components/FormSos"
 import { UpdateSOSPageAnonymous } from "@/features/sosrequest-anonymous/pages/UpdateSosPage"
 import { UpdateSOSPage } from "@/features/sosrequest/pages/Updatesospage"
+import {MySupportRequestCard} from "@/features/rescue/pages/MyRequestSupportCard"
+
+import {FloodRiskThreeDayCard} from "@/features/citizen/component/Floodriskthreedaycard"
 
 
 
@@ -106,10 +109,12 @@ const AppRoutes = () => {
          <Route path="/support-request" element={<MyRequestSupportPage/>}/>
         <Route path="/account" element={<AccountPage/>}/>
         <Route path="/information-team" element={<InfTeamPage/>}/>
+        <Route path="/predict" element={<FloodRiskThreeDayCard/>}/>
 
         {/**Trang danh sách thành viên chưa có group */} 
         <Route path="/team/:teamId/available-members" element={<MemberWithoutGroupPage/>} />
         <Route path="/hotline" element={<HotlineOperatorDashboard/>}/>
+        <Route path="/sent-requestsupport" element={<MySupportRequestCard/>}/>
         </Route>
        
       </Routes>

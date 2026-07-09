@@ -3,9 +3,11 @@ import { useUserProvince } from "../../map/hooks/useUserProvince"
 //import { StatusSoS } from "../components/StatusSoS"
 import AssigmentCard from "../components/AsssignGroup"
 import ListMyRequestSupport from "@/features/province_operator/components/ListMyRequestSupport"
+import SosDetailPanel from "../components/SosDetailMoPanel"
+import { useState } from "react"
 
 export const MyRequestSupportPage = () => {
-
+  const [selectedSosId, setSelectedSosId] = useState<string | null>(null);
   const {
     gpsArea,
     parentArea,
@@ -32,10 +34,18 @@ export const MyRequestSupportPage = () => {
         <div className="w-full xl:flex-1 gap-2 flex lg:justify-start">
           <div className="flex-wrap space-y-2">
            {/* <StatusSoS />*/}
-            <ListMyRequestSupport/>
-            <AssigmentCard/>
+            <ListMyRequestSupport
+  onSelectSos={setSelectedSosId}
+/>
+            <AssigmentCard
+            selectedSosId={selectedSosId}
+            onSelectSos={setSelectedSosId}
+          />
             
             </div>
+             <div className="w-full xl:w-1/2 xl:sticky xl:top-4">
+          <SosDetailPanel sosId={selectedSosId} />
+        </div>
        </div>
        </div>
         

@@ -33,6 +33,8 @@ export const LogOut = ({ className }: Props) => {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("userId");
+            localStorage.removeItem("sos_anonymous_sodt");
+localStorage.removeItem("deviceId");
 
       dispatch(logout());
       setLoading(false);

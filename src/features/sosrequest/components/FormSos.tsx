@@ -22,6 +22,7 @@ import { toast } from "react-toastify";
 
 import type { SoSRequest } from "@/features/sosrequest/types/sosType";
 import { useSoS } from "../hooks/useSoS";
+import { useAppSelector } from "@/hooks/redux.hooks";
 
 const showSnackbar = (message: string, type: 'success' | 'error' | 'warning' = 'success') => {
   toast[type](message, {
@@ -92,6 +93,8 @@ export const FormSOS = () => {
   const fetchedRef = useRef<boolean>(false);
   const prefillDoneRef = useRef<boolean>(false);
   const navigate = useNavigate();
+  const user=useAppSelector((state)=>state.auth.user)
+
 
   // ======================================================
   // PREFILL DỮ LIỆU CŨ KHI Ở CHẾ ĐỘ CẬP NHẬT
@@ -456,7 +459,7 @@ export const FormSOS = () => {
             Số điện thoại
           </Label>
           <Input
-            value={phone}
+           value={user?.sodt ?? ""}
             onChange={setPhone}
             placeholder="Nhập số điện thoại liên hệ"
             className="w-full"

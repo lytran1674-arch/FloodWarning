@@ -6,9 +6,12 @@ import { PendingCallsList } from "../../components/test/PendingCallsList";
 import { CallHistoryList } from "../../components/test/CallHistoryList";
 import { CreateSosFromCallDrawer } from "../../components/test/CreateSosFromCallDrawerProps ";
 import { CreateManualSosModal } from "../../components/test/CreateManualSosModal";
+import { useAppSelector } from "@/hooks/redux.hooks";
 
 
 export default function HotlineOperatorDashboard() {
+  const user=useAppSelector((state)=>state.auth.user)
+  const groupType=user?.groupType==="HOTLINE"
   const [selectedCallEventId, setSelectedCallEventId] = useState<string | null>(
     null
   );
@@ -29,12 +32,14 @@ export default function HotlineOperatorDashboard() {
         <h1 className="text-2xl font-bold text-red-600">
           Bảng điều khiển Hotline
         </h1>
+        {groupType&&(
         <Button
           icon={<PhoneCall size={16} />}
           onClick={() => setManualModalOpen(true)}
         >
           Tạo SOS thủ công
         </Button>
+        )}
       </div>
 
       <Tabs

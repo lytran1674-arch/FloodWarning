@@ -38,7 +38,11 @@ export default function SoSCard() {
       setLoading(true);
       const res = await axiosClient.get("/sos-request/team");
 
-      setSosList(res.data.result.content || []);
+     const allSOS = res.data.result.content || [];
+
+setSosList(
+  allSOS.filter((sos: TeamSOS) => sos.status === "PENDING")
+);
     } catch (err) {
       console.error(err);
     } finally {
@@ -96,6 +100,7 @@ export default function SoSCard() {
           "
         >
           {sosList.map((sos) => (
+            
             <div
               key={sos.id}
               className={`border rounded-xl p-2 shadow-sm transition-colors ${priorityCardStyle(
@@ -128,6 +133,7 @@ export default function SoSCard() {
                 >
                   {sos.priority}
                 </span>
+                
                 <button
                   onClick={() =>
                     navigate(`/sos-assign/${sos.id}`)
