@@ -8,7 +8,7 @@ import type {
   SosHotlineCreateResult,
   SosHotlineRequestPayload,
 } from "../types/emergencyType";
-import type { SoSRequestHotLine } from "@/features/sosrequest/types/sosType";
+import type { SoSRequestHotLine, SoSResponse } from "@/features/sosrequest/types/sosType";
 
 const API_URL = "/hotline";
 
@@ -69,4 +69,30 @@ export const emergencyApi = {
     });
     return response.data.result?.content ?? [];
   },
+
+  // tra trạng thái sos cho hotline
+  //theo từ khóa
+
+  async KeyWord(keyword:string):Promise<SoSResponse>{
+    const response=await publicApi.get(`${API_URL}/sos/search`,
+      {params:keyword}
+    )
+    return response.data.result?.content??[]
+  },
+
+  //theo trạng thái
+  async Status(status:string):Promise<SoSResponse>{
+    const response=await publicApi.get(`${API_URL}/sos/search/`,
+      {params:status}
+    )
+    return response.data.result?.content??[]
+  },
+
+  //theo số điện thoại và trạng thái
+  async KeyWordAndStatus(keyword:string,status:string):Promise<SoSResponse>{
+    const response=await publicApi.get(`${API_URL}/sos/search`,{
+      params:{keyword,status}
+    })
+    return response.data.result?.content??[]
+  }
 };

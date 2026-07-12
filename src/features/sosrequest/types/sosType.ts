@@ -43,7 +43,7 @@ export interface SoSResponse {
   alreadyExists: boolean
   priority: SosPriority
   status: SosStatus
-  baseSeverityScore: number
+  baseSeverityScore?: number
   environmentRisk: string
   victimCount: number
   priorityReason: string

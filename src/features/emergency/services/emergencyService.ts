@@ -1,4 +1,4 @@
-import type { SoSRequestHotLine } from "@/features/sosrequest/types/sosType";
+import type { SoSRequestHotLine, SoSResponse } from "@/features/sosrequest/types/sosType";
 import { emergencyApi } from "../api/emergencyApi";
 import type { DetailHotlineCall, EmergencyContactRequest, EmergencyContactResult, HotlineCallStatus, SosHotlineCreateResult, SosHotlineRequestPayload } from "../types/emergencyType";
 
@@ -34,5 +34,20 @@ export const emergencyService ={
   async getMyActiveSosByPhone(sodt:string):Promise<SoSRequestHotLine[]>{
     return await emergencyApi.getMyActiveSosByPhone(sodt);
   }
+  ,
 
+  // tra cứu sos theo từ khóa
+  async trackingCode(keyword:string):Promise<SoSResponse>{
+    return emergencyApi.KeyWord(keyword);
+  }
+  ,
+  //theo trạng thái
+  async Status(status:string):Promise<SoSResponse>{
+    return emergencyApi.Status(status);
+  },
+
+  // theo số điện thoại và trạng thái
+  async KeywordandStatus(keyword:string,status:string):Promise<SoSResponse>{
+    return emergencyApi.KeyWordAndStatus(keyword,status);
+  }
 }

@@ -59,5 +59,11 @@ export const SoSAPI = {
   async SentedSupportRequest():Promise<SentedSupportRequest[]>{
     const response=await axiosClient.get("/support-request/my-created")
     return response.data.result?.content??[]
-  }
+  },
+  ///tra cứu sos theo mã tracking cho người dân 
+  async trackingCode(trackingCode:string):Promise<SoSResponse>{
+    const response=await publicApi.get(`${API_URL}/tracking/${trackingCode}`)
+    return response.data.result;
+  },
+
 }

@@ -34,6 +34,10 @@ export const sosService = {
   async cancelSosRequest(sosId: string): Promise<CancelResponse> {
     return await SoSAPI.cancelSosRequest(sosId)
   },
+  //tra cứu trackingCode
+  async trackingCode(trackingCode:string):Promise<SoSResponse>{
+    return SoSAPI.trackingCode(trackingCode);
+  }
 
   
 }
