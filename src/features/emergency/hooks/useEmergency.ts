@@ -2,6 +2,7 @@
 import { useState, useCallback } from "react";
 import { emergencyService } from "../services/emergencyService";
 
+
 export const useEmergency = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

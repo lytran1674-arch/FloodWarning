@@ -7,6 +7,8 @@ import type {
   HotlineCallStatus,
   SosHotlineCreateResult,
   SosHotlineRequestPayload,
+  StatusHotLineSoS,
+  UpdateSoSHotlinePayLoad,
 } from "../types/emergencyType";
 import type { SoSRequestHotLine, SoSResponse } from "@/features/sosrequest/types/sosType";
 
@@ -73,26 +75,44 @@ export const emergencyApi = {
   // tra trạng thái sos cho hotline
   //theo từ khóa
 
-  async KeyWord(keyword:string):Promise<SoSResponse>{
-    const response=await publicApi.get(`${API_URL}/sos/search`,
-      {params:keyword}
+  async KeyWord(keyword:string):Promise<SoSResponse[]>{
+    const response=await axiosClient.get(`${API_URL}/sos/search`,
+      {params:{keyword}}
     )
     return response.data.result?.content??[]
   },
 
   //theo trạng thái
-  async Status(status:string):Promise<SoSResponse>{
-    const response=await publicApi.get(`${API_URL}/sos/search/`,
-      {params:status}
+  async Status(status:string):Promise<SoSResponse[]>{
+    const response=await axiosClient.get(`${API_URL}/sos/search`,
+      {params:{status}}
     )
     return response.data.result?.content??[]
   },
 
   //theo số điện thoại và trạng thái
-  async KeyWordAndStatus(keyword:string,status:string):Promise<SoSResponse>{
-    const response=await publicApi.get(`${API_URL}/sos/search`,{
+  async KeyWordAndStatus(keyword:string,status:string):Promise<SoSResponse[]>{
+    const response=await axiosClient.get(`${API_URL}/sos/search`,{
       params:{keyword,status}
     })
     return response.data.result?.content??[]
+  },
+
+  // hiển thị trạng thái để hotine tra cứu
+  async getStaus():Promise<StatusHotLineSoS[]>{
+    const response=await axiosClient.get(`${API_URL}/status-options`);
+    return response.data.result??[]
+  },
+
+  //danh sách sos do nhóm hotline tạo thủ công 
+  async getListSoSHotlineCreate():Promise<SoSResponse[]>{
+    const response=await axiosClient.get(`${API_URL}/manual-sos`)
+    return response.data.result?.content??[];
+  },
+
+  // cập nhật sos do hotline cập nhật
+  async soshotlineupdate(sosId:string,payload:UpdateSoSHotlinePayLoad):Promise<SoSResponse>{
+    const response=await axiosClient.put(`${API_URL}/sos/${sosId}`,payload)
+    return response.data.result;
   }
 };

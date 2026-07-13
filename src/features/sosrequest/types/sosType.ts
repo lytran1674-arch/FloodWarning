@@ -5,6 +5,7 @@ export type SosStatus =
   | "DONE"
   | "PROCESSING"
   | "CANCELLED"
+  | "ASSIGNED"
 
 export type SosPriority =
   | "CRITICAL"
@@ -58,6 +59,7 @@ export interface SoSResponse {
   injured?: boolean
   trapped?: boolean
   vulnerable?: boolean
+  diachi?:string
 }
 
 export interface ListSOS {

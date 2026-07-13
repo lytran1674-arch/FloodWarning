@@ -27,14 +27,14 @@ export const LogOut = ({ className }: Props) => {
     } finally {
       // Xóa sạch FCM token + unregister Service Worker TRƯỚC khi xóa accessToken,
       // vì deleteToken(messaging) cần Firebase vẫn còn nhận diện được app instance hiện tại
-      await clearFcmTokenOnLogout();
+
 
       localStorage.removeItem("user");
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("userId");
-            localStorage.removeItem("sos_anonymous_sodt");
-localStorage.removeItem("deviceId");
+      localStorage.removeItem("sos_anonymous_sodt");
+      localStorage.removeItem("deviceId");
 
       dispatch(logout());
       setLoading(false);

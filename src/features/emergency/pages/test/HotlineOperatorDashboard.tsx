@@ -7,9 +7,14 @@ import { CallHistoryList } from "../../components/test/CallHistoryList";
 import { CreateSosFromCallDrawer } from "../../components/test/CreateSosFromCallDrawerProps ";
 import { CreateManualSosModal } from "../../components/test/CreateManualSosModal";
 import { useAppSelector } from "@/hooks/redux.hooks";
+import { TraCuuSoS } from "../../components/TraCuuSoS";
+import { ListSoSHotline } from "../../components/ListSoSHotline";
+import { useListSoSHotlineCreated } from "../../hooks/useListSoSHotlineCreated";
+
 
 
 export default function HotlineOperatorDashboard() {
+   const {soshotline}=useListSoSHotlineCreated();
   const user=useAppSelector((state)=>state.auth.user)
   const groupType=user?.groupType==="HOTLINE"
   const [selectedCallEventId, setSelectedCallEventId] = useState<string | null>(
@@ -55,6 +60,16 @@ export default function HotlineOperatorDashboard() {
             label: "Lịch sử",
             children: <CallHistoryList />,
           },
+          {
+            key:"search",
+            label:"Tra cứu SoS",
+            children:<TraCuuSoS/>
+          },
+          {
+            key:"list",
+            label:"Danh sách SoS",
+            children:<ListSoSHotline data={soshotline}/>
+          }
         ]}
       />
 

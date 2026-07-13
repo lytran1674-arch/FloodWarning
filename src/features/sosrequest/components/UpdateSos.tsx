@@ -167,7 +167,7 @@
 //             Bạn đã có yêu cầu SOS đang chờ xử lý
 //           </p>
 //           <p className="text-xs text-orange-500 mt-0.5">
-//             Cập nhật thông tin mới nhất để đội cứu hộ hỗ trợ chính xác hơn.
+//             Cập nhật thông tin mới nhất để đội cứ uhộ hỗ trợ chính xác hơn.
 //             {sosId && (
 //               <span className="ml-1 font-mono opacity-60">#{sosId.slice(0, 8)}...</span>
 //             )}

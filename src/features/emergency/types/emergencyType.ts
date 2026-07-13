@@ -76,3 +76,19 @@ export interface DetailHotlineCall {
   status: HotlineCallStatus;
   createdAt: string;
 }
+export interface StatusHotLineSoS{
+  label:string
+  value:string
+}
+
+export interface UpdateSoSHotlinePayLoad{
+sodt?:string
+lat?:number
+lon?:number
+diachi?:string
+victimCount?:number
+injured?:boolean
+trapped?:boolean
+vulnerable?:boolean
+mota?:string
+}

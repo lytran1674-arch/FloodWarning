@@ -1,6 +1,6 @@
 import type { SoSRequestHotLine, SoSResponse } from "@/features/sosrequest/types/sosType";
 import { emergencyApi } from "../api/emergencyApi";
-import type { DetailHotlineCall, EmergencyContactRequest, EmergencyContactResult, HotlineCallStatus, SosHotlineCreateResult, SosHotlineRequestPayload } from "../types/emergencyType";
+import type { DetailHotlineCall, EmergencyContactRequest, EmergencyContactResult, HotlineCallStatus, SosHotlineCreateResult, SosHotlineRequestPayload, StatusHotLineSoS, UpdateSoSHotlinePayLoad } from "../types/emergencyType";
 
 
 export const emergencyService ={
@@ -37,17 +37,32 @@ export const emergencyService ={
   ,
 
   // tra cứu sos theo từ khóa
-  async trackingCode(keyword:string):Promise<SoSResponse>{
+  async trackingCode(keyword:string):Promise<SoSResponse[]>{
     return emergencyApi.KeyWord(keyword);
   }
   ,
   //theo trạng thái
-  async Status(status:string):Promise<SoSResponse>{
+  async Status(status:string):Promise<SoSResponse[]>{
     return emergencyApi.Status(status);
   },
 
   // theo số điện thoại và trạng thái
-  async KeywordandStatus(keyword:string,status:string):Promise<SoSResponse>{
+  async KeywordandStatus(keyword:string,status:string):Promise<SoSResponse[]>{
     return emergencyApi.KeyWordAndStatus(keyword,status);
-  }
+  },
+
+  //hiển thị trạng thái để hotline tra cứu
+  async getStatus():Promise<StatusHotLineSoS[]>{
+    return emergencyApi.getStaus();
+  },
+
+    //danh sách sos do nhóm hotline tạo thủ công
+    async getListSoSHotlineCreated():Promise<SoSResponse[]>{
+      return emergencyApi.getListSoSHotlineCreate();
+    },
+
+    // cập nhật sos do hotline cập nhật
+    async soshotlineupdate(sosId:string,payload:UpdateSoSHotlinePayLoad):Promise<SoSResponse>{
+      return emergencyApi.soshotlineupdate(sosId,payload);
+    }
 }

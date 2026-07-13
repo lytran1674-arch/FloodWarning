@@ -43,12 +43,14 @@ async importRescuers(teamId: string, file: File) {
 },
 async PickLeader(
   teamId: string,
-  userId: string
+  leaderId: string,
+  deputyLeaderId:string
 ) {
   const response = await axiosClient.put(
     `${API_URL}/res-team/${teamId}/leader`,
     {
-      userId,
+      leaderId,
+      deputyLeaderId
     }
   );
 
@@ -148,5 +150,7 @@ async removeMemberGroup(groupId:string,userId:string):Promise<ResCue>{
 async removeMemberteam(teamId:string,userId:string):Promise<ResCue>{
   const response=await axiosClient.delete(`/res-team/${teamId}/members/${userId}`)
   return response.data
-}
+},
+
+//
 };
