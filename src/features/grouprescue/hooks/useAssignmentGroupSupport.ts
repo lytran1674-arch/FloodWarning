@@ -13,28 +13,29 @@ export const useAssignmentGroupSupport = () => {
   const [error, setError] = useState("");
   const [assignResult, setAssignResult] = useState<string | undefined>();
 
-  const AssignSupportGroup = async (payload: AssignSupportGroupPayload) => {
-    if(!payload.note) return;
-    try {
-      setLoading(true);
-      setError("");
-      const res = await groupService.AssignmentSupportGroup(
-        payload.supportRequestItemId,
-        payload.groupId,
-        payload.note,
-      );
-      setAssignResult(res);
-      toast.success("Phân công đội thành công");
-      return true;
-    } catch (error) {
-      console.error(error);
-      setError("Lỗi không thể phân công đội");
-      toast.error("Lỗi không thể phân công đội");
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
+ const AssignSupportGroup = async (payload: AssignSupportGroupPayload) => {
+  try {
+    setLoading(true);
+    setError("");
+
+    const res = await groupService.AssignmentSupportGroup(
+      payload.supportRequestItemId,
+      payload.groupId,
+      payload.note ?? "",
+    );
+
+    setAssignResult(res);
+    toast.success("Phân công đội thành công");
+    return true;
+  } catch (error) {
+    console.error(error);
+    setError("Lỗi không thể phân công đội");
+    toast.error("Lỗi không thể phân công đội");
+    return false;
+  } finally {
+    setLoading(false);
+  }
+};
 
   return { loading, error, assignResult, AssignSupportGroup };
 };

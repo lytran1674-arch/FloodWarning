@@ -86,7 +86,7 @@ export interface DetailSupportRequestGroupLeader{
 export interface DetailSupportRequestGroupLeaderItem{
   id:string
   supportType:SupportType
-  requiredGroupcount:number
+  requiredGroupCount:number
   assignedGroupCount:number
   completedGroupCount:number
   status:string

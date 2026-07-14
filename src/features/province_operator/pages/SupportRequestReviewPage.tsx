@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronRight } from "lucide-react";
 import { toast } from "react-toastify";
 
 import SOSDetailCard from "@/features/sosrequest/components/ChiTietSOS";
@@ -12,12 +12,13 @@ import type {
   ApprovedItem,
   ApprovePayload,
   SupportRequestDetail,
+  CandidateTeam,
 } from "../types/provinceType";
-
 import { CandidateTeamsPanel } from "../components/CandidateTeamsPanel";
-import { useCandidateTeams } from "../hooks/usecandidateTeams";
+
 import { provinceApi } from "../api/provinceApi";
 import { getAvailableGroups, SUPPORT_TYPE_LABEL } from "../utils/supportType";
+import { useCandidateTeams } from "../hooks/usecandidateTeams";
 
 // ======================================================
 // STATUS BADGE
@@ -54,36 +55,40 @@ export function SupportRequestReviewPage() {
   const { detailSOS, loading: loadingSOS, getDetailSoS } = useSoS();
 
   // ======================================================
-  // CANDIDATE TEAMS
-  // Fetch 1 LẦN DUY NHẤT ở đây (component cha) bằng hook dùng
-  // chung, rồi truyền xuống CandidateTeamsPanel để hiển thị.
-  // Nhờ vậy trang review và panel luôn dùng chung 1 nguồn dữ
-  // liệu teams — tránh lệch số liệu khi tính toán duyệt/approve.
-  // ======================================================
-
-  const { teams, loading: loadingTeams } = useCandidateTeams(
-    supportRequestId
-  );
-
-  // ======================================================
   // STATE
   // ======================================================
 
-  /**
-   * selectedTeamIds:
-   * [
-   *   "team-1",
-   *   "team-2",
-   * ]
-   */
-  const [selectedTeamIds, setSelectedTeamIds] = useState<string[]>([]);
-  const [note, setNote] = useState("");
-  const [rejectReason, setRejectReason] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [showRejectBox, setShowRejectBox] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [candidateTeamsByItem, setCandidateTeamsByItem] = useState<
+    Record<string, CandidateTeam[]>
+  >({});
+  const [selectedTeamsByItem, setSelectedTeamsByItem] = useState<
+    Record<string, string[]>
+  >({});
 
   // ======================================================
-  // VALIDATE
+  // FETCH TEAMS FOR SELECTED ITEM
+  // ======================================================
+
+  const { teams: currentItemTeams, loading: loadingTeams } = useCandidateTeams(
+    selectedItemId || undefined
+  );
+
+  // Lưu teams khi có dữ liệu
+  useEffect(() => {
+    if (selectedItemId && currentItemTeams.length > 0) {
+      setCandidateTeamsByItem((prev) => ({
+        ...prev,
+        [selectedItemId]: currentItemTeams,
+      }));
+    }
+    // Log để debug
+    console.log("📌 selectedItemId:", selectedItemId);
+    console.log("📦 currentItemTeams:", currentItemTeams);
+  }, [selectedItemId, currentItemTeams]);
+
+  // ======================================================
+  // VALIDATE & LOAD SOS
   // ======================================================
 
   useEffect(() => {
@@ -93,46 +98,42 @@ export function SupportRequestReviewPage() {
     }
   }, [sosId, supportRequestId, items, navigate]);
 
-  // ======================================================
-  // LOAD SOS
-  // ======================================================
-
   useEffect(() => {
-    if (sosId) {
-      getDetailSoS(sosId);
-    }
+    if (sosId) getDetailSoS(sosId);
   }, [sosId, getDetailSoS]);
 
   // ======================================================
-  // TOTAL REQUIRED
-  // (Hook luôn được gọi trước mọi return có điều kiện — tuân thủ Rules of Hooks)
+  // HANDLERS
   // ======================================================
 
-  const totalRequiredGroups = useMemo(() => {
-    return (items ?? []).reduce(
-      (sum, item) => sum + (item.requiredGroupCount || 0),
-      0
-    );
-  }, [items]);
+  const handleItemClick = (itemId: string) => {
+    if (selectedItemId === itemId) {
+      setSelectedItemId(null);
+      return;
+    }
+    setSelectedItemId(itemId);
+  };
+
+  const handleToggleTeam = (itemId: string, teamId: string) => {
+    setSelectedTeamsByItem((prev) => {
+      const current = prev[itemId] || [];
+      const updated = current.includes(teamId)
+        ? current.filter((id) => id !== teamId)
+        : [...current, teamId];
+      return { ...prev, [itemId]: updated };
+    });
+  };
 
   // ======================================================
-  // ALLOCATION BY ITEM
-  // Tính số nhóm ĐÃ ĐÁP ỨNG được cho từng support type, dựa
-  // trên SỐ NHÓM THẬT (availableBoatGroups, v.v...) của các
-  // đội đã chọn — KHÔNG phải đếm số đội trong selectedTeamIds.
-  //
-  // Ví dụ: cần 2 nhóm BOAT, chọn 1 đội có availableBoatGroups=2
-  // => allocated = 2, fulfilled = true. Không cần chọn thêm đội
-  // thứ 2.
+  // CALCULATIONS
   // ======================================================
 
   const allocationByItem = useMemo(() => {
-    const selectedTeams = teams.filter((team) =>
-      selectedTeamIds.includes(team.id)
-    );
-
     return (items ?? []).map((item) => {
       const required = item.requiredGroupCount || 0;
+      const selectedTeamIds = selectedTeamsByItem[item.id] || [];
+      const teams = candidateTeamsByItem[item.id] || [];
+      const selectedTeams = teams.filter((t) => selectedTeamIds.includes(t.id));
 
       const totalAvailable = selectedTeams.reduce(
         (sum, team) => sum + getAvailableGroups(team, item.supportType),
@@ -147,11 +148,16 @@ export function SupportRequestReviewPage() {
         fulfilled: totalAvailable >= required,
       };
     });
-  }, [teams, selectedTeamIds, items]);
+  }, [items, selectedTeamsByItem, candidateTeamsByItem]);
 
   const totalSelectedGroups = useMemo(
     () => allocationByItem.reduce((sum, a) => sum + a.allocated, 0),
     [allocationByItem]
+  );
+
+  const totalRequiredGroups = useMemo(
+    () => (items ?? []).reduce((sum, item) => sum + (item.requiredGroupCount || 0), 0),
+    [items]
   );
 
   const allSelected =
@@ -167,28 +173,10 @@ export function SupportRequestReviewPage() {
   }
 
   // ======================================================
-  // TOGGLE TEAM
-  // Không còn giới hạn cứng theo "số đội <= số nhóm cần" —
-  // vì 1 đội có thể tự đáp ứng nhiều hơn 1 nhóm. Panel con
-  // (CandidateTeamsPanel) đã tự disable checkbox của đội hết
-  // nhóm khả dụng, nên ở đây chỉ cần toggle tự do.
+  // APPROVE & REJECT
   // ======================================================
 
-  const handleToggleTeam = (teamId: string) => {
-    setSelectedTeamIds((prev) =>
-      prev.includes(teamId)
-        ? prev.filter((id) => id !== teamId)
-        : [...prev, teamId]
-    );
-  };
-
-  // ======================================================
-  // APPROVE
-  // Build payload bằng cách duyệt qua từng đội đã chọn theo
-  // TỪNG loại hỗ trợ, lấy min(số nhóm khả dụng của đội, số
-  // nhóm còn thiếu) — thay vì cắt mảng selectedTeamIds theo
-  // kiểu 1-đội-1-nhóm như trước.
-  // ======================================================
+  const [submitting, setSubmitting] = useState(false);
 
   const handleApprove = async () => {
     if (!allSelected) {
@@ -196,132 +184,91 @@ export function SupportRequestReviewPage() {
       return;
     }
 
-    setSubmitting(true);
+    const approvedItems: ApprovedItem[] = [];
 
-    try {
-      /**
-       * items:
-       * - BOAT: cần 2
-       * - MEDICAL: cần 1
-       *
-       * selectedTeamIds: [A, B]
-       * A.availableBoatGroups = 2
-       * B.availableMedicalGroups = 1
-       *
-       * =>
-       * BOAT -> A (x2 dòng approvedItems, cùng assignedTeamId=A)
-       * MEDICAL -> B (x1 dòng)
-       */
+    items.forEach((item) => {
+      const selectedTeamIds = selectedTeamsByItem[item.id] || [];
+      const teams = candidateTeamsByItem[item.id] || [];
+      const teamMap = new Map(teams.map((t) => [t.id, t]));
 
-const approvedItems: ApprovedItem[] = [];
+      let remaining = item.requiredGroupCount || 0;
 
-items.forEach((item) => {
-  let remaining = item.requiredGroupCount || 0;
+      for (const teamId of selectedTeamIds) {
+        if (remaining <= 0) break;
 
-  for (const teamId of selectedTeamIds) {
-    if (remaining <= 0) break;
+        const team = teamMap.get(teamId);
+        if (!team) continue;
 
-    const team = teams.find((t) => t.id === teamId);
-    if (!team) continue;
+        const available = getAvailableGroups(team, item.supportType);
+        if (available <= 0) continue;
 
-    const available = getAvailableGroups(team, item.supportType);
-    if (available <= 0) continue;
+        const existed = approvedItems.some(
+          (x) =>
+            x.supportRequestItemId === item.id &&
+            x.assignedTeamId === teamId
+        );
+        if (!existed) {
+          approvedItems.push({
+            supportRequestItemId: item.id,
+            assignedTeamId: teamId,
+            status: "APPROVED",
+          });
+        }
 
-    // CHỈ 1 dòng cho mỗi cặp (item, team) — backend tự hiểu
-    // đội này đảm nhận phần còn thiếu của item, KHÔNG lặp dòng
-    // theo số nhóm mà đội đó cung cấp.
-    approvedItems.push({
-      supportRequestItemId: item.id,
-      assignedTeamId: teamId,
-      status: "APPROVED",
+        remaining -= Math.min(available, remaining);
+      }
     });
 
-    remaining -= Math.min(available, remaining);
-  }
-});
+    if (approvedItems.length === 0) {
+      toast.error("Chưa phân bổ được đội nào");
+      return;
+    }
 
-// ======================================================
-// VALIDATE LẦN CUỐI
-// So sánh số CẶP (item, team) hợp lệ, không còn so bằng
-// tổng số NHÓM nữa (vì 1 dòng giờ có thể gánh nhiều nhóm)
-// ======================================================
+    const payload: ApprovePayload = { items: approvedItems };
 
-if (approvedItems.length === 0) {
-  toast.error("Chưa phân bổ được đội nào");
-  setSubmitting(false);
-  return;
-}
-
-      const payload: ApprovePayload = {
-        items: approvedItems,
-      };
-
-      /**
-       * payload mẫu:
-       *
-       * {
-       *   items: [
-       *     {
-       *       supportRequestItemId: "...",
-       *       assignedTeamId: "...",
-       *       status: "APPROVED"
-       *     }
-       *   ]
-       * }
-       */   
-
+    setSubmitting(true);
+    try {
       await provinceApi.approveSupportRequest(supportRequestId, payload);
-  
-
       toast.success("Đã duyệt yêu cầu hỗ trợ");
       navigate("/support-request");
     } catch (err: any) {
       console.error("APPROVE ERROR:", err);
-      toast.error(err?.response?.data?.message || "Duyệt yêu cầu thất bại");
+      toast.error(err?.response?.data?.message || "Duyệt thất bại");
     } finally {
       setSubmitting(false);
     }
   };
 
-  // ======================================================
-  // REJECT
-  // Từ chối là hành động ở cấp PHIẾU CHA (supportRequestId),
-  // KHÔNG gọi lặp theo từng item con.
-  // Endpoint: PUT /support-request/{supportRequestId}/reject
-  // ======================================================
+  const [rejectReason, setRejectReason] = useState("");
+  const [showRejectBox, setShowRejectBox] = useState(false);
 
   const handleReject = async () => {
-  if (!rejectReason.trim()) {
-    toast.warning("Vui lòng nhập lý do từ chối");
-    return;
-  }
+    if (!rejectReason.trim()) {
+      toast.warning("Vui lòng nhập lý do từ chối");
+      return;
+    }
 
-  setSubmitting(true);
+    setSubmitting(true);
+    try {
+      const rejectedItems = items.map((item) => ({
+        supportRequestItemId: item.id,
+        status: "REJECTED" as const,
+        provinceResponse: rejectReason,
+      }));
 
-  try {
-    // Dùng chung endpoint approve, nhưng mỗi item có status = REJECTED
-    // và provinceResponse là lý do từ chối. Test qua Postman xác nhận
-    // đúng cấu trúc: PUT /support-request/{id}/approve
-    // { items: [{ supportRequestItemId, status: "REJECTED", provinceResponse }] }
-    const rejectedItems = items.map((item) => ({
-      supportRequestItemId: item.id,
-      status: "REJECTED" as const,
-      provinceResponse: rejectReason,
-    }));
+      await provinceApi.approveSupportRequest(supportRequestId, {
+        items: rejectedItems,
+      });
 
-    await provinceApi.approveSupportRequest(supportRequestId, {
-      items: rejectedItems,
-    });
-
-    toast.success("Đã từ chối yêu cầu hỗ trợ");
-    navigate("/support-request");
-  } catch (err: any) {
-    console.error("REJECT ERROR:", err);
-    toast.error(err?.response?.data?.message || "Từ chối thất bại");
-  } finally {
-    setSubmitting(false);
-  }
-};
+      toast.success("Đã từ chối yêu cầu hỗ trợ");
+      navigate("/support-request");
+    } catch (err: any) {
+      console.error("REJECT ERROR:", err);
+      toast.error(err?.response?.data?.message || "Từ chối thất bại");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   // ======================================================
   // UI
@@ -329,7 +276,6 @@ if (approvedItems.length === 0) {
 
   return (
     <div className="mx-auto max-w-6xl p-6">
-      {/* BACK */}
       <button
         onClick={() => navigate(-1)}
         className="mb-4 flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
@@ -339,102 +285,104 @@ if (approvedItems.length === 0) {
       </button>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* LEFT */}
+        {/* LEFT: SOS Detail */}
         <div>
           <h2 className="mb-3 text-lg font-semibold">Chi tiết SOS</h2>
           <SOSDetailCard data={detailSOS} loading={loadingSOS} />
         </div>
 
-        {/* RIGHT */}
+        {/* RIGHT: Items + Action */}
         <div className="space-y-6">
-          {/* SUMMARY */}
-          <div className="space-y-3 rounded-xl border bg-white p-5 shadow-sm">
-            {items.map((item) => {
-              const allocation = allocationByItem.find(
-                (a) => a.itemId === item.id
-              );
+          {/* Các hạng mục hỗ trợ */}
+          <div className="rounded-xl border bg-white p-5 shadow-sm">
+            <h3 className="mb-3 text-sm font-semibold">Các hạng mục hỗ trợ</h3>
+            <div className="space-y-3">
+              {items.map((item) => {
+                const allocation = allocationByItem.find(
+                  (a) => a.itemId === item.id
+                );
+                const isOpen = selectedItemId === item.id;
 
-              return (
-                <div
-                  key={item.id}
-                  className="flex items-start justify-between border-b pb-2 last:border-b-0 last:pb-0"
-                >
-                  <div>
-                    <h3 className="text-sm font-semibold">
-                      {SUPPORT_TYPE_LABEL[item.supportType]}
-                    </h3>
+                return (
+                  <div
+                    key={item.id}
+                    className="rounded-lg border bg-gray-50 transition-all"
+                  >
+                    <div
+                      className="flex cursor-pointer items-center justify-between p-3"
+                      onClick={() => handleItemClick(item.id)}
+                    >
+                      <div className="flex items-center gap-2">
+                        {isOpen ? (
+                          <ChevronDown className="h-4 w-4 text-gray-400" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4 text-gray-400" />
+                        )}
+                        <span className="font-medium text-sm">
+                          {SUPPORT_TYPE_LABEL[item.supportType]}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          ({allocation?.allocated ?? 0}/{item.requiredGroupCount} nhóm)
+                        </span>
+                        {allocation?.fulfilled ? (
+                          <span className="ml-2 text-xs text-green-600">✓ Đã đủ</span>
+                        ) : (
+                          <span className="ml-2 text-xs text-orange-600">
+                            Thiếu { (allocation?.required ?? 0) - (allocation?.allocated ?? 0) }
+                          </span>
+                        )}
+                      </div>
+                      <span
+                        className={`rounded-full px-2 py-1 text-[11px] font-medium ${
+                          STATUS_BADGE[item.status]
+                        }`}
+                      >
+                        {item.status}
+                      </span>
+                    </div>
 
-                    <p className="mt-1 text-xs text-gray-500">
-                      Đã chọn {allocation?.allocated ?? 0}/
-                      {item.requiredGroupCount} nhóm
-                    </p>
-
-                    {item.teamResponse && (
-                      <p className="mt-1 rounded bg-orange-50 px-2 py-1 text-xs text-orange-700">
-                        {item.teamResponse}
-                      </p>
+                    {isOpen && (
+                      <div className="border-t p-3">
+                        <CandidateTeamsPanel
+                          teams={candidateTeamsByItem[item.id] || []}
+                          loading={loadingTeams && selectedItemId === item.id}
+                          items={[item]}
+                          sosLat={detailSOS?.lat}
+                          sosLon={detailSOS?.lon}
+                          selectedTeamIds={selectedTeamsByItem[item.id] || []}
+                          onToggleTeam={(teamId) =>
+                            handleToggleTeam(item.id, teamId)
+                          }
+                        />
+                      </div>
                     )}
                   </div>
+                );
+              })}
+            </div>
 
-                  <span
-                    className={`rounded-full px-2 py-1 text-[11px] font-medium ${
-                      STATUS_BADGE[item.status]
-                    }`}
-                  >
-                    {item.status}
-                  </span>
-                </div>
-              );
-            })}
-
-            {/* COUNTER */}
-            <div className="rounded-lg bg-blue-50 p-3 text-sm text-blue-700">
+            <div className="mt-3 rounded-lg bg-blue-50 p-3 text-sm text-blue-700">
               Đã chọn{" "}
               <span className="font-semibold">{totalSelectedGroups}</span>/
-              <span className="font-semibold">{totalRequiredGroups}</span>{" "}
-              nhóm
+              <span className="font-semibold">{totalRequiredGroups}</span> nhóm
             </div>
           </div>
 
-          {/* TEAM PANEL */}
-          {/*
-            ⚠️ QUAN TRỌNG: requestId phải là supportRequestId (id phiếu cha),
-            KHÔNG được dùng sosId — đây là bug đã fix. Trước đó truyền nhầm
-            {sosId} khiến API /support-request/{id}/candidate-teams nhận
-            sai id và trả về 400 Bad Request.
-
-            teams/loadingTeams được fetch 1 lần ở đây (useCandidateTeams)
-            và truyền xuống panel để cả trang review và panel dùng chung
-            1 nguồn dữ liệu — tránh lệch số liệu khi tính approve.
-          */}
-          <CandidateTeamsPanel
-            teams={teams}
-            loading={loadingTeams}
-            items={items}
-            sosLat={detailSOS?.lat}
-            sosLon={detailSOS?.lon}
-            selectedTeamIds={selectedTeamIds}
-            onToggleTeam={handleToggleTeam}
-          />
-
-          {/* ACTION */}
+          {/* Action */}
           <div className="rounded-xl border bg-white p-5 shadow-sm">
-            {/* NOTE */}
+            <h3 className="mb-3 text-sm font-semibold">Xác nhận điều phối</h3>
+
             <div className="mb-4">
               <label className="mb-1 block text-sm font-medium text-gray-700">
                 Ghi chú (tuỳ chọn)
               </label>
-
               <textarea
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
                 rows={3}
                 placeholder="Ví dụ: Điều động đội gần khu vực nhất"
                 className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
               />
             </div>
 
-            {/* BUTTONS */}
             {!showRejectBox ? (
               <div className="flex gap-2">
                 <button
@@ -444,7 +392,6 @@ if (approvedItems.length === 0) {
                 >
                   {submitting ? "Đang duyệt..." : "Xác nhận duyệt"}
                 </button>
-
                 <button
                   onClick={() => setShowRejectBox(true)}
                   disabled={submitting}
@@ -458,7 +405,6 @@ if (approvedItems.length === 0) {
                 <label className="block text-sm font-medium text-gray-700">
                   Lý do từ chối
                 </label>
-
                 <textarea
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
@@ -466,7 +412,6 @@ if (approvedItems.length === 0) {
                   placeholder="Ví dụ: Không đủ lực lượng hỗ trợ"
                   className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
                 />
-
                 <div className="flex gap-2">
                   <button
                     onClick={() => setShowRejectBox(false)}
@@ -475,7 +420,6 @@ if (approvedItems.length === 0) {
                   >
                     Huỷ
                   </button>
-
                   <button
                     onClick={handleReject}
                     disabled={submitting}

@@ -119,7 +119,7 @@ const AppRoutes = () => {
         <Route path="/sent-requestsupport" element={<MySupportRequestCard/>}/>
 
         <Route path="/support-request-group/:assignmentId" element={<SupportRequestGroup/>}/>
-        <Route path="/support-group-assign/:id" element={<AssignmentGroup/>}/>
+        <Route path="/support-group-assign/:supportRequestId" element={<AssignmentGroup/>}/>
         </Route>
        
       </Routes>

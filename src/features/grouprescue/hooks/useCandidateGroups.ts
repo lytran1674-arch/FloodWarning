@@ -13,11 +13,10 @@ import { toast } from 'react-toastify';
             setLoading(true);
             const res=await groupService.CandidateGroupSupport(supportRequestItemId);
             setCandidate(res);
-            toast.success("Tạo yêu cầu thành công");
             return true
         }catch(error){
             console.error(error);
-            setError("Lỗi không thể tạo yêu cầu hỗ trợ");
+            setError("Lỗi không thể lấy đươc nhóm phù hợp");
             return false;
         }finally{
             setLoading(false)

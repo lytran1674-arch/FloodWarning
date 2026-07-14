@@ -13,11 +13,6 @@ import GeoMap from "@/features/map/components/GeoMap";
 
 // ======================================================
 // PROPS
-// teams/loading giờ được truyền từ component cha
-// (SupportRequestReviewPage) thông qua hook dùng chung
-// useCandidateTeams, thay vì Panel tự fetch riêng.
-// Lý do: cha cần cùng dữ liệu teams để tính đúng số nhóm khi
-// duyệt (approve), tránh lệch dữ liệu giữa 2 nơi.
 // ======================================================
 
 interface CandidateTeamsPanelProps {
@@ -31,7 +26,7 @@ interface CandidateTeamsPanelProps {
 }
 
 // ======================================================
-// COMPONENT
+// HELPER: NORMALIZE LAT/LON
 // ======================================================
 
 function normalizeLatLon(lat: number, lon: number): [number, number] {
@@ -43,6 +38,10 @@ function normalizeLatLon(lat: number, lon: number): [number, number] {
   }
   return [lat, lon];
 }
+
+// ======================================================
+// COMPONENT
+// ======================================================
 
 export function CandidateTeamsPanel({
   teams,
@@ -66,9 +65,6 @@ export function CandidateTeamsPanel({
 
   // ======================================================
   // TEAM TOTAL AVAILABLE GROUPS
-  // Tổng số nhóm mà 1 đội có thể cung cấp, cộng dồn theo
-  // TẤT CẢ loại hỗ trợ đang cần trong items (ví dụ 1 đội có
-  // thể vừa cung cấp nhóm BOAT vừa cung cấp nhóm MEDICAL).
   // ======================================================
 
   const getTotalAvailableGroups = (team: CandidateTeam) => {
@@ -80,24 +76,29 @@ export function CandidateTeamsPanel({
 
   // ======================================================
   // TOTAL SELECTED GROUPS
-  // Cộng theo SỐ NHÓM thật của từng đội đã chọn, KHÔNG phải
-  // đếm số đội. Nếu 1 đội có đủ 2 nhóm BOAT và yêu cầu cần
-  // đúng 2 nhóm BOAT, chỉ cần chọn 1 đội này là đủ.
   // ======================================================
 
   const totalSelectedGroups = useMemo(() => {
     return teams
       .filter((team) => selectedTeamIds.includes(team.id))
       .reduce((sum, team) => sum + getTotalAvailableGroups(team), 0);
-  }, [teams, selectedTeamIds]);
+  }, [teams, selectedTeamIds, items]);
+
+  // ======================================================
+  // SORTED TEAMS
+  // ======================================================
+
+  const sortedTeams = useMemo(() => {
+    return [...teams].sort(
+      (a, b) => (a.distanceKm ?? Number.MAX_VALUE) - (b.distanceKm ?? Number.MAX_VALUE)
+    );
+  }, [teams]);
 
   // ======================================================
   // MAP MARKERS
   // ======================================================
 
   const markers: GeoMapMarker[] = useMemo(() => {
-   console.log("sos:", sosLat, sosLon);
-  teams.forEach((t) => console.log(t.teamName, t.lat, t.lon, typeof t.lat, typeof t.lon));
     return [
       ...(sosLat != null && sosLon != null
         ? [
@@ -110,28 +111,31 @@ export function CandidateTeamsPanel({
             },
           ]
         : []),
-
-  ...teams
-  .filter(
-    (team) =>
-      typeof team.lat === "number" && typeof team.lon === "number"
-  )
-  .map((team) => {
-    const [lat, lon] = normalizeLatLon(team.lat, team.lon);
-    return {
-      id: team.id,
-      lat,
-      lon,
-      label: team.teamName,
-      type: "team" as const,
-      selected: selectedTeamIds.includes(team.id),
-      disabled:
-        getTotalAvailableGroups(team) === 0 || team.requesterTeam,
-      requesterTeam: team.requesterTeam,
-    };
-  }),
+      ...sortedTeams
+        .filter(
+          (team) =>
+            typeof team.lat === "number" && typeof team.lon === "number"
+        )
+        .map((team) => {
+          const [lat, lon] = normalizeLatLon(team.lat, team.lon);
+          return {
+            id: team.id,
+            lat,
+            lon,
+            label: team.teamName,
+            type: "team" as const,
+            selected: selectedTeamIds.includes(team.id),
+            disabled:
+              items.some(
+                (item) =>
+                  item.requiredGroupCount > 0 &&
+                  getAvailableGroups(team, item.supportType) === 0
+              ) || team.requesterTeam,
+            requesterTeam: team.requesterTeam,
+          };
+        }),
     ];
-  }, [teams, sosLat, sosLon, selectedTeamIds]);
+  }, [sortedTeams, sosLat, sosLon, selectedTeamIds, items]);
 
   // ======================================================
   // MAP CLICK
@@ -208,14 +212,19 @@ export function CandidateTeamsPanel({
 
       {/* TEAM LIST */}
       <div className="space-y-2">
-        {teams.length === 0 ? (
+        {sortedTeams.length === 0 ? (
           <p className="text-sm text-gray-400">Không có đội khả dụng</p>
         ) : (
-          teams.map((team) => {
+          sortedTeams.map((team) => {
             const totalGroups = getTotalAvailableGroups(team);
             const isChecked = selectedTeamIds.includes(team.id);
             const isRequester = team.requesterTeam;
-            const isDisabled = totalGroups === 0 || isRequester;
+            const isDisabled =
+              items.some(
+                (item) =>
+                  item.requiredGroupCount > 0 &&
+                  getAvailableGroups(team, item.supportType) === 0
+              ) || isRequester;
 
             return (
               <label
@@ -267,6 +276,23 @@ export function CandidateTeamsPanel({
                     </div>
                   </div>
 
+                  {/* === HIỂN THỊ SỐ NHÓM CHO TỪNG LOẠI === */}
+                  <div className="mt-1.5 flex flex-wrap gap-2">
+                    {items.map((item) => {
+                      const count = getAvailableGroups(team, item.supportType);
+                      if (count === 0) return null;
+                      return (
+                        <span
+                          key={item.supportType}
+                          className="rounded bg-green-100 px-2 py-0.5 text-[11px] text-green-700"
+                        >
+                          {SUPPORT_TYPE_LABEL[item.supportType]}: {count}
+                        </span>
+                      );
+                    })}
+                  </div>
+
+                  {/* THÔNG TIN ĐỘI */}
                   <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
                     <span className="flex items-center gap-1">
                       <User className="h-3 w-3" />
@@ -280,9 +306,7 @@ export function CandidateTeamsPanel({
 
                     <span className="flex items-center gap-1">
                       <MapPin className="h-3 w-3" />
-                      {team.distanceKm != null
-                        ? `${team.distanceKm.toFixed(1)} km`
-                        : "Chưa xác định khoảng cách"}
+                      {team.distanceKm?.toFixed(1)} km
                     </span>
                   </div>
                 </div>

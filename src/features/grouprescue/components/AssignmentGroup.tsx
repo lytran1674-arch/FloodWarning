@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Anchor, Stethoscope, Users, ArrowLeft, CheckCircle2 } from "lucide-react";
 
-import { RequestSupportButton } from "@/features/province_operator/components/RequestSupportButton";
 import { useCandidateGroups } from "../hooks/useCandidateGroups";
 import { useSupportRequestDetailGroup } from "../hooks/useSupportRequestDetailGroup";
 
 import type { Role } from "../types/groupType";
 import { useAssignmentGroupSupport } from "../hooks/useAssignmentGroupSupport";
+import { RequestSupportButton } from "@/features/province_operator/components/RequestSupportButton";
 
 const roleOptions: { value: Role; label: string }[] = [
   { value: "SUPPORT", label: "Đội hỗ trợ" },
@@ -68,6 +68,19 @@ export const AssignmentGroup = () => {
 
   const handleSubmit = async () => {
     if (!selectedItemId || !selectedGroupId) return;
+    const item = detail?.items.find(
+  i => i.id === selectedItemId
+);
+
+if (!item) return;
+
+if (
+  item.status !== "PENDING" ||
+  item.assignedGroupCount >= item.requiredGroupCount
+) {
+  alert("Loại hỗ trợ này đã được phân công đủ.");
+  return;
+}
 
     const success = await AssignSupportGroup({
       supportRequestItemId: selectedItemId,
@@ -79,6 +92,9 @@ export const AssignmentGroup = () => {
       navigate(-1);
     }
   };
+  useEffect(() => {
+  console.log(detail);
+}, [detail]);
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
@@ -117,25 +133,47 @@ export const AssignmentGroup = () => {
           <div className="space-y-2">
             {detail.items.map((item) => {
               const isSelected = item.id === selectedItemId;
-              const remaining = item.requiredGroupcount - item.assignedGroupCount;
-
+              const remaining = item.requiredGroupCount - item.assignedGroupCount;
+              const disabled =
+            remaining <= 0 || item.status !== "PENDING";
               return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => handleSelectItem(item.id)}
-                  className={`w-full text-left border rounded-xl p-3 transition-colors ${
-                    isSelected
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 bg-white hover:border-gray-300"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-sm">{item.supportType}</span>
-                    <span className="text-xs text-gray-500">
-                      Đã gán {item.assignedGroupCount}/{item.requiredGroupcount} — còn thiếu {remaining}
-                    </span>
-                  </div>
+              <button
+  key={item.id}
+  type="button"
+  disabled={disabled}
+  onClick={() => handleSelectItem(item.id)}
+  className={`w-full text-left border rounded-xl p-3 transition
+    ${
+      isSelected
+        ? "border-blue-500 bg-blue-50"
+        : "border-gray-200 bg-white hover:border-gray-300"
+    }
+    ${
+      disabled
+        ? "opacity-60 cursor-not-allowed bg-gray-100"
+        : ""
+    }
+  `}
+><div className="flex items-center gap-2">
+
+<span
+  className={`px-2 py-1 rounded text-xs font-medium
+  ${
+    item.status === "PENDING"
+      ? "bg-yellow-100 text-yellow-700"
+      : item.status === "APPROVED"
+      ? "bg-green-100 text-green-700"
+      : "bg-gray-100 text-gray-700"
+  }`}
+>
+  {item.status}
+</span>
+
+<span className="text-xs text-gray-500">
+  Đã gán {item.assignedGroupCount}/{item.requiredGroupCount}
+</span>
+
+</div>
                 </button>
               );
             })}

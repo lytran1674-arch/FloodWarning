@@ -24,12 +24,11 @@ export const provinceApi = {
 
   //lấy danh sách đội của 1 tỉnh
 async getCandidateTeams(
-  requestId: string,
-  params?: { supportType?: string }
+  iteamId: string,
 ): Promise<CandidateTeam[]> {
   const { data } = await axiosClient.get(
-    `${API_URL}/${requestId}/candidate-teams`,
-    { params }
+    `${API_URL}/items/${iteamId}/candidate-teams`,
+
   );
 
   // Cấu trúc thật: { code, result: { sos: {...}, teams: [...] } }
