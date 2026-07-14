@@ -1,5 +1,7 @@
 // features/sos/types/groupType.ts
 
+import type { SupportType } from "@/features/province_operator/types/provinceType";
+
 export type GroupStatus = "AVAILABLE" | "BUSY" | "UNAVAILABLE" | string;
 export type Role ="PRIMARY" | "SUPPORT"
 export type MucDo= "HIGH" | "CRITICAL" | "LOW" | "MEDIUM"
@@ -50,4 +52,54 @@ export interface AssignmentGroup{
 export interface AvailableStatus {
   code: string;
   name: string;
+}
+
+export interface LeaderCreateSupport{
+  reason:string
+  items:LeaderCreateSupportItems[]
+}
+
+export interface LeaderCreateSupportItems{
+  supportType:SupportType
+  requiredGroupCount:number
+}
+
+export interface SupportRequestGroupLeader{
+  id:string
+  groupName:string
+  groupLeaderName:string
+  reason:string
+  status:string
+  createdAt:string
+}
+
+export interface DetailSupportRequestGroupLeader{
+   id:string
+  groupName:string
+  groupLeaderName:string
+  reason:string
+  status:string
+  createdAt:string
+  items:DetailSupportRequestGroupLeaderItem[];
+}
+
+export interface DetailSupportRequestGroupLeaderItem{
+  id:string
+  supportType:SupportType
+  requiredGroupcount:number
+  assignedGroupCount:number
+  completedGroupCount:number
+  status:string
+}
+
+export interface GroupSupport{
+  id:string
+  groupName:string
+  leaderName:string
+  status:string
+  hasBoat:boolean
+  hasMedical:boolean
+  hasSearchRescue:boolean
+  hasLogistics:boolean
+
 }

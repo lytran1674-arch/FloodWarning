@@ -13,6 +13,7 @@ export type SosPriority =
   | "MEDIUM"
   | "LOW"
 
+export type DISPATCHERTYPE="PROVINCE_OPERATOR" | "DEPUTY_LEADER" | "TEAM_LEADER"
 export type FilterStatus = 'ALL' | 'PENDING' | 'PROCESSING' | 'DONE' | 'CANCELLED'
 
 export type RoleGroup = "PRIMARY" | "SUPPORT"
@@ -60,6 +61,9 @@ export interface SoSResponse {
   trapped?: boolean
   vulnerable?: boolean
   diachi?:string
+  dispatcherUserId:string
+  dispatcherName:string
+  dispatcherType:DISPATCHERTYPE 
 }
 
 export interface ListSOS {

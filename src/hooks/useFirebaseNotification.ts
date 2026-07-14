@@ -1,23 +1,33 @@
-import { useEffect, useRef } from "react"
-import { onMessage } from "firebase/messaging"
-import { messaging } from "../firebase"
-import { useAuth } from "../features/auth/hooks/useAuth"
-import { requestNotificationPermission } from "../utils/firebaseNotification"
+// src/hooks/useFirebaseNotification.ts
+import { useEffect, useRef }      from "react"
+import { getMessaging, onMessage } from "firebase/messaging"
+import { isSupported }            from "firebase/messaging"
+import { app }                    from "../firebase"
+import { useAuth }                from "../features/auth/hooks/useAuth"
+import { useAppSelector }         from "./redux.hooks"
+import {
+  requestNotificationPermission,
+} from "../utils/firebaseNotification"
 
 export const useFirebaseNotification = () => {
-  const { isAuthenticated } = useAuth()
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
-  const unlockedRef = useRef(false)
+  const { isAuthenticated }  = useAuth()
 
-  // Khởi tạo audio object 1 lần duy nhất
+  // ✅ Lấy token + userId từ Redux — không dùng localStorage
+  const accessToken = useAppSelector(s => s.auth.accessToken)
+  const user        = useAppSelector(s => s.auth.user)
+
+  const intervalRef   = useRef<ReturnType<typeof setInterval> | null>(null)
+  const audioRef      = useRef<HTMLAudioElement | null>(null)
+  const unlockedRef   = useRef(false)
+  const unsubRef      = useRef<(() => void) | null>(null)
+
+  // ── Khởi tạo audio 1 lần ──
   useEffect(() => {
     const audio = new Audio("/sounds/alert.mp3")
     audio.preload = "auto"
-    audio.volume = 0.8
+    audio.volume  = 0.8
     audioRef.current = audio
 
-    // Unlock khi user click bất kỳ đâu
     const unlock = () => {
       if (unlockedRef.current) return
       audio.play()
@@ -25,85 +35,99 @@ export const useFirebaseNotification = () => {
           audio.pause()
           audio.currentTime = 0
           unlockedRef.current = true
-          console.log("🔊 Audio unlocked!")
-          document.removeEventListener("click", unlock)
+          console.log("[FCM] Audio unlocked")
+          document.removeEventListener("click",   unlock)
           document.removeEventListener("keydown", unlock)
         })
         .catch(() => {})
     }
 
-    document.addEventListener("click", unlock)
+    document.addEventListener("click",   unlock)
     document.addEventListener("keydown", unlock)
 
     return () => {
-      document.removeEventListener("click", unlock)
+      document.removeEventListener("click",   unlock)
       document.removeEventListener("keydown", unlock)
       audio.pause()
     }
   }, [])
 
-  // Xin quyền + đăng ký FCM token
+  // ── Xin quyền + đăng ký token khi đăng nhập ──
   useEffect(() => {
-    if (isAuthenticated) {
-      requestNotificationPermission()
-    }
-  }, [isAuthenticated])
+    if (!isAuthenticated || !accessToken) return
 
-  // Lắng nghe notification foreground
+    // ✅ Truyền accessToken và userId vào trực tiếp
+    requestNotificationPermission(
+      accessToken,
+      (user as any)?.id ?? (user as any)?.userId ?? ""
+    )
+  }, [isAuthenticated, accessToken])
+
+  // ── Lắng nghe foreground message ──
   useEffect(() => {
     if (!isAuthenticated) return
 
-    const stopAlert = () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-        intervalRef.current = null
+    const setupListener = async () => {
+      const supported = await isSupported()
+      if (!supported) return
+
+      const messaging = getMessaging(app)
+
+      const stopAlert = () => {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current)
+          intervalRef.current = null
+        }
+        if (audioRef.current) {
+          audioRef.current.pause()
+          audioRef.current.currentTime = 0
+        }
       }
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current.currentTime = 0
+
+      const playSound = () => {
+        const audio = audioRef.current
+        if (!audio) return
+        if (!unlockedRef.current) {
+          console.warn("[FCM] Audio not unlocked yet")
+          return
+        }
+        audio.currentTime = 0
+        audio.play()
+          .then(() => console.log("[FCM] Sound played"))
+          .catch(err => console.error("[FCM] Sound error:", err.name))
       }
+
+      const startAlert = () => {
+        stopAlert()
+        playSound()
+        intervalRef.current = setInterval(playSound, 5000)
+      }
+
+      // ✅ Lưu unsubscribe để cleanup đúng cách
+      unsubRef.current = onMessage(messaging, (payload) => {
+        console.log("[FCM] Foreground message:", payload)
+        startAlert()
+
+        if (Notification.permission === "granted") {
+          const notif = new Notification(
+            payload.notification?.title ?? "Canh bao lu lut",
+            {
+              body:                payload.notification?.body ?? "Co canh bao moi trong khu vuc cua ban",
+              icon:                "/logo.png",
+              requireInteraction:  true,
+            }
+          )
+          notif.onclick = () => { stopAlert(); notif.close(); window.focus() }
+          notif.onclose = () => { stopAlert() }
+        }
+      })
     }
 
-    const playSound = () => {
-      const audio = audioRef.current
-      if (!audio) return
-      if (!unlockedRef.current) {
-        console.warn("⚠️ Audio chưa unlock — user chưa click vào trang")
-        return
-      }
-      audio.currentTime = 0
-      audio.play()
-        .then(() => console.log("✅ Sound played!"))
-        .catch(err => console.error("❌ Sound failed:", err.name))
-    }
-
-    const startAlert = () => {
-      stopAlert()
-      playSound()
-      intervalRef.current = setInterval(playSound, 5000)
-    }
-
-    const unsubscribe = onMessage(messaging, (payload) => {
-      console.log("📩 Foreground message:", payload)
-      startAlert()
-
-      if (Notification.permission === "granted") {
-        const notif = new Notification(
-          payload.notification?.title ?? "⚠️ Cảnh báo lũ lụt",
-          {
-            body: payload.notification?.body ?? "Có cảnh báo mới trong khu vực của bạn",
-            icon: "/logo.png",
-            requireInteraction: true,
-          }
-        )
-        notif.onclick = () => { stopAlert(); notif.close(); window.focus() }
-        notif.onclose = () => { stopAlert() }
-      }
-    })
+    setupListener()
 
     return () => {
-      unsubscribe()
-      stopAlert()
+      unsubRef.current?.()
+      if (intervalRef.current) clearInterval(intervalRef.current)
     }
   }, [isAuthenticated])
 }

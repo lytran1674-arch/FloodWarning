@@ -90,7 +90,7 @@ export default function TeamSOSPage() {
                 </span>
               </div>
 
-             {sos.status === "PENDING" && (
+             {(sos.status === "PENDING" || sos.status==="PROCESSING") && (
   <div className="mt-4 flex justify-end">
     <button
       onClick={() => navigate(`/sos-assign/${sos.id}`)}

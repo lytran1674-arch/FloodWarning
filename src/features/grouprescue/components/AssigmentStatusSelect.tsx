@@ -19,7 +19,7 @@ const STATUS_LABELS: Record<string, string> = {
   ARRIVED: "Đã tới nơi",
   RESCUING: "Đang cứu hộ",
   COMPLETED: "Hoàn thành",
-  FAILED: "Thất bại",
+  FAILED:"Thất bại"
 };
 
 export default function AssignmentStatusSelect({

@@ -108,8 +108,8 @@ const safeData = Array.isArray(data) ? data : [];
       },
         {
         title: "Mô tả",
-        key: "mota" as keyof SoSResponse,
-        render: (item: SoSResponse) =>item.mota || "-"
+        key: "id" as keyof SoSResponse,
+        render: (item: SoSResponse) =>item.id || "-"
       },
 
       {

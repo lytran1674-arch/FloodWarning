@@ -33,5 +33,10 @@ export const rescueService = {
   // xóa member ra khỏi team 
   async RemoveMemberTeam(groupId:string,userId:string):Promise<ResCue>{
     return await rescueApi.removeMemberteam(groupId,userId)
+  },
+
+  // group leader cập nhật trạng thái của nhóm khi đã sửa chữa xong
+  async UpdateStatusGroup(groupId:string,status:string):Promise<string>{
+    return rescueApi.updateStatusGroup(groupId,status);
   }
 };

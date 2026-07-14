@@ -152,5 +152,10 @@ async removeMemberteam(teamId:string,userId:string):Promise<ResCue>{
   return response.data
 },
 
-//
+// group leader cập nhật trạng thái lại của đội khi đã sửa chữa xong
+// (với tình trạng OFFLINE->AVAILABLE)
+async updateStatusGroup(groupId:string,status:string):Promise<string>{
+const response=await axiosClient.patch(`/res-groups/{groupId}/status`,status)
+return response.data;
+}
 };

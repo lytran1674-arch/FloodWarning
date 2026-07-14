@@ -54,6 +54,8 @@ import { UpdateSOSPage } from "@/features/sosrequest/pages/Updatesospage"
 import {MySupportRequestCard} from "@/features/rescue/pages/MyRequestSupportCard"
 
 import {FloodRiskThreeDayCard} from "@/features/citizen/component/Floodriskthreedaycard"
+import { SupportRequestGroup } from "@/features/grouprescue/components/SupportRequestGroup"
+import { AssignmentGroup } from "@/features/grouprescue/components/AssignmentGroup"
 
 
 
@@ -115,6 +117,9 @@ const AppRoutes = () => {
         <Route path="/team/:teamId/available-members" element={<MemberWithoutGroupPage/>} />
         <Route path="/hotline" element={<HotlineOperatorDashboard/>}/>
         <Route path="/sent-requestsupport" element={<MySupportRequestCard/>}/>
+
+        <Route path="/support-request-group/:assignmentId" element={<SupportRequestGroup/>}/>
+        <Route path="/support-group-assign/:id" element={<AssignmentGroup/>}/>
         </Route>
        
       </Routes>

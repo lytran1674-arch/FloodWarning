@@ -1,0 +1,1 @@
+export type FailedReasonOption="BOAT_BROKEN" | "VEHICLE_BROKEN" |"LOST_CONTACT" | "CANNOT_ACCESS" | "OTHER"

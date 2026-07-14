@@ -5,16 +5,17 @@ import { axiosClient, publicApi } from "@/api/axiosClient"
 const API_URL = "/sos-request"
 
 export const SoSAPI = {
+  // tạ sos của người dân đã có tài khoản
   async createsos(data: SoSRequest): Promise<SoSResponse> {
     const response = await axiosClient.post(`${API_URL}`, data)
     return response.data.result
   },
-
+// danh sách sos của người dân đã có tài khoản
   async getListSosRequest(): Promise<SoSResponse[]> {
     const response = await axiosClient.get(`${API_URL}/my-sos`)
     return response.data.result?.content ?? []
   },
-
+// danh sách sos của người dân chưa đăng nhập tài khoản
   async getListAnonymousSosRequest(
     sodt: string,
     clientDeviceId: string
@@ -26,16 +27,19 @@ export const SoSAPI = {
     return response.data.result?.content ?? response.data.result ?? []
   },
 
+  // cập nhật sos của người dân đã có tài khoản
   async updateSos(id: string, data: SoSRequest): Promise<SoSResponse> {
     const response = await axiosClient.put(`${API_URL}/${id}`, data)
     return response.data.result
   },
+
 
   async postassigment(data: AssignSos): Promise<string> {
     const response = await axiosClient.post("/sos-assignment", data)
     return response.data.result
   },
 
+// chi tiết sos của người dân (rescuer dùng api này để xem chi tiết)
   async getdetailsos(id: string): Promise<DetailSos> {
     const response = await axiosClient.get(`${API_URL}/${id}`)
     return response.data.result

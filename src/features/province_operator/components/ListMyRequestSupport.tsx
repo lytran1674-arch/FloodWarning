@@ -7,6 +7,7 @@ import { useAppSelector } from "@/hooks/redux.hooks";
 import { useGroup } from "@/features/rescue/hooks/useGroup";
 import type { RequestSupportMyTeam } from "../types/provinceType";
 import type { Group } from "@/features/grouprescue/types/groupType";
+import { ListSoSSupportCard } from "@/features/grouprescue/components/ListSoSSupportCard";
 
 
 
@@ -541,6 +542,7 @@ const closeAssignModal = () => {
     </div>
   </div>
 )}
+<ListSoSSupportCard/>
     
     </div>
   );

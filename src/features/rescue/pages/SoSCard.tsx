@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { axiosClient } from "@/api/axiosClient";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "@/hooks/redux.hooks";
+import { ListSoSSupportCard } from "@/features/grouprescue/components/ListSoSSupportCard";
 
 
 interface TeamSOS {
@@ -40,8 +41,7 @@ export default function SoSCard() {
 
      const allSOS = res.data.result.content || [];
 
-setSosList(
-  allSOS.filter((sos: TeamSOS) => sos.status === "PENDING")
+setSosList(allSOS
 );
     } catch (err) {
       console.error(err);
