@@ -294,13 +294,14 @@ const admin=user?.role==="ADMIN"
 };
 
   const handlePickLeader =
-    async (userId: string) => {
+    async (userId: string,deputyLeaderId:string) => {
       try {
         setSelectingLeader(true);
 
         await rescueApi.PickLeader(
           createdTeamId,
-          userId
+          userId,
+          deputyLeaderId,
         );
 
         toast.success(
@@ -697,7 +698,8 @@ const admin=user?.role==="ADMIN"
                             }
                             onClick={() =>
                               handlePickLeader(
-                                member.userId
+                                member.userId,
+                                member.fullName
                               )
                             }
                             className="rounded bg-blue-600 px-3 py-1 text-white"

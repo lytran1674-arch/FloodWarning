@@ -2,7 +2,7 @@ import { useState } from "react"
 import { FAILEDREASONOPTIONS, getFailedReasonOption, type FailedReason } from "../constants/FailedReason"
 import { useSoSAssignment } from "../hooks/useSoSAssignment"
 import { TriangleAlert } from "lucide-react"
-import { Combobox } from "@/components/ui/Combobox"
+
 
 interface Props{
     isOpen:boolean
@@ -11,7 +11,7 @@ interface Props{
     onSuccess?:(reason:FailedReason)=>void
 }
 export const ModalFailedAssigment = ({isOpen,assignmentId,onClose,onSuccess}:Props) => {
-    const {failed,loading,error,FailedAssignment}=useSoSAssignment();
+    const {loading,error,FailedAssignment}=useSoSAssignment();
     const [reason, setReason]=useState<FailedReason | "">("");
     const [note, setNote]=useState("")
     const [formerror,setFormError]=useState("")

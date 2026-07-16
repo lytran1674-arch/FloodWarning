@@ -114,5 +114,6 @@ export const emergencyApi = {
   async soshotlineupdate(sosId:string,payload:UpdateSoSHotlinePayLoad):Promise<SoSResponse>{
     const response=await axiosClient.put(`${API_URL}/sos/${sosId}`,payload)
     return response.data.result;
-  }
+  },
+
 };

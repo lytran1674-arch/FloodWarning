@@ -1,16 +1,19 @@
 // features/hotline/components/CreateManualSosModal.tsx
 import { Modal, Form, Input, InputNumber, Checkbox, Button } from "antd";
 import { toast } from "react-toastify";
+
+import type { SosHotlineCreateResult } from "../../types/emergencyType";
 import { useCreateHotlineSos } from "../../hooks/test/createHotlineSos";
 
 
 const { TextArea } = Input;
-const PHONE_REGEX = /^(0[3|5|7|8|9])+([0-9]{8})$/;
+// Số điện thoại VN: đầu số 03/05/07/08/09, đúng 10 chữ số (đã sửa bug (...)+ cho phép lặp)
+const PHONE_REGEX = /^0[35789][0-9]{8}$/;
 
 interface CreateManualSosModalProps {
   open: boolean;
   onClose: () => void;
-  onCreated: () => void;
+  onCreated: (result: SosHotlineCreateResult) => void; // nhận kết quả để lấy initialCallTask
 }
 
 /**
@@ -38,12 +41,14 @@ export function CreateManualSosModal({
       trapped: !!values.trapped,
       vulnerable: !!values.vulnerable,
       mota: values.mota ?? "",
+      diachi: values.diachi?.trim() ?? "",
     });
 
     if (result) {
-      toast.success(`Đã tạo SOS (độ ưu tiên: ${result.priority}).`);
+      toast.success(`Đã tạo SOS (độ ưu tiên: ${result.sos.priority}).`);
       form.resetFields();
-      onCreated();
+      onCreated(result);
+      console.log(result);
     }
   };
 
@@ -68,6 +73,14 @@ export function CreateManualSosModal({
           ]}
         >
           <Input placeholder="Nhập số điện thoại người dân" />
+        </Form.Item>
+
+        <Form.Item
+          label="Địa chỉ (theo lời kể)"
+          name="diachi"
+          rules={[{ required: true, message: "Nhập địa chỉ" }]}
+        >
+          <Input placeholder="VD: 25 Võ Văn Ngân, Linh Chiểu" />
         </Form.Item>
 
         <div className="grid grid-cols-2 gap-3">

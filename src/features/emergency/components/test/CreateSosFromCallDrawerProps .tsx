@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Drawer, Form, InputNumber, Checkbox, Input, Button, Descriptions, Spin } from "antd";
 import { toast } from "react-toastify";
-import type { DetailHotlineCall } from "../../types/emergencyType";
+import type { DetailHotlineCall, SosHotlineCreateResult } from "../../types/emergencyType";
 import { useCreateHotlineSos } from "../../hooks/test/createHotlineSos";
 import { emergencyApi } from "../../api/emergencyApi";
 
@@ -13,7 +13,7 @@ interface CreateSosFromCallDrawerProps {
   /** callEventId của cuộc gọi đang được chọn để tạo SOS, null = đóng drawer. */
   callEventId: string | null;
   onClose: () => void;
-  onCreated: () => void;
+  onCreated: (result: SosHotlineCreateResult) => void;
 }
 
 export function CreateSosFromCallDrawer({
@@ -63,13 +63,17 @@ export function CreateSosFromCallDrawer({
       trapped: !!values.trapped,
       vulnerable: !!values.vulnerable,
       mota: values.mota ?? "",
+      
     });
+   
 
     if (result) {
-      toast.success(`Đã tạo SOS (độ ưu tiên: ${result.priority}).`);
+      toast.success(`Đã tạo SOS (độ ưu tiên: ${result.sos.priority}).`);
       form.resetFields();
-      onCreated();
+      onCreated(result);
+       console.log("callenventId:",callEventId)
     }
+    
   };
 
   return (

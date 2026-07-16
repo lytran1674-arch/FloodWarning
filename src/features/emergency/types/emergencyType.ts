@@ -1,8 +1,10 @@
 // features/hotline/types/emergencyType.ts
 
+import type { CallTaskStatus } from "@/features/calltask/constants/calltaskConstants";
 import type { SosSource } from "@/features/sosrequest/types/sosType";
 
 export type HotlineCallStatus = "PENDING_MATCH" | "MATCHED";
+export type TARGETTYPE="TEAM_LEADER" | "DEPUTY_LEADER" | "PROVINCE_OPERATOR"
 
 // Payload gửi khi dân bấm "Gọi Hotline" — POST /hotline/emergency-contact
 export interface EmergencyContactRequest {
@@ -29,6 +31,7 @@ interface SosHotlineBasePayload {
   injured: boolean;
   trapped: boolean;
   vulnerable: boolean;
+  diachi?:string
   mota: string;
 }
 
@@ -50,6 +53,14 @@ export type SosHotlineRequestPayload =
 // priority/status/environmentRisk chỉ mới thấy 1 giá trị thực tế mỗi loại trong test
 // (CRITICAL/PENDING/HIGH) — cần xác nhận backend còn giá trị nào khác không.
 export interface SosHotlineCreateResult {
+    sos:SosItems;
+  initialCallTask:CallTaskInitial;
+ 
+}
+
+
+
+export interface SosItems {
   id: string;
   alreadyExists: boolean | null;
   priority: string;
@@ -60,11 +71,22 @@ export interface SosHotlineCreateResult {
   mota: string;
   sosSource: SosSource;
   callEventId: string | null;
-  trackingCode:string
+  trackingCode: string;
+  dispatcherUserId: string | null;
+  dispatcherName: string | null;
+  dispatcherType: string | null;
   createdAt: string;
-
 }
-
+export interface CallTaskInitial{
+  callTaskId:string
+  targetUserId:string
+  targetUserName:string
+  phoneNumber:string
+  targetType:TARGETTYPE
+  timeoutSeconds:number
+  retryCount:number
+  status:CallTaskStatus
+}
 // Chi tiết 1 cuộc gọi hotline — dùng chung cho GET call-events/{id} và GET history
 export interface DetailHotlineCall {
   id: string;

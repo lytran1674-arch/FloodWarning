@@ -5,7 +5,7 @@ import { IoLogOut } from "react-icons/io5";
 import { Button } from "@/components/ui/Button";
 import { authAPI } from "../api/authApi";
 import { logout } from "../store/authSlice";
-import { clearFcmTokenOnLogout } from "@/utils/firebaseNotification";
+
 
 
 type Props = {

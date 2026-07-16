@@ -47,6 +47,7 @@ export function PendingCallsList({ onSelectCall }: PendingCallsListProps) {
                 <PhoneIncoming size={16} className="text-red-500" />
                 {call.callerPhoneNumber}
               </div>
+
               <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
                 Chờ tạo SOS
               </span>

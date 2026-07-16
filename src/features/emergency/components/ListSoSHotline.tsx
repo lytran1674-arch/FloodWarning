@@ -7,15 +7,15 @@ import { useEffect, useState } from "react";
 import type { UpdateSoSHotlinePayLoad } from "../types/emergencyType";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Calendar, Edit, MapIcon, MapPin, PhoneCall, Users } from "lucide-react";
-import { Button, Checkbox, Input, Modal, Select } from "antd";
+import { Calendar, Edit, MapPin, PhoneCall, Users } from "lucide-react";
+import { Button, Checkbox, Input, Modal } from "antd";
 
 interface Props{
     data?:SoSResponse[];
     onClick?:(SoSResponse:SoSResponse)=>void
 
 }
-export const ListSoSHotline = ({data=[],onClick}:Props) => {
+export const ListSoSHotline = ({data=[]}:Props) => {
    
     const defaultEditable: EditableFields = {
   sodt: false,
@@ -30,7 +30,7 @@ export const ListSoSHotline = ({data=[],onClick}:Props) => {
 };
     const navigate=useNavigate();
     const [selectedSos,setSelectedSos]=useState<SoSResponse|null>(null)
-    const {loading,error,updateSoSHotLine,getEdittableFields}=useListSoSHotlineCreated();
+    const {updateSoSHotLine,getEdittableFields}=useListSoSHotlineCreated();
     const [detailOpen,setDetailOpen]=useState(false);
     const [formData, setFormData] = useState<Partial<UpdateSoSHotlinePayLoad>>({})
      const editable: EditableFields=selectedSos?getEdittableFields(selectedSos.status):defaultEditable
