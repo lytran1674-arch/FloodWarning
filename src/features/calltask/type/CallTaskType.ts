@@ -1,7 +1,7 @@
 // type/CallTaskType.ts
 import type { CallTaskStatus } from "../constants/calltaskConstants"
 
-export type TARGETTYPE = "TEAM_LEADER" | "DEPUTY_LEADER" | "PROVINCE_OPERATOR"
+export type TARGETTYPE = "TEAM_LEADER" | "DEPUTY_LEADER" | "PROVINCE_OPERATOR" | "GROUP_LEADER"
 
 export type CallResultValue = "ANSWERED" | "NO_ANSWER" | "FAILED"
 

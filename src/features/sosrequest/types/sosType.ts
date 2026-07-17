@@ -1,4 +1,6 @@
 
+import type { CallTaskInitial } from "@/features/emergency/types/emergencyType"
+
 
 export type SosStatus =
   | "PENDING"
@@ -110,6 +112,7 @@ export interface DetailSos {
   status: SosStatus
   createdAt: string
   assignments: Assignment[]
+  
 }
 
 export interface Assignment {
@@ -186,3 +189,9 @@ export interface Assign{
   groupName:string
   status:string
 }
+
+export interface AssignSosResult {
+  assignmentId: string
+  callTask:     CallTaskInitial | null
+}
+

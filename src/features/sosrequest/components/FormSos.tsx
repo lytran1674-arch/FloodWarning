@@ -80,7 +80,7 @@ export const FormSOS = () => {
 
   // getDetailSoSForOwner trả về DetailSoSCitizen — tự chọn đúng
   // API /my hoặc /anonymous theo trạng thái đăng nhập
-  const { loading, createSoS, updateSoS, getDetailSoSForOwner } = useSoS();
+  const { loading, createSoS, updateSoS,fetchDetail } = useSoS();
 
   const {
     lat,
@@ -140,7 +140,7 @@ export const FormSOS = () => {
       // tự chọn đúng /my hoặc /anonymous theo trạng thái đăng nhập
       (async () => {
         try {
-          const detail = await getDetailSoSForOwner(sosIdParam);
+          const detail = await fetchDetail(sosIdParam);
           if (detail) prefillFromData(detail as unknown as Record<string, any>);
         } catch (err) {
           console.error("Không lấy được dữ liệu SOS cũ:", err);
@@ -148,13 +148,13 @@ export const FormSOS = () => {
         }
       })();
     }
-  }, [isEditMode, sosIdParam, locationState.sosData, getDetailSoSForOwner]);
+  }, [isEditMode, sosIdParam, locationState.sosData, fetchDetail]);
 
   // Khôi phục sđt đã lưu — CHỈ áp dụng khi tạo mới, không ghi đè
   // lên sđt vừa prefill ở chế độ cập nhật
   useEffect(() => {
     if (isEditMode) return;
-    const savedPhone = localStorage.getItem(ANONYMOUS_SODT_KEY);
+    const savedPhone = user?.sodt;
     if (savedPhone) setPhone(savedPhone);
   }, [isEditMode]);
 

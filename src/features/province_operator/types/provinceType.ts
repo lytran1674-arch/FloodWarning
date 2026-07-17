@@ -1,3 +1,5 @@
+import type { CallTaskInitial } from "@/features/emergency/types/emergencyType";
+
 export type SupportType ="SEARCH_RESCUE" | "BOAT" | "MEDICAL" | "LOGISTICS"
 export type Status="PENDING" | "APPROVED" | "REJECTED" | "COMPLETED" | "TEAM_REJECTED"
 
@@ -35,8 +37,11 @@ export interface CreateSupportRequestPayload {
 
 
 export interface CreateSupportRequestResponse {
-  code: number;
-  result: string; // id đơn hỗ trợ vừa tạo
+  code:   number
+  result: {
+    supportRequestId: string
+    callTask:         CallTaskInitial | null
+  }
 }
 
 export interface SupportRequestListResponse {
@@ -141,10 +146,8 @@ export interface CandidateTeam {
   leaderName: string;
   leaderPhone: string;
   emergencyPhone: string;
-  availableBoatGroups: number;
-  availableMedicalGroups: number;
-  availableSearchRescueGroups: number;
-  availableLogisticsGroups: number;
+  availableGroupCount: number;
+
   distanceKm:number
   requesterTeam:boolean
 }

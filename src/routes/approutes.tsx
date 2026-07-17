@@ -56,6 +56,9 @@ import {MySupportRequestCard} from "@/features/rescue/pages/MyRequestSupportCard
 import {FloodRiskThreeDayCard} from "@/features/citizen/component/Floodriskthreedaycard"
 import { SupportRequestGroup } from "@/features/grouprescue/components/SupportRequestGroup"
 import { AssignmentGroup } from "@/features/grouprescue/components/AssignmentGroup"
+import { CallWorkflowPage } from "@/features/calltask/pages/CallWorkflowPage"
+
+import DetailSos from "@/features/sosrequest/components/DetailSos"
 
 
 
@@ -120,6 +123,8 @@ const AppRoutes = () => {
 
         <Route path="/support-request-group/:assignmentId" element={<SupportRequestGroup/>}/>
         <Route path="/support-group-assign/:supportRequestId" element={<AssignmentGroup/>}/>
+        <Route path="/detail-sos-request/:sosId" element={<DetailSos/>}/>
+<Route path= "/call-workflow" element= {<CallWorkflowPage /> }/>
         </Route>
        
       </Routes>

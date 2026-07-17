@@ -1,7 +1,7 @@
 // features/sos/hooks/useSoS.ts
 
 import { useEffect, useState } from "react"
-import type { AssignSos, ListSOS, SentedSupportRequest, SoSRequest, SoSResponse } from "../../sosrequest/types/sosType"
+import type { AssignSos, AssignSosResult, DetailSos, ListSOS, SentedSupportRequest, SoSRequest, SoSResponse } from "../../sosrequest/types/sosType"
 import { sosService } from "../../sosrequest/services/sosService"
 import { toast } from "react-toastify"
 
@@ -14,6 +14,22 @@ export const useSoS = () => {
   const [submit, setSubmitting] = useState(false)
    const [requests, setRequests] = useState<SentedSupportRequest[]>([]);
 
+  const [detail, setDetail] = useState<DetailSos | null>(null); // phải là DetailSos, không phải DetailSoSCitizen
+
+const getDetailSoS = async (id: string) => {
+  try {
+    setLoading(true);
+    setError("");
+    const data = await sosService.getDetailSoS(id); // gọi đúng bản rescuer (DetailSos)
+    setDetail(data);
+    return data;
+  } catch (err: any) {
+    setError(err?.response?.data?.message || "Không thể tải chi tiết SOS");
+    return null;
+  } finally {
+    setLoading(false);
+  }
+};
   // Tạo mới hoặc cập nhật — BE tự phân biệt qua sodt + clientDeviceId
   // Trả về SoSResponse với alreadyExists để FormSOS xử lý navigate
   const createSoS = async (payload: SoSRequest): Promise<SoSResponse> => {
@@ -70,21 +86,23 @@ export const useSoS = () => {
     )
   }
 
-const assignment = async (payload: AssignSos): Promise<boolean> => {
-  try {
-    setSubmitting(true)
-    await sosService.postassign(payload)
-    console.log("POST dữ liệu thành công")
-    toast.success("Phân công cứu hộ thành công")
-    return true
-  } catch (err: any) {
-    toast.error(err?.response?.data?.message || "Phân công cứu hộ thất bại")
-    return false
-  } finally {
-    setSubmitting(false)
+const assignment = async (
+    payload: AssignSos
+  ): Promise<AssignSosResult | null> => {
+    try {
+      setSubmitting(true)
+      const res = await sosService.postassign(payload)
+      console.log("Phân công thành công:", res)
+      return res
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.message || "Phân công cứu hộ thất bại"
+      )
+      return null
+    } finally {
+      setSubmitting(false)
+    }
   }
-}
-
   return {
     // listSosRequest,
     createSoS,
@@ -95,6 +113,8 @@ const assignment = async (payload: AssignSos): Promise<boolean> => {
     error,
     request,
     requests,
-    refresh:fetchData
+    refresh:fetchData,
+    getDetailSoS,
+    detail
   }
 }

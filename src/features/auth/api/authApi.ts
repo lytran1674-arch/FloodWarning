@@ -5,6 +5,10 @@ import {
   publicApi,
 } from "@/api/axiosClient";
 
+export interface LogoutPayload{
+  accessToken:string;
+  refreshToken:string
+}
 export const authAPI = {
 
   // ================= LOGIN =================
@@ -46,9 +50,9 @@ export const authAPI = {
   },
 
   // ================= LOGOUT =================
-  logout() {
+  logout(payload:LogoutPayload) {
     return axiosClient.post(
-      "/auth/logout"
+      "/auth/logout",payload
     );
   },
 };

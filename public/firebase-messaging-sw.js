@@ -26,7 +26,7 @@ messaging.onBackgroundMessage((payload) => {
   const areaId = payload.data?.areaId ?? "";
 
   const icon =
-    level === "HIGH" ? "/icons/warning-high.png" :
+    level === "HIGH" ? "/icons/warning-high.png" :  
     level === "MEDIUM" ? "/icons/warning-medium.png" :
     "/logo.png";
 

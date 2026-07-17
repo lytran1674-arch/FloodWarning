@@ -41,7 +41,7 @@ async importRescuers(teamId: string, file: File) {
     throw error;
   }
 },
-async PickLeader(
+async PickLeaderAndDeputy(
   teamId: string,
   leaderId: string,
   deputyLeaderId:string
@@ -157,5 +157,8 @@ async removeMemberteam(teamId:string,userId:string):Promise<ResCue>{
 async updateStatusGroup(groupId:string,status:string):Promise<string>{
 const response=await axiosClient.patch(`/res-groups/${groupId}/status`,status)
 return response.data;
-}
+},
+
+//thêm đội phó và đội trưởng 
+
 };

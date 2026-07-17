@@ -13,7 +13,7 @@ export const DeviceApi={
         return response.data.result
     },
     async patchApprove(id: string,adminId:string):Promise<Device>{
-        const response= await axiosClient.patch(`${API_URL}/${id}/iot-device/approve?adminId=${adminId}`)
+        const response= await axiosClient.patch(`${API_URL}/iot-device/${id}/approve?adminId=${adminId}`)
         return response.data;
     },
     async patchPreject(id:string):Promise<Device>{

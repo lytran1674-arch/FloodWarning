@@ -1,4 +1,4 @@
-import { authAPI } from "../api/authApi";
+import { authAPI, type LogoutPayload } from "../api/authApi";
 
 import type {
   LoginPayLoad,
@@ -50,10 +50,10 @@ export const authService = {
   },
 
   // ================= LOGOUT =================
-  async logout() {
+  async logout(payload:LogoutPayload) {
 
     const response =
-      await authAPI.logout();
+      await authAPI.logout(payload);
 
     return response.data;
   },

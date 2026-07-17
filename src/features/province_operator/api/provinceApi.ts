@@ -24,40 +24,30 @@ export const provinceApi = {
 
   //lấy danh sách đội của 1 tỉnh
 async getCandidateTeams(
-  iteamId: string,
+  teamId: string,
 ): Promise<CandidateTeam[]> {
-  const { data } = await axiosClient.get(
-    `${API_URL}/items/${iteamId}/candidate-teams`,
+  const res = await axiosClient.get(
+    `${API_URL}/items/${teamId}/candidate-teams`,
 
-  );
+  );    
 
-  // Cấu trúc thật: { code, result: { sos: {...}, teams: [...] } }
-  // result.teams mới là mảng teams thật, KHÔNG phải result trực tiếp
-  const rawTeams = data?.result?.teams;
-
-  if (!Array.isArray(rawTeams)) {
-    return [];
-  }
+  
 
   // Map lại field cho khớp với type CandidateTeam dùng trong UI:
   // - BE trả "name"        -> FE cần "teamName"
   // - BE trả "markerType"  -> FE cần "requesterTeam" (boolean)
-  return rawTeams.map((t: any) => ({
-    id: t.id,
-    teamName: t.name,
-    areaId: t.areaId,
-    lat: t.lat,
-    lon: t.lon,
-    leaderName: t.leaderName,
-    leaderPhone: t.leaderPhone,
-    emergencyPhone: t.emergencyPhone,
-    availableBoatGroups: t.availableBoatGroups,
-    availableMedicalGroups: t.availableMedicalGroups,
-    availableSearchRescueGroups: t.availableSearchRescueGroups,
-    availableLogisticsGroups: t.availableLogisticsGroups,
-    distanceKm: t.distanceKm,
-    requesterTeam: t.markerType === "REQUESTER_TEAM",
-  }));
+   return (res.data.result ?? []).map((team: any) => ({
+    id:                  team.teamId ?? team.id,        // thử cả 2
+    teamName:            team.teamName ?? team.name,
+    lat:                 team.lat ?? team.latitude,
+    lon:                 team.lon ?? team.longitude,
+    leaderName:          team.leaderName,
+    leaderPhone:         team.leaderPhone,
+    emergencyPhone:      team.emergencyPhone,
+    availableGroupCount: team.availableGroupCount,
+    distanceKm:          team.distanceKm,
+    requesterTeam:       team.requesterTeam ?? false,
+  }))
 },
 // phê duyệt yêu cầu hỗ trợ
 async approveSupportRequest(

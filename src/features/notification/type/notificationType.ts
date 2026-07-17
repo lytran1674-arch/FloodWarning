@@ -1,11 +1,11 @@
-export interface NotificationPopup{
-    id:string
-    title:string
-    message:string
-    type:string
-    sosId:string
-    trackingCode:string
-    createdAt:string
+export interface NotificationPopup {
+  id: string;
+  title: string;
+  message: string;
+  type: "CALL_WORKFLOW_FAILED" | string; 
+  sosId?: string;                       
+  trackingCode: string;
+  createdAt: string;
 }
 
 export interface Alarm{

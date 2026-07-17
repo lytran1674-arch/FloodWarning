@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { createSupportRequest } from "../api/supportRequestApi";
 import type { SupportType } from "../types/provinceType";
+import type { CallTaskInitial } from "@/features/emergency/types/emergencyType";
 
+// Đổi prop signature
 interface CreateSupportRequestModalProps {
-  sosId: string;
-  open: boolean;
-  onClose: () => void;
-  onSuccess: (requestId: string) => void;
+  sosId:     string
+  open:      boolean
+  onClose:   () => void
+  onSuccess: (supportRequestId: string, callTask: CallTaskInitial | null) => void  // ✅
 }
 
 interface SupportItem {
@@ -122,81 +124,38 @@ export function CreateSupportRequestModal({
     );
   };
 
-  const handleSubmit = async () => {
-    if (!reason.trim()) {
-      setError(
-        "Vui lòng nhập lý do yêu cầu hỗ trợ"
-      );
+ const handleSubmit = async () => {
+  if (!reason.trim()) {
+    setError("Vui lòng nhập lý do yêu cầu hỗ trợ")
+    return
+  }
+  if (supportItems.some(item => item.requiredGroupCount <= 0)) {
+    setError("Số group cần hỗ trợ phải lớn hơn 0")
+    return
+  }
 
-      return;
-    }
+  setLoading(true)
+  setError(null)
 
-    const hasInvalidGroup =
-      supportItems.some(
-        (item) =>
-          item.requiredGroupCount <= 0
-      );
+  try {
+    const res = await createSupportRequest({ sosId, reason, items: supportItems })
 
-    if (hasInvalidGroup) {
-      setError(
-        "Số group cần hỗ trợ phải lớn hơn 0"
-      );
+    // ✅ Truyền cả supportRequestId + callTask ra ngoài
+    onSuccess(res.result.supportRequestId, res.result.callTask ?? null)
 
-      return;
-    }
+    resetState()
+    onClose()
+  } catch (err: any) {
+    const code    = err?.response?.data?.code
+    const message = err?.response?.data?.message
 
-    setLoading(true);
-
-    setError(null);
-
-    try {
-      const payload = {
-        sosId,
-
-        reason,
-
-        items: supportItems,
-      };
-
-      console.log(payload);
-
-      const res =
-        await createSupportRequest(
-          payload
-        );
-
-      onSuccess(res.result);
-
-      resetState();
-
-      onClose();
-    } catch (err: any) {
-      console.error(err);
-
-      const code =
-        err?.response?.data?.code;
-
-      const message =
-        err?.response?.data?.message;
-
-      if (code === 1044) {
-        setError(
-          "Đơn yêu cầu hỗ trợ đã tồn tại cho SOS này!"
-        );
-      } else if (code === 1939) {
-        setError(
-          "Bạn không có quyền tạo yêu cầu hỗ trợ cho SOS này!"
-        );
-      } else {
-        setError(
-          message ||
-            "Có lỗi xảy ra, vui lòng thử lại"
-        );
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+    if (code === 1044)      setError("Đơn yêu cầu hỗ trợ đã tồn tại!")
+    else if (code === 1939) setError("Bạn không có quyền tạo yêu cầu!")
+    else                    setError(message || "Có lỗi xảy ra, vui lòng thử lại")
+  } finally {
+    setLoading(false)
+  }
+}
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -378,3 +337,12 @@ export function CreateSupportRequestModal({
     </div>
   );
 }
+
+
+// navigate("/call-workflow", {
+//   state: {
+//     initialCallTask:  callTask,
+//     supportRequestId: supportRequestId,
+//     flowType:         "SUPPORT_REQUEST",  // ✅ thêm
+//   }
+// })

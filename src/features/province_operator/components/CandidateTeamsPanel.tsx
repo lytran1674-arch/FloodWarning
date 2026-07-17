@@ -215,19 +215,19 @@ export function CandidateTeamsPanel({
         {sortedTeams.length === 0 ? (
           <p className="text-sm text-gray-400">Không có đội khả dụng</p>
         ) : (
-          sortedTeams.map((team) => {
-            const totalGroups = getTotalAvailableGroups(team);
-            const isChecked = selectedTeamIds.includes(team.id);
-            const isRequester = team.requesterTeam;
-            const isDisabled =
-              items.some(
-                (item) =>
-                  item.requiredGroupCount > 0 &&
-                  getAvailableGroups(team, item.supportType) === 0
-              ) || isRequester;
+        sortedTeams.map((team) => {
+  const totalGroups  = getTotalAvailableGroups(team)
+  const isChecked    = selectedTeamIds.includes(team.id)
+  const isRequester  = team.requesterTeam
+  const isDisabled   =
+    items.some(
+      (item) =>
+        item.requiredGroupCount > 0 &&
+        getAvailableGroups(team, item.supportType) === 0
+    ) || isRequester
 
             return (
-              <label
+              <div
                 key={team.id}
                 className={`
                   flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors
@@ -276,21 +276,22 @@ export function CandidateTeamsPanel({
                     </div>
                   </div>
 
-                  {/* === HIỂN THỊ SỐ NHÓM CHO TỪNG LOẠI === */}
-                  <div className="mt-1.5 flex flex-wrap gap-2">
-                    {items.map((item) => {
-                      const count = getAvailableGroups(team, item.supportType);
-                      if (count === 0) return null;
-                      return (
-                        <span
-                          key={item.supportType}
-                          className="rounded bg-green-100 px-2 py-0.5 text-[11px] text-green-700"
-                        >
-                          {SUPPORT_TYPE_LABEL[item.supportType]}: {count}
-                        </span>
-                      );
-                    })}
-                  </div>
+                {/* === HIỂN THỊ SỐ NHÓM === */}
+<div className="mt-1.5 flex flex-wrap gap-2">
+  {items.map((item) => {
+    // ✅ Dùng availableGroupCount trực tiếp — BE đã filter đúng type
+    const count = team.availableGroupCount ?? 0
+    if (count === 0) return null
+    return (
+      <span
+        key={item.supportType}
+        className="rounded bg-green-100 px-2 py-0.5 text-[11px] text-green-700"
+      >
+        {SUPPORT_TYPE_LABEL[item.supportType]}: {count}
+      </span>
+    )
+  })}
+</div>
 
                   {/* THÔNG TIN ĐỘI */}
                   <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
@@ -310,7 +311,7 @@ export function CandidateTeamsPanel({
                     </span>
                   </div>
                 </div>
-              </label>
+              </div>
             );
           })
         )}

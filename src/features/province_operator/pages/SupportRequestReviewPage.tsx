@@ -6,44 +6,38 @@ import { ArrowLeft, ChevronDown, ChevronRight } from "lucide-react";
 import { toast } from "react-toastify";
 
 import SOSDetailCard from "@/features/sosrequest/components/ChiTietSOS";
-import { useSoS } from "@/features/sosrequest/hooks/useSoS";
+
 
 import type {
   ApprovedItem,
   ApprovePayload,
   SupportRequestDetail,
-  CandidateTeam,
 } from "../types/provinceType";
 import { CandidateTeamsPanel } from "../components/CandidateTeamsPanel";
 
 import { provinceApi } from "../api/provinceApi";
 import { getAvailableGroups, SUPPORT_TYPE_LABEL } from "../utils/supportType";
 import { useCandidateTeams } from "../hooks/usecandidateTeams";
-
-// ======================================================
-// STATUS BADGE
-// ======================================================
+import { useSoS } from "@/features/rescue/hooks/useSoS";
 
 const STATUS_BADGE: Record<string, string> = {
   PENDING: "bg-yellow-100 text-yellow-700",
   APPROVED: "bg-blue-100 text-blue-700",
   REJECTED: "bg-red-100 text-red-700",
   COMPLETED: "bg-green-100 text-green-700",
+  // THÊM: thiếu trạng thái này trước đó -> class CSS ra "undefined", badge mất style
+  TEAM_REJECTED: "bg-orange-100 text-orange-700",
 };
 
-// ======================================================
-// LOCATION STATE
-// ======================================================
+// THÊM: fallback style cho status lạ chưa được liệt kê ở trên
+const statusBadgeClass = (status: string) =>
+  STATUS_BADGE[status] ?? "bg-gray-100 text-gray-600";
 
 interface ReviewLocationState {
   sosId?: string;
   supportRequestId?: string;
   items?: SupportRequestDetail[];
 }
-
-// ======================================================
-// COMPONENT
-// ======================================================
 
 export function SupportRequestReviewPage() {
   const navigate = useNavigate();
@@ -52,44 +46,21 @@ export function SupportRequestReviewPage() {
   const { sosId, supportRequestId, items } =
     (location.state as ReviewLocationState | null) ?? {};
 
-  const { detailSOS, loading: loadingSOS, getDetailSoS } = useSoS();
-
-  // ======================================================
-  // STATE
-  // ======================================================
+  const { detail, loading: loadingSOS, getDetailSoS } = useSoS();
 
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [candidateTeamsByItem, setCandidateTeamsByItem] = useState<
-    Record<string, CandidateTeam[]>
-  >({});
   const [selectedTeamsByItem, setSelectedTeamsByItem] = useState<
     Record<string, string[]>
   >({});
+  const [submitting, setSubmitting] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [showRejectBox, setShowRejectBox] = useState(false);
 
-  // ======================================================
-  // FETCH TEAMS FOR SELECTED ITEM
-  // ======================================================
+  // THÊM: ô "Ghi chú" trước đó không có state -> gõ vào là mất, không gửi
+  // được lên đâu cả (textarea uncontrolled, không value/onChange).
+  const [note, setNote] = useState("");
 
-  const { teams: currentItemTeams, loading: loadingTeams } = useCandidateTeams(
-    selectedItemId || undefined
-  );
-
-  // Lưu teams khi có dữ liệu
-  useEffect(() => {
-    if (selectedItemId && currentItemTeams.length > 0) {
-      setCandidateTeamsByItem((prev) => ({
-        ...prev,
-        [selectedItemId]: currentItemTeams,
-      }));
-    }
-    // Log để debug
-    console.log("📌 selectedItemId:", selectedItemId);
-    console.log("📦 currentItemTeams:", currentItemTeams);
-  }, [selectedItemId, currentItemTeams]);
-
-  // ======================================================
-  // VALIDATE & LOAD SOS
-  // ======================================================
+  const { teamsByItem, loadingItemId, fetchCandidateTeams } = useCandidateTeams();
 
   useEffect(() => {
     if (!sosId || !supportRequestId || !items || items.length === 0) {
@@ -102,37 +73,50 @@ export function SupportRequestReviewPage() {
     if (sosId) getDetailSoS(sosId);
   }, [sosId, getDetailSoS]);
 
-  // ======================================================
-  // HANDLERS
-  // ======================================================
-
   const handleItemClick = (itemId: string) => {
     if (selectedItemId === itemId) {
       setSelectedItemId(null);
       return;
     }
     setSelectedItemId(itemId);
+    // Chỉ fetch nếu chưa có data cho item này, tránh gọi lại API mỗi lần mở/đóng
+    if (!teamsByItem[itemId]) {
+      fetchCandidateTeams(itemId);
+    }
   };
 
   const handleToggleTeam = (itemId: string, teamId: string) => {
     setSelectedTeamsByItem((prev) => {
-      const current = prev[itemId] || [];
-      const updated = current.includes(teamId)
-        ? current.filter((id) => id !== teamId)
-        : [...current, teamId];
-      return { ...prev, [itemId]: updated };
+      const current = prev[itemId] ?? [];
+
+      const item = items?.find((i) => i.id === itemId);
+      const required = item?.requiredGroupCount ?? 1;
+
+      if (current.includes(teamId)) {
+        // Bỏ chọn
+        return { ...prev, [itemId]: current.filter((id) => id !== teamId) };
+      }
+
+      if (required === 1) {
+        // Chỉ cần 1 nhóm -> replace, không cho chọn thêm
+        return { ...prev, [itemId]: [teamId] };
+      }
+
+      if (current.length >= required) {
+        // Đã đủ số nhóm -> không cho chọn thêm
+        toast.warning(`Chỉ cần ${required} nhóm cho loại hỗ trợ này`);
+        return prev;
+      }
+
+      return { ...prev, [itemId]: [...current, teamId] };
     });
   };
-
-  // ======================================================
-  // CALCULATIONS
-  // ======================================================
 
   const allocationByItem = useMemo(() => {
     return (items ?? []).map((item) => {
       const required = item.requiredGroupCount || 0;
       const selectedTeamIds = selectedTeamsByItem[item.id] || [];
-      const teams = candidateTeamsByItem[item.id] || [];
+      const teams = teamsByItem[item.id] || [];
       const selectedTeams = teams.filter((t) => selectedTeamIds.includes(t.id));
 
       const totalAvailable = selectedTeams.reduce(
@@ -148,7 +132,7 @@ export function SupportRequestReviewPage() {
         fulfilled: totalAvailable >= required,
       };
     });
-  }, [items, selectedTeamsByItem, candidateTeamsByItem]);
+  }, [items, selectedTeamsByItem, teamsByItem]);
 
   const totalSelectedGroups = useMemo(
     () => allocationByItem.reduce((sum, a) => sum + a.allocated, 0),
@@ -161,22 +145,11 @@ export function SupportRequestReviewPage() {
   );
 
   const allSelected =
-    allocationByItem.length > 0 &&
-    allocationByItem.every((a) => a.fulfilled);
-
-  // ======================================================
-  // NULL GUARD
-  // ======================================================
+    allocationByItem.length > 0 && allocationByItem.every((a) => a.fulfilled);
 
   if (!sosId || !supportRequestId || !items || items.length === 0) {
     return null;
   }
-
-  // ======================================================
-  // APPROVE & REJECT
-  // ======================================================
-
-  const [submitting, setSubmitting] = useState(false);
 
   const handleApprove = async () => {
     if (!allSelected) {
@@ -188,7 +161,7 @@ export function SupportRequestReviewPage() {
 
     items.forEach((item) => {
       const selectedTeamIds = selectedTeamsByItem[item.id] || [];
-      const teams = candidateTeamsByItem[item.id] || [];
+      const teams = teamsByItem[item.id] || [];
       const teamMap = new Map(teams.map((t) => [t.id, t]));
 
       let remaining = item.requiredGroupCount || 0;
@@ -203,15 +176,16 @@ export function SupportRequestReviewPage() {
         if (available <= 0) continue;
 
         const existed = approvedItems.some(
-          (x) =>
-            x.supportRequestItemId === item.id &&
-            x.assignedTeamId === teamId
+          (x) => x.supportRequestItemId === item.id && x.assignedTeamId === teamId
         );
         if (!existed) {
           approvedItems.push({
             supportRequestItemId: item.id,
             assignedTeamId: teamId,
             status: "APPROVED",
+            // THÊM: gắn ghi chú (nếu có) vào từng item được duyệt, vì
+            // ApprovePayload không có field ghi chú ở cấp ngoài
+            ...(note.trim() ? { provinceResponse: note.trim() } : {}),
           });
         }
 
@@ -238,9 +212,6 @@ export function SupportRequestReviewPage() {
       setSubmitting(false);
     }
   };
-
-  const [rejectReason, setRejectReason] = useState("");
-  const [showRejectBox, setShowRejectBox] = useState(false);
 
   const handleReject = async () => {
     if (!rejectReason.trim()) {
@@ -270,10 +241,6 @@ export function SupportRequestReviewPage() {
     }
   };
 
-  // ======================================================
-  // UI
-  // ======================================================
-
   return (
     <div className="mx-auto max-w-6xl p-6">
       <button
@@ -285,29 +252,21 @@ export function SupportRequestReviewPage() {
       </button>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* LEFT: SOS Detail */}
         <div>
           <h2 className="mb-3 text-lg font-semibold">Chi tiết SOS</h2>
-          <SOSDetailCard data={detailSOS} loading={loadingSOS} />
+          <SOSDetailCard data={detail} loading={loadingSOS} />
         </div>
 
-        {/* RIGHT: Items + Action */}
         <div className="space-y-6">
-          {/* Các hạng mục hỗ trợ */}
           <div className="rounded-xl border bg-white p-5 shadow-sm">
             <h3 className="mb-3 text-sm font-semibold">Các hạng mục hỗ trợ</h3>
             <div className="space-y-3">
               {items.map((item) => {
-                const allocation = allocationByItem.find(
-                  (a) => a.itemId === item.id
-                );
+                const allocation = allocationByItem.find((a) => a.itemId === item.id);
                 const isOpen = selectedItemId === item.id;
 
                 return (
-                  <div
-                    key={item.id}
-                    className="rounded-lg border bg-gray-50 transition-all"
-                  >
+                  <div key={item.id} className="rounded-lg border bg-gray-50 transition-all">
                     <div
                       className="flex cursor-pointer items-center justify-between p-3"
                       onClick={() => handleItemClick(item.id)}
@@ -328,14 +287,14 @@ export function SupportRequestReviewPage() {
                           <span className="ml-2 text-xs text-green-600">✓ Đã đủ</span>
                         ) : (
                           <span className="ml-2 text-xs text-orange-600">
-                            Thiếu { (allocation?.required ?? 0) - (allocation?.allocated ?? 0) }
+                            Thiếu {(allocation?.required ?? 0) - (allocation?.allocated ?? 0)}
                           </span>
                         )}
                       </div>
                       <span
-                        className={`rounded-full px-2 py-1 text-[11px] font-medium ${
-                          STATUS_BADGE[item.status]
-                        }`}
+                        className={`rounded-full px-2 py-1 text-[11px] font-medium ${statusBadgeClass(
+                          item.status
+                        )}`}
                       >
                         {item.status}
                       </span>
@@ -344,15 +303,13 @@ export function SupportRequestReviewPage() {
                     {isOpen && (
                       <div className="border-t p-3">
                         <CandidateTeamsPanel
-                          teams={candidateTeamsByItem[item.id] || []}
-                          loading={loadingTeams && selectedItemId === item.id}
+                          teams={teamsByItem[item.id] || []}
+                          loading={loadingItemId === item.id}
                           items={[item]}
-                          sosLat={detailSOS?.lat}
-                          sosLon={detailSOS?.lon}
+                          sosLat={detail?.lat}
+                          sosLon={detail?.lon}
                           selectedTeamIds={selectedTeamsByItem[item.id] || []}
-                          onToggleTeam={(teamId) =>
-                            handleToggleTeam(item.id, teamId)
-                          }
+                          onToggleTeam={(teamId) => handleToggleTeam(item.id, teamId)}
                         />
                       </div>
                     )}
@@ -362,13 +319,11 @@ export function SupportRequestReviewPage() {
             </div>
 
             <div className="mt-3 rounded-lg bg-blue-50 p-3 text-sm text-blue-700">
-              Đã chọn{" "}
-              <span className="font-semibold">{totalSelectedGroups}</span>/
+              Đã chọn <span className="font-semibold">{totalSelectedGroups}</span>/
               <span className="font-semibold">{totalRequiredGroups}</span> nhóm
             </div>
           </div>
 
-          {/* Action */}
           <div className="rounded-xl border bg-white p-5 shadow-sm">
             <h3 className="mb-3 text-sm font-semibold">Xác nhận điều phối</h3>
 
@@ -377,6 +332,8 @@ export function SupportRequestReviewPage() {
                 Ghi chú (tuỳ chọn)
               </label>
               <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
                 rows={3}
                 placeholder="Ví dụ: Điều động đội gần khu vực nhất"
                 className="w-full rounded border border-gray-300 px-3 py-2 text-sm"

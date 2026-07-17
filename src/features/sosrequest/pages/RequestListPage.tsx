@@ -3,10 +3,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import type { SoSResponse, FilterStatus } from '../types/sosType'
-// import SosRequestCard from '../components/SosRequestCard'
+
 import { axiosClient } from '@/api/axiosClient'
 import { AlertCircle, X, ChevronLeft, Loader2, Inbox } from 'lucide-react'
 import { useSoS } from '../hooks/useSoS'
+import SosRequestCard from '../components/SosRequestCard'
 
 const filterOptions: { key: FilterStatus; label: string }[] = [
   { key: 'ALL',        label: 'Tất cả'     },
@@ -19,8 +20,8 @@ const filterOptions: { key: FilterStatus; label: string }[] = [
 export const RequestListPage = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  // const [, setModalOpen] = useState(false)
-  // const [, setSelectedId] = useState<string | null>(null)
+   const [, setModalOpen] = useState(false)
+   const [, setSelectedId] = useState<string | null>(null)
 
   const [requests, setRequests] = useState<SoSResponse[]>([])
   const [loading, setLoading] = useState(true)
@@ -35,7 +36,7 @@ export const RequestListPage = () => {
 
   // ── state từ navigate ──────────────────────────────────────────
   const highlightId        = location.state?.highlightId        as string | undefined
-//  const sosData            = location.state?.sosData
+  const sosData            = location.state?.sosData
   const showExistingBanner = location.state?.showExistingBanner as boolean | undefined
   const showSuccessBanner  = location.state?.showSuccessBanner  as boolean | undefined
 
@@ -82,10 +83,10 @@ export const RequestListPage = () => {
       ? requests
       : requests.filter(r => r.status === activeFilter)
 
-  // function handleOpenDetail(id: string) {
-  //   setSelectedId(id)
-  //   setModalOpen(true)
-  // }
+  function handleOpenDetail(id: string) {
+    setSelectedId(id)
+    setModalOpen(true)
+  }
 
   // ── Hủy yêu cầu ─────────────────────────────────────────────────
   const handleRequestCancel = (id: string) => {
@@ -223,12 +224,12 @@ export const RequestListPage = () => {
             ref={req.id === highlightId ? highlightRef : null}
             className="relative"
           >
-            {/* <SosRequestCard
+            <SosRequestCard
               request={req}
               highlight={req.id === highlightId}
               sosData={req.id === highlightId ? sosData : undefined}
-              onViewDetail={() => handleOpenDetail(req.id)}
-            /> */}
+             
+            /> 
 
             {/* Nút hủy - chỉ hiện khi PENDING */}
             {req.status === 'PENDING' && (

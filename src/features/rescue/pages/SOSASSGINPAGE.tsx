@@ -1,22 +1,16 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAppSelector } from "@/hooks/redux.hooks";
-import { useGroup } from "../hooks/useGroup";
+import { toast } from "react-toastify";
 import { useSoS } from "../../sosrequest/hooks/useSoS";
+import { useAssignCandidates } from "../hooks/useAssignCandidates";
+import { RequestSupportButton } from "@/features/province_operator/components/RequestSupportButton";
 
 import {
-  Anchor,
-  Stethoscope,
   Users,
   ArrowLeft,
   CheckCircle2,
 } from "lucide-react";
 
-import { RequestSupportButton } from "@/features/province_operator/components/RequestSupportButton";
-
-// TODO: đổi lại đúng enum RoleGroup thật trong sosType.ts của bạn
-// Đây là 2 giá trị mình tạm giả định — "đội chính" / "đội hỗ trợ"
 type RoleGroup = "PRIMARY" | "SUPPORT";
 
 const roleOptions: { value: RoleGroup; label: string }[] = [
@@ -50,83 +44,89 @@ const groupStatusLabel = (status: string) => {
   }
 };
 
-export const SOSASSGINPAGE=()=>  {
-  const {sosId } = useParams<{ sosId: string }>();
+export const SOSASSGINPAGE = () => {
+  const { sosId } = useParams<{ sosId: string }>();
   const navigate = useNavigate();
 
-  // TODO: xác nhận field teamId thật trong redux auth state (giống areaId)
-  const user = useAppSelector((state) => state.auth.user);
-  const teamId = user?.teamId;
-
-  const { groups, loading: loadingGroups } = useGroup(teamId);
-
+  // Đã sửa: gọi đúng endpoint mới theo sosId, BE tự lọc team + AVAILABLE,
+  // không tự fetch toàn bộ group của team rồi lọc client-side như trước.
+  const { groups, loading: loadingGroups, error: candidatesError, getAssignCandidates } =
+    useAssignCandidates();
 
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [role, setRole] = useState<RoleGroup>("PRIMARY");
   const [note, setNote] = useState("");
-const {
-  assignment,
-  submit,
+  const [submitError, setSubmitError] = useState("");
 
-  getDetailSoS,
-} = useSoS()
+  const { assignment, submit, getDetailSoS } = useSoS();
 
-useEffect(() => {
-  if (sosId) {
-    getDetailSoS(sosId)
-  }
-}, [sosId])
-  // const selectedGroup: Group | undefined = groups.find(
-  //   (g) => g.id === selectedGroupId
-  // );
+  useEffect(() => {
+    if (sosId) {
+      getDetailSoS(sosId);
+      getAssignCandidates(sosId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sosId]);
+
 const handleSubmit = async () => {
-  console.log("DEBUG sosId:", sosId, "| selectedGroupId:", selectedGroupId);
+  if (!sosId || !selectedGroupId) return
+  setSubmitError("")
 
-  if (!sosId) {
-    console.log("DEBUG: bị chặn vì sosId undefined");
-    return;
-  }
-  if (!selectedGroupId) {
-    console.log("DEBUG: bị chặn vì chưa chọn group");
-    return;
-  }
-
-  const success = await assignment({
+  const res = await assignment({
     sosId,
     groupId: selectedGroupId,
     role,
     note: note.trim() || undefined,
-  });
+  })
 
-  console.log("DEBUG: kết quả assignment:", success);
-
-  if (success) {
-    navigate(-1);
+  if (res) {
+    if (res.callTask) {
+      // ✅ Mở màn gọi Group Leader
+      navigate("/call-workflow", {
+  state: {
+    initialCallTask:  res.callTask,
+    supportRequestId: res.assignmentId,
+    flowType:         "ASSIGN_GROUP",  // ✅ thêm
+    sosId:            sosId,           // ✅ thêm — để navigate về đúng SOS
   }
-};
+})
+    } else {
+      toast.success("Phân công thành công!")
+      navigate("/team-sos")
+    }
+  } else {
+    setSubmitError(
+      "Không thể phân công. Có thể quyền điều phối SOS này đã thay đổi — vui lòng quay lại danh sách và thử lại."
+    )
+  }
+}
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
-     {/* <SOSDetailCard
-  data={detailSOS}
-  loading={loading}
-/>     */}
-  <div className="flex justify-between">
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-4"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Quay lại
-      </button>
-    {sosId && (
-    <RequestSupportButton
-      sosId={sosId}
-      onCreated={(requestId) => {
-        console.log("Đã tạo đơn hỗ trợ:", requestId);
-      }}
-    />
-  )}
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Quay lại
+        </button>
+
+        {sosId && (
+          <RequestSupportButton
+            sosId={sosId}
+            onCreated={() => {
+              // Sau khi xin hỗ trợ, quyền điều phối SOS này chuyển sang Province Operator.
+              // Team Leader không còn quyền phân công SOS này nữa -> quay lại danh sách ngay,
+              // không để họ đứng lại màn phân công (mọi thao tác assign tiếp theo sẽ bị BE
+              // trả NO_PERMISSION).
+              toast.success(
+                "Đã gửi yêu cầu hỗ trợ. SOS này đã được chuyển cho Điều phối viên tỉnh xử lý."
+              );
+              navigate(-1);
+            }}
+          />
+        )}
       </div>
 
       <h1 className="text-xl font-bold mb-4">Phân công đội cứu hộ</h1>
@@ -139,9 +139,11 @@ const handleSubmit = async () => {
 
         {loadingGroups ? (
           <p className="text-sm text-gray-400">Đang tải danh sách đội...</p>
+        ) : candidatesError ? (
+          <p className="text-sm text-red-600">{candidatesError}</p>
         ) : groups.length === 0 ? (
           <p className="text-sm text-gray-400">
-            Không có đội nào trong team của bạn
+            Không có đội nào phù hợp / sẵn sàng cho SOS này
           </p>
         ) : (
           <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
@@ -177,28 +179,17 @@ const handleSubmit = async () => {
                       >
                         {groupStatusLabel(group.status)}
                       </span>
+  {/* ✅ Tag gọi thất bại */}
+  {group.callFailed && (
+    <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-red-100 text-red-600 shrink-0">
+      Gọi thất bại
+    </span>
+  )}
                     </div>
 
-                    {group.notes && (
-                      <p className="text-xs text-gray-400 mt-1 truncate">
-                        {group.notes}
-                      </p>
-                    )}
-
-                    <div className="flex items-center gap-3 mt-1.5">
-                      {group.hasBoat && (
-                        <span className="flex items-center gap-1 text-[11px] text-blue-600">
-                          <Anchor className="w-3.5 h-3.5" />
-                          Có xuồng
-                        </span>
-                      )}
-                      {group.hasMedical && (
-                        <span className="flex items-center gap-1 text-[11px] text-emerald-600">
-                          <Stethoscope className="w-3.5 h-3.5" />
-                          Có thuốc y tế
-                        </span>
-                      )}
-                    </div>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Trưởng nhóm: {group.leaderName} · {group.memberCount} thành viên
+                    </p>
                   </div>
 
                   {isSelected && (
@@ -248,6 +239,10 @@ const handleSubmit = async () => {
         />
       </div>
 
+      {submitError && (
+        <p className="text-sm text-red-600 mb-3">{submitError}</p>
+      )}
+
       <button
         onClick={handleSubmit}
         disabled={!selectedGroupId || submit}
@@ -257,131 +252,4 @@ const handleSubmit = async () => {
       </button>
     </div>
   );
-}
-
-// import { useEffect, useState } from "react";
-// import { useNavigate, useParams } from "react-router-dom";
-// import { useSoS } from "../../sosrequest/hooks/useSoS";
-// import { ArrowLeft } from "lucide-react";
-// import SOSDetailCard from "@/features/sosrequest/components/ChiTietSOS";
-// import { RescueGroupTable } from "./RescueGroupTable";
-
-// // TODO: đổi lại đúng enum RoleGroup thật trong sosType.ts của bạn
-// // Đây là 2 giá trị mình tạm giả định — "đội chính" / "đội hỗ trợ"
-// type RoleGroup = "PRIMARY" | "SUPPORT";
-
-// const roleOptions: { value: RoleGroup; label: string }[] = [
-//   { value: "PRIMARY", label: "Đội chính" },
-//   { value: "SUPPORT", label: "Đội hỗ trợ" },
-// ];
-
-// export const SOSASSGINPAGE = () => {
-//   const { sosId } = useParams<{ sosId: string }>();
-//   const navigate = useNavigate();
-
-//   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
-//   const [role, setRole] = useState<RoleGroup>("PRIMARY");
-//   const [note, setNote] = useState("");
-
-//   const { assignment, submit, loading, detailSOS, getDetailSoS } = useSoS();
-
-//   useEffect(() => {
-//     if (sosId) {
-//       getDetailSoS(sosId);
-//     }
-//   }, [sosId]);
-
-//   const handleSubmit = async () => {
-//     console.log("DEBUG sosId:", sosId, "| selectedGroupId:", selectedGroupId);
-
-//     if (!sosId) {
-//       console.log("DEBUG: bị chặn vì sosId undefined");
-//       return;
-//     }
-//     if (!selectedGroupId) {
-//       console.log("DEBUG: bị chặn vì chưa chọn group");
-//       return;
-//     }
-
-//     const success = await assignment({
-//       sosId,
-//       groupId: selectedGroupId,
-//       role,
-//       note: note.trim() || undefined,
-//     });
-
-//     console.log("DEBUG: kết quả assignment:", success);
-
-//     if (success) {
-//       navigate(-1);
-//     }
-//   };
-
-//   return (
-//     <div className="p-6 max-w-2xl mx-auto">
-//       <SOSDetailCard data={detailSOS} loading={loading} />
-
-//       <button
-//         onClick={() => navigate(-1)}
-//         className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-4"
-//       >
-//         <ArrowLeft className="w-4 h-4" />
-//         Quay lại
-//       </button>
-
-//       <h1 className="text-xl font-bold mb-4">Phân công đội cứu hộ</h1>
-
-//       {/* Chọn group - RescueGroupTable tự fetch data qua useGroup */}
-//       <div className="mb-6">
-//         <RescueGroupTable
-//           selectedGroup={selectedGroupId ?? undefined}
-//           onSelect={setSelectedGroupId}
-//         />
-//       </div>
-
-//       {/* Chọn role */}
-//       <div className="mb-6">
-//         <p className="text-sm font-semibold text-gray-700 mb-2">Vai trò</p>
-//         <div className="flex gap-2">
-//           {roleOptions.map((opt) => (
-//             <button
-//               key={opt.value}
-//               type="button"
-//               onClick={() => setRole(opt.value)}
-//               className={`px-3 py-1.5 rounded-lg text-sm border transition-colors
-//                 ${
-//                   role === opt.value
-//                     ? "bg-blue-600 text-white border-blue-600"
-//                     : "bg-white text-gray-600 border-gray-300 hover:border-gray-400"
-//                 }`}
-//             >
-//               {opt.label}
-//             </button>
-//           ))}
-//         </div>
-//       </div>
-
-//       {/* Ghi chú */}
-//       <div className="mb-6">
-//         <p className="text-sm font-semibold text-gray-700 mb-2">
-//           Ghi chú (tuỳ chọn)
-//         </p>
-//         <textarea
-//           value={note}
-//           onChange={(e) => setNote(e.target.value)}
-//           rows={3}
-//           placeholder="VD: Ưu tiên tiếp cận từ phía Nam, khu vực ngập sâu..."
-//           className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-//         />
-//       </div>
-
-//       <button
-//         onClick={handleSubmit}
-//         disabled={!selectedGroupId || submit}
-//         className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-//       >
-//         {submit ? "Đang phân công..." : "Xác nhận phân công"}
-//       </button>
-//     </div>
-//   );
-// };
+};

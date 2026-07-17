@@ -5,6 +5,7 @@ import { sosService } from "../services/sosService"
 
 import type {
   AssignSos,
+  AssignSosResult,
   DetailSos,
   DetailSoSCitizen,
   SoSRequest,
@@ -27,7 +28,7 @@ export const useSoS = () => {
   // =========================
   const [request, setRequest] = useState<SoSResponse[]>([])   // đồng bộ về SoSResponse[]
   const [detailSOS, setDetailSOS] = useState<DetailSos | null>(null)
- const [detailSOSCitizen, setDetailSOSCitizen] = useState<DetailSoSCitizen | null>(null)
+ const [detail, setDetail] = useState<DetailSoSCitizen | null>(null)
   // =========================
   // CREATE SOS
   // =========================
@@ -150,27 +151,19 @@ export const useSoS = () => {
   // =========================
   // ASSIGNMENT
   // =========================
-  const assignment = async (payload: AssignSos): Promise<boolean> => {
+const assignment = async (
+    payload: AssignSos
+  ): Promise<AssignSosResult | null> => {
     try {
       setSubmitting(true)
-      setError(null)
-
-      const assignmentId = await sosService.postassign(payload)
-      console.log("Assignment ID:", assignmentId)
-
-      toast.success("Phân công cứu hộ thành công")
-
-      return true
+      const res = await sosService.postassign(payload)
+      console.log("Phân công thành công:", res)
+      return res
     } catch (err: any) {
-      console.error("ASSIGNMENT ERROR:", err)
-
-      const message =
+      toast.error(
         err?.response?.data?.message || "Phân công cứu hộ thất bại"
-
-      setError(message)
-      toast.error(message)
-
-      return false
+      )
+      return null
     } finally {
       setSubmitting(false)
     }
@@ -236,32 +229,20 @@ export const useSoS = () => {
     setDetailSOS(null)
   }
 
-  const getDetailSoSForOwner = useCallback(
-    async (id: string): Promise<DetailSoSCitizen | null> => {
-      try {
-        if (!id) return null
-
-        setLoading(true)
-        setError(null)
-
-        const data = await SoSAPI.getDetailSoS(id)
-          // : await sosService.getDetailSoSAnonymous(id)
-
-        setDetailSOSCitizen(data)
-        return data
-      } catch (err: any) {
-        console.error("GET DETAIL SOS (OWNER) ERROR:", err)
-        const message =
-          err?.response?.data?.message || "Không thể tải chi tiết SOS"
-        setError(message)
-        toast.error(message)
-        return null
-      } finally {
-        setLoading(false)
-      }
-    },
-    []
-  )
+  const fetchDetail = useCallback(async (id: string) => {
+    try {
+      setLoading(true)
+      setError("")
+      const data = await SoSAPI.getDetailSoSCitizen(id)
+      setDetail(data)
+      return data
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Không thể tải chi tiết yêu cầu SOS")
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
 
   // =========================
@@ -275,7 +256,7 @@ export const useSoS = () => {
 
     // data
     request,
-    detailSOS,
+    detail,
 
     // actions
     createSoS,
@@ -290,9 +271,9 @@ export const useSoS = () => {
     // custom setters
     setRequest,
     setDetailSOS,
-detailSOSCitizen,
+    fetchDetail,
     // cancel result
     cancel,
-    getDetailSoSForOwner
+
   }
 }
