@@ -6,7 +6,7 @@ import type { DetailHotlineCall, SosHotlineCreateResult } from "../../types/emer
 import { useCreateHotlineSos } from "../../hooks/test/createHotlineSos";
 import { emergencyApi } from "../../api/emergencyApi";
 
-
+  
 const { TextArea } = Input;
 
 interface CreateSosFromCallDrawerProps {

@@ -298,15 +298,15 @@ export const FormSOS = () => {
   const isLocationReady = !!effectiveLat && !!effectiveLon;
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg border p-2 sm:p-6 lg:p-8 mt-5">
-      <form className="space-y-2" onSubmit={handleSubmit}>
+    <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg border p-3 sm:p-6 lg:p-8 mt-5">
+      <form className="space-y-4" onSubmit={handleSubmit}>
         <h2 className="text-center text-red-600 text-xl sm:text-2xl lg:text-3xl font-bold">
           {isEditMode ? "CẬP NHẬT YÊU CẦU CỨU HỘ" : "CỨU HỘ KHẨN CẤP"}
         </h2>
 
         {/* Vị trí */}
         <section className="space-y-3">
-          <Label icon={Map} className="text-red-600 font-semibold text-lg lg:text-xl sm:text-sm">
+          <Label icon={Map} className="text-red-600 font-semibold text-base sm:text-lg lg:text-xl">
             Vị trí
           </Label>
 
@@ -314,7 +314,7 @@ export const FormSOS = () => {
             type="button"
             onClick={getLocation}
             disabled={locLoading || isGpsDisabled}
-            className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 text-sm font-medium transition-all duration-200 ${
+            className={`w-full flex flex-wrap items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 text-xs sm:text-sm font-medium text-center transition-all duration-200 ${
               locLoading
                 ? "border-blue-200 text-blue-400 bg-blue-50 cursor-not-allowed"
                 : isGpsDisabled
@@ -326,44 +326,46 @@ export const FormSOS = () => {
           >
             {locLoading ? (
               <>
-                <Loader className="w-4 h-4 animate-spin" />
+                <Loader className="w-4 h-4 shrink-0 animate-spin" />
                 Đang lấy vị trí GPS...
               </>
             ) : lat && !isGpsDisabled ? (
               <>
-                <Navigation className="w-4 h-4" />
-                GPS: {lat.toFixed(5)}, {lon?.toFixed(5)} · Nhấn để cập nhật
+                <Navigation className="w-4 h-4 shrink-0" />
+                <span className="break-words">
+                  GPS: {lat.toFixed(5)}, {lon?.toFixed(5)} · Nhấn để cập nhật
+                </span>
               </>
             ) : (
               <>
-                <Navigation className="w-4 h-4" />
+                <Navigation className="w-4 h-4 shrink-0" />
                 Nhấn để lấy vị trí GPS của bạn
               </>
             )}
           </button>
 
           {isGpsDisabled && (
-            <p className="text-xs text-slate-500 flex items-center gap-1">
-              <TriangleAlert className="w-3 h-3" />
+            <p className="text-xs text-slate-500 flex items-start gap-1">
+              <TriangleAlert className="w-3 h-3 shrink-0 mt-0.5" />
               GPS đang tắt vì bạn đã nhập toạ độ tay. Xoá 2 ô toạ độ bên dưới để dùng lại GPS.
             </p>
           )}
 
           {locError && !isGpsDisabled && (
-            <p className="text-xs text-red-500 flex items-center gap-1">
-              <TriangleAlert className="w-3 h-3" />
+            <p className="text-xs text-red-500 flex items-start gap-1">
+              <TriangleAlert className="w-3 h-3 shrink-0 mt-0.5" />
               {locError} — bạn có thể nhập toạ độ bên dưới thay thế
             </p>
           )}
 
           <div className="flex items-center gap-2 py-1">
             <div className="flex-1 h-px bg-slate-200" />
-            <span className="text-xs text-slate-400">hoặc nhập toạ độ tay</span>
+            <span className="text-xs text-slate-400 text-center shrink-0">hoặc nhập toạ độ tay</span>
             <div className="flex-1 h-px bg-slate-200" />
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
+            <div className="space-y-1 min-w-0">
               <label className="text-xs text-slate-400">Vĩ độ (lat)</label>
               <input
                 type="number"
@@ -371,10 +373,10 @@ export const FormSOS = () => {
                 value={manualLat}
                 onChange={(e) => setManualLat(e.target.value)}
                 placeholder="VD: 10.77653"
-                className="w-full border rounded-xl px-3 py-2 text-sm outline-none border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+                className="w-full min-w-0 border rounded-xl px-2.5 sm:px-3 py-2 text-xs sm:text-sm outline-none border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
               />
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1 min-w-0">
               <label className="text-xs text-slate-400">Kinh độ (lon)</label>
               <input
                 type="number"
@@ -382,7 +384,7 @@ export const FormSOS = () => {
                 value={manualLon}
                 onChange={(e) => setManualLon(e.target.value)}
                 placeholder="VD: 106.70098"
-                className="w-full border rounded-xl px-3 py-2 text-sm outline-none border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+                className="w-full min-w-0 border rounded-xl px-2.5 sm:px-3 py-2 text-xs sm:text-sm outline-none border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
               />
             </div>
           </div>
@@ -401,18 +403,20 @@ export const FormSOS = () => {
           )}
 
           {isUsingManualCoords && (
-            <p className="text-xs text-blue-600 flex items-center gap-1 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
-              <MapPin className="w-3 h-3" />
-              Đang dùng toạ độ: {parsedManualLat?.toFixed(5)}, {parsedManualLon?.toFixed(5)}
+            <p className="text-xs text-blue-600 flex items-start gap-1 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
+              <MapPin className="w-3 h-3 shrink-0 mt-0.5" />
+              <span className="break-words">
+                Đang dùng toạ độ: {parsedManualLat?.toFixed(5)}, {parsedManualLon?.toFixed(5)}
+              </span>
             </p>
           )}
           {validationErrors.coords && (
-            <p className="text-xs text-red-500">{validationErrors.coords}</p>
+            <p className="text-xs text-red-500 break-words">{validationErrors.coords}</p>
           )}
 
-          <div className="relative h-56 rounded-xl overflow-hidden border border-slate-200">
+          <div className="relative h-48 sm:h-56 rounded-xl overflow-hidden border border-slate-200">
             {locLoading && (
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-50/80 gap-2">
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-50/80 gap-2 px-3 text-center">
                 <Loader className="w-6 h-6 animate-spin text-red-500" />
                 <span className="text-sm text-slate-500">Đang xác định vị trí...</span>
               </div>
@@ -430,8 +434,8 @@ export const FormSOS = () => {
         {/* Số người */}
         <section className="space-y-3">
           <div className="flex items-center gap-2">
-            <Users className="text-red-600 size-6" />
-            <p className="text-red-600 font-semibold text-lg lg:text-xl sm:text-sm">
+            <Users className="text-red-600 size-5 sm:size-6 shrink-0" />
+            <p className="text-red-600 font-semibold text-base sm:text-lg lg:text-xl">
               Số người cần cứu
             </p>
           </div>
@@ -445,8 +449,8 @@ export const FormSOS = () => {
         {/* Tình trạng */}
         <section className="space-y-3">
           <div className="flex items-center gap-2">
-            <TriangleAlert className="text-red-600 lg:size-6" />
-            <p className="text-red-600 font-semibold text-lg lg:text-xl sm:text-sm">
+            <TriangleAlert className="text-red-600 size-5 lg:size-6 shrink-0" />
+            <p className="text-red-600 font-semibold text-base sm:text-lg lg:text-xl">
               Tình trạng
             </p>
           </div>
@@ -455,33 +459,33 @@ export const FormSOS = () => {
 
         {/* SĐT */}
         <section className="space-y-3">
-          <Label icon={PhoneCall} className="text-red-600 font-semibold text-lg sm:text-sm lg:text-xl">
+          <Label icon={PhoneCall} className="text-red-600 font-semibold text-base sm:text-lg lg:text-xl">
             Số điện thoại
           </Label>
           <Input
-           value={user?.sodt ?? ""}
+            value={phone}
             onChange={setPhone}
             placeholder="Nhập số điện thoại liên hệ"
             className="w-full"
           />
           {validationErrors.phone && (
-            <p className="text-xs text-red-500">{validationErrors.phone}</p>
+            <p className="text-xs text-red-500 break-words">{validationErrors.phone}</p>
           )}
         </section>
 
         {/* Mô tả */}
         <section className="space-y-3">
-          <Label icon={FileText} className="text-red-600 font-semibold text-lg sm:text-sm lg:text-xl">
+          <Label icon={FileText} className="text-red-600 font-semibold text-base sm:text-lg lg:text-xl">
             Mô tả tình trạng
           </Label>
           <textarea
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
-            className="w-full border rounded-xl p-3 min-h-32 resize-none outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 transition-all"
+            className="w-full border rounded-xl p-3 min-h-28 sm:min-h-32 resize-none outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 transition-all text-sm"
             placeholder="Mô tả tình trạng hiện tại (không bắt buộc)..."
           />
           {validationErrors.desc && (
-            <p className="text-xs text-red-500">{validationErrors.desc}</p>
+            <p className="text-xs text-red-500 break-words">{validationErrors.desc}</p>
           )}
         </section>
 
@@ -489,13 +493,13 @@ export const FormSOS = () => {
         <button
           type="submit"
           disabled={isSubmitting || !isLocationReady}
-          className={`w-full text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
+          className={`w-full text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all text-sm sm:text-base ${
             isSubmitting || !isLocationReady
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-red-600 hover:opacity-90"
           }`}
         >
-          {isSubmitting ? <Loader className="w-5 h-5 animate-spin" /> : <Phone />}
+          {isSubmitting ? <Loader className="w-5 h-5 animate-spin" /> : <Phone className="w-5 h-5" />}
           {isEditMode ? "CẬP NHẬT SOS" : "GỬI SOS"}
         </button>
       </form>

@@ -3,10 +3,8 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { IoLogOut } from "react-icons/io5";
 import { Button } from "@/components/ui/Button";
-import { authAPI, type LogoutPayload } from "../api/authApi";
+import { authAPI } from "../api/authApi";
 import { logout } from "../store/authSlice";
-
-
 
 type Props = {
   className?: string;
@@ -17,17 +15,22 @@ export const LogOut = ({ className }: Props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleOnClick = async (payload:LogoutPayload) => {
+  const handleOnClick = async () => {
     if (loading) return;
     setLoading(true);
+
+    const accessToken = localStorage.getItem("accessToken");
+    const refreshToken = localStorage.getItem("refreshToken");
+
     try {
-      await authAPI.logout(payload);
+      if (accessToken && refreshToken) {
+        await authAPI.logout({ accessToken, refreshToken });
+      }
     } catch (e) {
       console.error(e);
     } finally {
       // Xóa sạch FCM token + unregister Service Worker TRƯỚC khi xóa accessToken,
       // vì deleteToken(messaging) cần Firebase vẫn còn nhận diện được app instance hiện tại
-
 
       localStorage.removeItem("user");
       localStorage.removeItem("accessToken");
@@ -44,7 +47,7 @@ export const LogOut = ({ className }: Props) => {
 
   return (
     <Button
-      onClick={(value)=>handleOnClick()}
+      onClick={handleOnClick}
       disabled={loading}
       className={`lg:p-2 p-1 text-black flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
         className ?? ""

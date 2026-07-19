@@ -17,6 +17,7 @@ import {
   TriangleAlert,
   Navigation,
   MapPin,
+  ArrowLeft,
 } from "lucide-react"
 import type { SoSRequest } from "../types/sosType"
 import GeoMap from "../../map/components/GeoMap"
@@ -69,7 +70,7 @@ export const UpdateSOSPage = () => {
   const { id } = useParams<{ id: string }>()
   const { state } = useLocation()
   const navigate = useNavigate()
-  const { updateSoS, getDetailSoSForOwner, loading } = useSoS()
+  const { updateSoS, fetchDetail, loading } = useSoS()
 
   const initialSosData: SoSResponseData | undefined = state?.sosData
 
@@ -118,7 +119,7 @@ export const UpdateSOSPage = () => {
     (async () => {
       setFetchingDetail(true)
       try {
-        const detail = await getDetailSoSForOwner(id)
+        const detail = await fetchDetail(id)
         if (detail) {
           setSosData(detail as unknown as SoSResponseData)
           applyPrefill(detail as unknown as SoSResponseData)
@@ -133,7 +134,7 @@ export const UpdateSOSPage = () => {
         prefillDoneRef.current = true
       }
     })()
-  }, [id, initialSosData, getDetailSoSForOwner])
+  }, [id, initialSosData, fetchDetail])
 
   const {
     lat: gpsLat,
@@ -203,6 +204,9 @@ export const UpdateSOSPage = () => {
     }
   }
 
+  const QuayLai=(()=>{
+    navigate(-1);
+  })
   // Đang tải chi tiết (trường hợp F5, chưa có state) -> hiện loading
   if (fetchingDetail) {
     return (
@@ -213,8 +217,12 @@ export const UpdateSOSPage = () => {
   }
 
   return (
+    
     <div className="max-w-4xl mx-auto mt-5 px-2 sm:px-6 lg:px-8 pb-10">
-
+      <div className="flex justify-start items-center lg:gap-3 gap-1 lg:mb-2">
+        <ArrowLeft onClick={QuayLai}/>
+        <p className="text-sm lg:text-xl text-black">Quay lại</p>
+      </div>
       {/* ── Banner cảnh báo ── */}
       <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-4">
         <AlertCircle className="text-amber-500 w-5 h-5 mt-0.5 shrink-0" />

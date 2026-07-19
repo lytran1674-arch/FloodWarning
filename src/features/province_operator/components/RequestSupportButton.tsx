@@ -14,7 +14,7 @@ export function RequestSupportButton({
   onCreated,
 }: RequestSupportButtonProps) {
   const [open, setOpen] = useState(false);
-  const navigate=useNavigate()
+  const navigate = useNavigate();
 
   return (
     <>
@@ -24,22 +24,27 @@ export function RequestSupportButton({
       >
         Yêu cầu hỗ trợ
       </button>
-<CreateSupportRequestModal
-  sosId={sosId}
-  open={open}
-  onClose={() => setOpen(false)}
-  onSuccess={(supportRequestId, callTask) => {
-    setOpen(false)
-    if (callTask) {
-      // ✅ Có callTask → mở màn gọi điện ngay
-      navigate("/call-workflow", {
-        state: { initialCallTask: callTask, supportRequestId }
-      })
-    } else {
-      toast.success("Đã tạo yêu cầu hỗ trợ")
-    }
-  }}
-/>
+
+      <CreateSupportRequestModal
+        sosId={sosId}
+        open={open}
+        onClose={() => setOpen(false)}
+        onSuccess={(supportRequestId, callTask) => {
+          setOpen(false);
+
+          // Gọi callback báo cho component cha biết đã tạo thành công
+          onCreated?.(supportRequestId);
+
+          if (callTask) {
+            // ✅ Có callTask → mở màn gọi điện ngay
+            navigate("/call-workflow", {
+              state: { initialCallTask: callTask, supportRequestId },
+            });
+          } else {
+            toast.success("Đã tạo yêu cầu hỗ trợ");
+          }
+        }}
+      />
     </>
   );
 }

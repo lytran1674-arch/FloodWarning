@@ -1,39 +1,34 @@
 // features/sos/components/SosRequestCard.tsx
-
-import { useNavigate } from "react-router-dom"
-import { Pencil, Users, Clock, AlertTriangle, BarChart2 } from "lucide-react"
-import type { SoSResponse, SosStatus, SosPriority } from "../types/sosType"
+import { useNavigate }                                     from "react-router-dom"
+import { Pencil, Users, Clock, AlertTriangle, BarChart2, Loader2 } from "lucide-react"
+import type { SoSResponse, SosStatus, SosPriority }        from "../types/sosType"
 
 interface SosRequestCardProps {
-  request:    SoSResponse
-  highlight?: boolean
-  sosData?:   any
-  
+  request:            SoSResponse
+  highlight?:         boolean
+  sosData?:           any
+  // ✅ nút hủy nằm trong card — nhận callback từ Page
+  onCancel?:          (id: string) => void
+  cancelLoading?:     boolean
 }
 
 const statusConfig: Record<SosStatus, {
-  label: string
-  dot: string
-  badge: string
-  bar: string
+  label: string; dot: string; badge: string; bar: string
 }> = {
-  PENDING:    { label: "Chờ tiếp nhận", dot: "bg-amber-400",  badge: "bg-amber-50 text-amber-700 border-amber-200",  bar: "bg-amber-400"  },
-  PROCESSING: { label: "Đang xử lý",    dot: "bg-blue-500",   badge: "bg-blue-50 text-blue-700 border-blue-200",     bar: "bg-blue-500"   },
-  DONE:       { label: "Hoàn thành",    dot: "bg-emerald-500",badge: "bg-emerald-50 text-emerald-700 border-emerald-200", bar: "bg-emerald-500"},
-  CANCELLED:  { label: "Đã huỷ",        dot: "bg-gray-400",   badge: "bg-gray-50 text-gray-500 border-gray-200",     bar: "bg-gray-400"   },
-  ASSIGNED: { label: "Đã điều phối",dot: "bg-indigo-500",badge: "bg-indigo-50 text-indigo-700 border-indigo-200",bar: "bg-indigo-500",
-  },
+  PENDING:    { label: "Chờ tiếp nhận", dot: "bg-amber-400",   badge: "bg-amber-50 text-amber-700 border-amber-200",       bar: "bg-amber-400"   },
+  PROCESSING: { label: "Đang xử lý",    dot: "bg-blue-500",    badge: "bg-blue-50 text-blue-700 border-blue-200",           bar: "bg-blue-500"    },
+  DONE:       { label: "Hoàn thành",    dot: "bg-emerald-500", badge: "bg-emerald-50 text-emerald-700 border-emerald-200",  bar: "bg-emerald-500" },
+  CANCELLED:  { label: "Đã huỷ",        dot: "bg-gray-400",    badge: "bg-gray-50 text-gray-500 border-gray-200",           bar: "bg-gray-400"    },
+  ASSIGNED:   { label: "Đã điều phối",  dot: "bg-indigo-500",  badge: "bg-indigo-50 text-indigo-700 border-indigo-200",     bar: "bg-indigo-500"  },
 }
 
 const priorityConfig: Record<SosPriority, {
-  label: string
-  stripe: string
-  text: string
+  label: string; stripe: string; text: string
 }> = {
-  CRITICAL: { label: "Khẩn cấp",  stripe: "bg-red-500",    text: "text-red-700"    },
-  HIGH:     { label: "Cao",        stripe: "bg-orange-400", text: "text-orange-700" },
-  MEDIUM:   { label: "Trung bình", stripe: "bg-amber-400",  text: "text-amber-700"  },
-  LOW:      { label: "Thấp",       stripe: "bg-green-400",  text: "text-green-700"  },
+  CRITICAL: { label: "Khẩn cấp",   stripe: "bg-red-500",    text: "text-red-700"    },
+  HIGH:     { label: "Cao",         stripe: "bg-orange-400", text: "text-orange-700" },
+  MEDIUM:   { label: "Trung bình",  stripe: "bg-amber-400",  text: "text-amber-700"  },
+  LOW:      { label: "Thấp",        stripe: "bg-green-400",  text: "text-green-700"  },
 }
 
 function formatDate(iso: string): string {
@@ -43,14 +38,12 @@ function formatDate(iso: string): string {
   })
 }
 
-// Score bar: 0–100 → width %
 function ScoreBar({ score }: { score: number }) {
   const clamped = Math.min(100, Math.max(0, score))
   const color =
-    clamped >= 75 ? "bg-red-500" :
+    clamped >= 75 ? "bg-red-500"    :
     clamped >= 50 ? "bg-orange-400" :
-    clamped >= 25 ? "bg-amber-400" : "bg-green-400"
-
+    clamped >= 25 ? "bg-amber-400"  : "bg-green-400"
   return (
     <div className="flex items-center gap-2">
       <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
@@ -70,48 +63,56 @@ const UPDATABLE_STATUSES: SosStatus[] = ["PENDING", "PROCESSING"]
 
 export default function SosRequestCard({
   request,
-  highlight = false,
+  highlight    = false,
   sosData,
-
+  onCancel,
+  cancelLoading = false,
 }: SosRequestCardProps) {
   const navigate = useNavigate()
 
-  const status   = statusConfig[request.status as SosStatus]   ?? { label: request.status,   dot: "bg-gray-400", badge: "bg-gray-50 text-gray-500 border-gray-200", bar: "bg-gray-400" }
-  const priority = priorityConfig[request.priority as SosPriority] ?? { label: request.priority, stripe: "bg-gray-400", text: "text-gray-700" }
+  const status   = statusConfig[request.status as SosStatus]
+    ?? { label: request.status,   dot: "bg-gray-400", badge: "bg-gray-50 text-gray-500 border-gray-200", bar: "bg-gray-400" }
+  const priority = priorityConfig[request.priority as SosPriority]
+    ?? { label: request.priority, stripe: "bg-gray-400", text: "text-gray-700" }
 
   const shortId   = request.id.substring(0, 8).toUpperCase()
   const canUpdate = UPDATABLE_STATUSES.includes(request.status as SosStatus)
+  const canCancel = request.status === "PENDING" && !!onCancel
 
-const handleUpdate = (e: React.MouseEvent) => {
-  e.stopPropagation();
+  const handleUpdate = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    navigate(`/update-sos/${request.id}`, {
+      state: { sosData: sosData ?? request },
+    })
+  }
 
-  navigate(`/update-sos/${request.id}`, {
-    state: { sosData: sosData ?? request },
-  });
-};
+  const handleDetail = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    navigate(`/detail-sos-request/${request.id}`, {
+      state: { request },
+    })
+  }
 
-const handleOnClick = () => {
-  navigate(`/detail-sos-request/${request.id}`, {
-    state: { request },
-  });
-};
+  const handleCancel = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onCancel?.(request.id)
+  }
+
   return (
-    <div
-      className={`
-        group relative bg-white rounded-2xl border overflow-hidden
-        transition-all duration-200
-        ${highlight
-          ? "border-amber-400 shadow-[0_0_0_3px_rgba(251,191,36,0.2)] shadow-md"
-          : "border-gray-200 hover:border-gray-300 hover:shadow-md"
-        }
-      `}
-    >
-      {/* Priority stripe — bên trái */}
+    <div className={`
+      group relative bg-white rounded-2xl border overflow-hidden
+      transition-all duration-200
+      ${highlight
+        ? "border-amber-400 shadow-[0_0_0_3px_rgba(251,191,36,0.2)] shadow-md"
+        : "border-gray-200 hover:border-gray-300 hover:shadow-md"
+      }
+    `}>
+      {/* Priority stripe */}
       <div className={`absolute left-0 top-0 bottom-0 w-1 ${priority.stripe}`} />
 
       <div className="pl-4 pr-3 sm:pr-4 pt-3 pb-3">
 
-        {/* ── Row 1: ID · badge highlight · status ── */}
+        {/* Row 1: ID · highlight badge · status */}
         <div className="flex items-center justify-between gap-2 mb-2.5">
           <div className="flex items-center gap-2 min-w-0">
             <span className="text-[11px] text-gray-400 font-mono tracking-wide flex-shrink-0">
@@ -123,43 +124,41 @@ const handleOnClick = () => {
               </span>
             )}
           </div>
-
-          {/* Status badge với dot */}
           <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border flex-shrink-0 ${status.badge}`}>
-            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${status.dot} ${request.status !== "DONE" && request.status !== "CANCELLED" ? "animate-pulse" : ""}`} />
+            <span className={`
+              w-1.5 h-1.5 rounded-full flex-shrink-0 ${status.dot}
+              ${request.status !== "DONE" && request.status !== "CANCELLED" ? "animate-pulse" : ""}
+            `}/>
             {status.label}
           </span>
         </div>
 
-        {/* ── Row 2: Mô tả ── */}
+        {/* Row 2: Mô tả */}
         <p className="text-sm font-semibold text-gray-800 mb-2.5 line-clamp-2 sm:truncate sm:line-clamp-none leading-snug">
           {request.mota || <span className="text-gray-400 italic">Không có mô tả</span>}
         </p>
 
-        {/* ── Row 3: Meta chips ── */}
+        {/* Row 3: Meta chips */}
         <div className="flex flex-wrap gap-x-3 gap-y-1.5 mb-3">
           <span className={`inline-flex items-center gap-1 text-xs font-medium ${priority.text}`}>
             <AlertTriangle className="w-3 h-3" />
             Ưu tiên: {priority.label}
           </span>
-
           <span className="inline-flex items-center gap-1 text-xs text-gray-500">
             <Users className="w-3 h-3" />
             {request.victimCount} người
           </span>
-
           <span className="inline-flex items-center gap-1 text-xs text-gray-500">
             <Clock className="w-3 h-3" />
             {formatDate(request.createdAt)}
           </span>
-
           <span className="inline-flex items-center gap-1 text-xs text-gray-500">
             <AlertTriangle className="w-3 h-3 opacity-60" />
             {request.environmentRisk}
           </span>
         </div>
 
-        {/* ── Row 4: Score bar ── */}
+        {/* Row 4: Score bar */}
         <div className="mb-0.5">
           <div className="flex items-center justify-between mb-1">
             <span className="inline-flex items-center gap-1 text-[11px] text-gray-400">
@@ -167,36 +166,62 @@ const handleOnClick = () => {
               Mức độ nghiêm trọng
             </span>
           </div>
-          <ScoreBar score={request.baseSeverityScore??0} />
+          <ScoreBar score={request.baseSeverityScore ?? 0} />
         </div>
 
-        {/* ── Nút Cập nhật ── */}
-        {canUpdate && (
+        {/* ── Action buttons ── */}
+        {(canUpdate || canCancel) && (
+          <div className="mt-3 pt-3 border-t border-gray-100 flex gap-2">
+
+            {/* Nút xem chi tiết */}
+            <button
+              onClick={handleDetail}
+              className="flex-1 py-2 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+            >
+              Xem chi tiết
+            </button>
+
+            {/* Nút cập nhật */}
+            {canUpdate && (
+              <button
+                onClick={handleUpdate}
+                className="flex-1 flex items-center justify-center gap-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-2 rounded-xl transition-colors"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                Cập nhật
+              </button>
+            )}
+
+            {/* Nút hủy — chỉ hiện khi PENDING */}
+            {canCancel && (
+              <button
+                onClick={handleCancel}
+                disabled={cancelLoading}
+                className="flex-1 flex items-center justify-center gap-1.5 border border-red-200 text-red-500 text-sm font-medium py-2 rounded-xl hover:bg-red-50 transition-colors disabled:opacity-60"
+              >
+                {cancelLoading
+                  ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  : null
+                }
+                {cancelLoading ? "Đang hủy..." : "Hủy yêu cầu"}
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Nếu không có action → chỉ hiện nút xem chi tiết */}
+        {!canUpdate && !canCancel && (
           <div className="mt-3 pt-3 border-t border-gray-100">
             <button
-              onClick={handleUpdate}
-              className="
-                w-full flex items-center justify-center gap-2
-                bg-red-600 hover:bg-red-700 active:bg-red-800
-                text-white text-sm font-semibold
-                py-2.5 rounded-xl transition-colors
-                shadow-sm hover:shadow
-              "
+              onClick={handleDetail}
+              className="w-full py-2 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
             >
-              <Pencil className="w-3.5 h-3.5" />
-              Cập nhật yêu cầu
+              Xem chi tiết
             </button>
           </div>
         )}
-      </div>
-       <button
-        onClick={handleOnClick}
-        className="text-xs text-red-500 hover:underline mt-2"
-      >
-        Xem chi tiết
-      </button>
 
+      </div>
     </div>
-    
   )
 }

@@ -1,3 +1,4 @@
+// src/api/axiosClient.ts
 import axios from "axios";
 import { store } from "@/app/store";
 
@@ -68,10 +69,6 @@ function onRefreshFailed(err: any) {
 }
 
 function forceLogout() {
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("refreshToken");
-  localStorage.removeItem("user");
-
   store.dispatch(logout());
   window.location.href = "/";
 }
@@ -85,12 +82,6 @@ axiosClient.interceptors.response.use(
 
     // Không có response (lỗi mạng...) hoặc không phải 401 -> reject luôn
     if (!error.response || error.response.status !== 401) {
-      return Promise.reject(error);
-    }
-
-    // Nếu chính request /auth/refresh bị 401 -> refresh token cũng die luôn, logout
-    if (originalRequest.url?.includes("/auth/refresh")) {
-      forceLogout();
       return Promise.reject(error);
     }
 
@@ -123,11 +114,10 @@ axiosClient.interceptors.response.use(
       const newAccessToken = res.data.result.accessToken;
       const newRefreshToken = res.data.result.refreshToken;
 
-      // update redux
+      // update redux + localStorage (localStorage được set trong reducer)
       store.dispatch(setAccessToken(newAccessToken));
 
-      // update localStorage
-      localStorage.setItem("accessToken", newAccessToken);
+      // refreshToken không có trong Redux state, lưu trực tiếp vào localStorage
       localStorage.setItem("refreshToken", newRefreshToken);
 
       isRefreshing = false;

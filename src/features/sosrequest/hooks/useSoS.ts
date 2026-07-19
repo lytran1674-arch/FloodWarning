@@ -27,7 +27,7 @@ export const useSoS = () => {
   // DATA
   // =========================
   const [request, setRequest] = useState<SoSResponse[]>([])   // đồng bộ về SoSResponse[]
-  const [detailSOS, setDetailSOS] = useState<DetailSos | null>(null)
+  const [, setDetailSOS] = useState<DetailSos | null>(null)
  const [detail, setDetail] = useState<DetailSoSCitizen | null>(null)
   // =========================
   // CREATE SOS
