@@ -124,7 +124,7 @@ setSosList(allSOS
                   </p>
              
               </div>
-
+                    
               <div className="lg:mt-1 sm:mt-1 flex justify-between">
                    <span
                   className={`px-3 py-1 rounded-full text-xs font-semibold ${priorityColor(

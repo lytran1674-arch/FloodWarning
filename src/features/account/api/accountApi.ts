@@ -14,7 +14,8 @@ export const AccountApi={
     }
     ,
     //cập nhật thông tin người dùng
-     async updateAccount(data: Account): Promise<void> {
-    await axiosClient.put(API_URL, data);
+     async updateAccount(data: Account): Promise<Account> {
+    const res=  await axiosClient.put(API_URL, data);
+    return res.data.result;
   },
 }

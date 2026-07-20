@@ -53,12 +53,13 @@ import { UpdateSOSPageAnonymous } from "@/features/sosrequest-anonymous/pages/Up
 import { UpdateSOSPage } from "@/features/sosrequest/pages/Updatesospage"
 import {MySupportRequestCard} from "@/features/rescue/pages/MyRequestSupportCard"
 
-import {FloodRiskThreeDayCard} from "@/features/citizen/component/Floodriskthreedaycard"
+
 import { SupportRequestGroup } from "@/features/grouprescue/components/SupportRequestGroup"
 import { AssignmentGroup } from "@/features/grouprescue/components/AssignmentGroup"
 //import { CallWorkflowPage } from "@/features/calltask/pages/CallWorkflowPage"
 
 import { SoSDetail } from "@/features/sosrequest/components/SoSDetail"
+import { DataFlood } from "@/features/citizen/component/DataFlood"
 
 
 
@@ -103,7 +104,7 @@ const AppRoutes = () => {
         <Route path="/update-sos/:id" element={<UpdateSOSPage/>} />
         <Route path="/success" element={<SuccessPage/>}/>
         <Route path="/summary-water" element={<SummaryWaterPage/>}/>
-        <Route path="/sum-water" element={<SumWaterPage/>}/>
+        <Route path="/summarywater" element={<SumWaterPage/>}/>
         <Route path="/evaluation" element={<SnapShotPage/>}/>
         <Route path="/homerescue" element={<HomeRescue/>}/>
         <Route path="/request-support" element={<SupportRequestListPage/>}/>
@@ -114,7 +115,7 @@ const AppRoutes = () => {
          <Route path="/support-request" element={<MyRequestSupportPage/>}/>
         <Route path="/account" element={<AccountPage/>}/>
         <Route path="/information-team" element={<InfTeamPage/>}/>
-        <Route path="/predict" element={<FloodRiskThreeDayCard/>}/>
+        <Route path="/predict" element={<DataFlood/>}/>
 
         {/**Trang danh sách thành viên chưa có group */} 
         <Route path="/team/:teamId/available-members" element={<MemberWithoutGroupPage/>} />

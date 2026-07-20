@@ -11,7 +11,7 @@ export const useWaterLevel = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
    const [search,setSearch]=useState("");
-
+  const [water,setWater]=useState<IoTAggregate|null>(null)
 
 useEffect(()=>{
     loadData();
@@ -58,6 +58,22 @@ const searchResult=useMemo(()=>{
   )
 },[data,search])
 
+const getIoTWaterSummaryByAreaId=async(area_id:string)=>{
+  try{
+    setLoading(true);
+    const res=await waterlevalService.getWaterLevelsByArea(area_id);
+    setWater(res);
+    return true;
+    
+  }catch(error){
+    console.error(error)
+    return false;
+  }
+  finally{
+    setLoading(false)
+  }
+}
+
   return {
     data,
     loading,
@@ -65,6 +81,8 @@ const searchResult=useMemo(()=>{
     reload: loadData,
     handleAggregate,
     search,setSearch
-    ,searchResult
+    ,searchResult,
+    water,
+    getIoTWaterSummaryByAreaId
   };
 };

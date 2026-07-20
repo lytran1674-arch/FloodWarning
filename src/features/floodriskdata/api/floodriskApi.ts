@@ -9,21 +9,18 @@ export const FloodRiskDataApi = {
       const response = await axiosClient.get(`${API_URL}/list`)
       return response.data.result ?? response.data ?? []
     } catch (error) {
-      console.error('❌ Lỗi khi gọi /predict/list:', error)
+     
       return []
     }
   },
 
-  async getPredictById(areaId: string): Promise<FloodRiskData[]> {
-    try {
+  async getPredictById(areaId: string): Promise<FloodRiskData> {
+
       const response = await axiosClient.get(`${API_URL}/list-by-area`, {
         params: { areaId },
       })
-      return response.data.result ?? response.data ?? []
-    } catch (error) {
-      console.error('❌ Lỗi khi gọi /predict/list-by-area:', error)
-      return []
-    }
+      return response.data??[];
+    
   },
 
   async getALertHistoryByUserId(userId: string): Promise<FloodRiskAlert[]> {

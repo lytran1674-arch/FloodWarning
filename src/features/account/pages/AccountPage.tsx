@@ -1,4 +1,5 @@
-import { AccountForm } from "../components/AccountForm";
+
+import { InfomationUser } from "../components/InfomationUser";
 import { UseAccount } from "../hooks/useAccount";
 
 export const AccountPage = () => {
@@ -10,7 +11,7 @@ export const AccountPage = () => {
 
   return (
     <div>
-      <AccountForm data={account} />
+      <InfomationUser data={account} />
     </div>
   );
 };
