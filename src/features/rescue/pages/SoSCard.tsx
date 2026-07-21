@@ -155,11 +155,11 @@ export default function SoSCard({ selectedSosId, onSelectSos }: SoSCardProps) {
                       Xem chi tiết
                     </button>
 
-                    {isAssigned ? (
+                    {/* {isAssigned ? (
                       <span className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">
                         👤 {sos.dispatcherName || "Đã phân công"}
                       </span>
-                    ) : (
+                    ) : ( */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -169,7 +169,7 @@ export default function SoSCard({ selectedSosId, onSelectSos }: SoSCardProps) {
                       >
                         Phân công
                       </button>
-                    )}
+                    {/* )} */}
                   </div>
                 </div>
               </div>

@@ -2,6 +2,7 @@
 import type { CallTaskData } from "../type/CallTaskType"
 import { useLocation, useNavigate } from "react-router-dom"
 import { CallTaskDialer } from "../component/CallTaskDialer"
+import { toast } from "react-toastify"
 
 interface State {
   initialCallTask:  CallTaskData
@@ -25,13 +26,27 @@ export function CallWorkflowPage() {
     return null
   }
 
-  // Sau khi dispatch thành công (ANSWERED) hoặc thất bại hẳn (đủ retry ở mọi cấp)
-  const handleFinish = () => {
+ // Gọi thành công (ANSWERED) -> phân công/điều phối đã HOÀN TẤT thật sự
+  const handleDispatched = () => {
+    if (flowType === "ASSIGN_GROUP") {
+      toast.success("Đã liên hệ được Trưởng nhóm — phân công thành công!")
+      navigate("/team-sos", { replace: true })
+    } else {
+      toast.success("Đã liên hệ được Điều phối viên tỉnh — gửi yêu cầu hỗ trợ thành công!")
+      navigate("/support-request", { replace: true })
+    }
+  }
+
+  // Gọi thất bại hẳn (đủ retry ở mọi cấp, không ai bắt máy)
+  // -> KHÔNG coi là xong, phải quay lại chọn nhóm/đối tượng khác
+  const handleFailed = () => {
     if (flowType === "ASSIGN_GROUP" && sosId) {
-      // Quay về màn phân công của đúng SOS này để Dispatcher thấy popup/chọn lại group
+      toast.error("Trưởng nhóm không phản hồi. Vui lòng chọn nhóm khác để phân công.")
+      // quay lại đúng SOS này -> getAssignCandidates sẽ fetch lại,
+      // nhóm vừa gọi thất bại sẽ hiện tag "Gọi thất bại", các nhóm khác vẫn chọn được
       navigate(`/sos-assign/${sosId}`, { replace: true })
     } else {
-      // Support Request flow → về danh sách support request
+      toast.error("Điều phối viên không phản hồi. Yêu cầu hỗ trợ sẽ chờ người khác nhận điều phối.")
       navigate("/support-request", { replace: true })
     }
   }
@@ -46,11 +61,11 @@ export function CallWorkflowPage() {
       <h2 className="text-lg font-semibold text-center mb-4 text-red-600">
         {title}
       </h2>
-      <CallTaskDialer
+     <CallTaskDialer
         initialCallTask={initialCallTask}
         trackingCode={sosId}
-        onDispatched={handleFinish}
-        onFailed={handleFinish}
+        onDispatched={handleDispatched}
+        onFailed={handleFailed}
       />
     </div>
   )

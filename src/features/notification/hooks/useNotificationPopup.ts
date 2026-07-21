@@ -7,6 +7,7 @@ import type { NotificationPopup } from "../type/notificationType";
 import { useAppSelector } from "@/hooks/redux.hooks";
 import { notificationApi } from "../api/notificationApi";
 import { SoSAPI } from "@/features/sosrequest/api/sosApi";
+import { useNavigate } from "react-router-dom";
 
 // fallback, phòng trường hợp FCM rớt / không hỗ trợ trên trình duyệt
 const FALLBACK_POLL_INTERVAL = 60000;
@@ -19,6 +20,7 @@ export function useNotificationPopup() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const seenIds = useRef<Set<string>>(new Set());
   const unsubRef = useRef<(() => void) | null>(null);
+  const navigate=useNavigate()
 
   const current = queue[0] ?? null;
 
@@ -104,28 +106,74 @@ export function useNotificationPopup() {
     setClaimError("");
   }, [current?.id]);
 
+  // const claimCurrent = useCallback(async () => {
+  //   if (!current) return;
+  //   setClaiming(true);
+  //   setClaimError("");
+  //   try {
+  //     if (current.type === "SUPPORT_REQUEST_CALL_FAILED" && current.supportRequestId) {
+  //       await SoSAPI.claimSupportRequestDispatcher(current.supportRequestId);
+  //     } else if (current.sosId) {
+  //       await SoSAPI.claimSosDispatcher(current.sosId);
+  //     }
+  //     await closeCurrent();
+  //   } catch (err: any) {
+  //     // Người khác đã nhận điều phối trước -> hiển thị lỗi cho người dùng,
+  //     // để họ tự bấm nút Đóng (theo đúng spec bước 8)
+  //     setClaimError(
+  //       err?.response?.data?.message || "Đã có người khác nhận điều phối trước bạn."
+  //     );
+  //   } finally {
+  //     setClaiming(false);
+  //   }
+  // }, [current, closeCurrent]);
+
   const claimCurrent = useCallback(async () => {
     if (!current) return;
     setClaiming(true);
     setClaimError("");
-    try {
-      if (current.type === "SUPPORT_REQUEST_CALL_FAILED" && current.supportRequestId) {
-        await SoSAPI.claimSupportRequestDispatcher(current.supportRequestId);
-      } else if (current.sosId) {
-        await SoSAPI.claimSosDispatcher(current.sosId);
-      }
-      await closeCurrent();
-    } catch (err: any) {
-      // Người khác đã nhận điều phối trước -> hiển thị lỗi cho người dùng,
-      // để họ tự bấm nút Đóng (theo đúng spec bước 8)
-      setClaimError(
-        err?.response?.data?.message || "Đã có người khác nhận điều phối trước bạn."
-      );
-    } finally {
-      setClaiming(false);
-    }
-  }, [current, closeCurrent]);
 
+    const target = current;
+    let claimFailed = false;
+    let blockingError = "";
+
+    try {
+      if (target.type === "SUPPORT_REQUEST_CALL_FAILED" && target.supportRequestId) {
+        await SoSAPI.claimSupportRequestDispatcher(target.supportRequestId);
+      } else if (target.sosId) {
+        await SoSAPI.claimSosDispatcher(target.sosId);
+      }
+    } catch (err: any) {
+      claimFailed = true;
+      // Chỉ chặn hẳn khi lỗi ghi rõ đã có người khác nhận trước.
+      // Các lỗi khác (VD: bạn đã là dispatcher rồi) không chặn —
+      // để màn phân công tự kiểm tra quyền khi thao tác thật sự.
+      const message: string = err?.response?.data?.message || "";
+      if (message.toLowerCase().includes("người khác") || message.toLowerCase().includes("đã nhận")) {
+        blockingError = message;
+      }
+    }
+
+    if (blockingError) {
+      setClaimError(blockingError);
+      setClaiming(false);
+      return;
+    }
+
+    await closeCurrent();
+    setClaiming(false);
+
+    if (target.type === "SUPPORT_REQUEST_CALL_FAILED" && target.supportRequestId) {
+      navigate(`/support-request/${target.sosId}/review`);
+    } else if (target.sosId) {
+      navigate(`/sos-assign/${target.sosId}`);
+    }
+
+    if (claimFailed) {
+      // đã claim lỗi nhưng không phải do người khác giữ -> vẫn cho đi tiếp,
+      // màn phân công sẽ tự báo lại nếu thực sự không có quyền
+    }
+  }, [current, closeCurrent, navigate]);
 return {
     current,
     remainingCount: queue.length,

@@ -23,14 +23,14 @@ export function AlarmPopup() {
       footer={[
         ...(canClaim
           ? [
-              <Button
+             <Button
                 key="claim"
                 type="primary"
                 loading={claiming}
                 onClick={claimCurrent}
                 block
               >
-                Nhận điều phối
+                Xử lý ngay
               </Button>,
             ]
           : []),
