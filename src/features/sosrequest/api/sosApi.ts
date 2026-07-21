@@ -145,5 +145,14 @@ export const SoSAPI = {
     const response=await publicApi.get(`${API_URL}/tracking/${trackingCode}`)
     return response.data.result;
   },
+     async claimSosDispatcher(sosId: string): Promise<void> {
+    await axiosClient.post(`${API_URL}/${sosId}/claim-dispatcher`);
+  },
+
+   // Province Operator nhận điều phối 1 Support Request
+  // khi không Province Operator nào bắt máy
+  async claimSupportRequestDispatcher(supportRequestId: string): Promise<void> {
+    await axiosClient.post(`/support-request/${supportRequestId}/claim-dispatcher`);
+  },
 
 }
