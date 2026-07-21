@@ -144,28 +144,23 @@ export const SoSAPI = {
   async trackingCode(trackingCode:string):Promise<SoSResponse>{
     const response=await publicApi.get(`${API_URL}/tracking/${trackingCode}`)
     return response.data.result;
-  },
-     async claimSosDispatcher(sosId: string): Promise<void> {
-    await axiosClient.post(`${API_URL}/${sosId}/claim-dispatcher`);
-  },
-
-<<<<<<< HEAD
+  }
+,
     // Team Leader / Deputy Leader / Province Operator nhận điều phối 1 SOS
   // khi Call Workflow của SOS đó đã thất bại (không ai bắt máy)
   async claimSosDispatcher(sosId: string): Promise<void> {
     await axiosClient.post(`${API_URL}/${sosId}/claim-dispatcher`);
   },
 
-=======
->>>>>>> 9dec8e2da1c760a9edbf88af9b05aabf210e3b28
+
+
    // Province Operator nhận điều phối 1 Support Request
   // khi không Province Operator nào bắt máy
   async claimSupportRequestDispatcher(supportRequestId: string): Promise<void> {
     await axiosClient.post(`/support-request/${supportRequestId}/claim-dispatcher`);
   },
 
-<<<<<<< HEAD
+
+
 }
-=======
-}
->>>>>>> 9dec8e2da1c760a9edbf88af9b05aabf210e3b28
+

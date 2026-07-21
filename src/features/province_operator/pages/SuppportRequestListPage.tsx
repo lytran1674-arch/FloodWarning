@@ -145,7 +145,7 @@ export function SupportRequestListPage() {
   // sai id và trả về 400 Bad Request.
   // ======================================================
 
-  const goToReview = (
+ const goToReview = (
     sosGroup: SupportRequestItem,
     subItems: SupportRequestDetail[]
   ) => {
@@ -160,6 +160,11 @@ export function SupportRequestListPage() {
         // truyền TOÀN BỘ items, backend cần đủ danh sách
         // để xử lý duyệt/từ chối theo từng item
         items: subItems,
+
+        // Ai đang là Dispatcher của request này — để trang review
+        // chỉ cho đúng người này Approve/Reject
+        dispatcherUserId: sosGroup.dispatcherUserId,
+        dispatcherUserName: sosGroup.dispatcherUserName,
       },
     });
   };

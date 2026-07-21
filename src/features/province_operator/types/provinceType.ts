@@ -1,4 +1,4 @@
-import type { CallTaskInitial } from "@/features/emergency/types/emergencyType";
+import type { CallTaskData } from "@/features/calltask/type/CallTaskType";
 
 export type SupportType ="SEARCH_RESCUE" | "BOAT" | "MEDICAL" | "LOGISTICS"
 export type Status="PENDING" | "APPROVED" | "REJECTED" | "COMPLETED" | "TEAM_REJECTED"
@@ -7,6 +7,8 @@ export interface SupportRequestItem{
   id:string
   sosId: string;
   status: Status;
+  dispatcherUserId: string | null;
+  dispatcherUserName: string | null;
  items:SupportRequestDetail[]
 }
 
@@ -40,7 +42,7 @@ export interface CreateSupportRequestResponse {
   code:   number
   result: {
     supportRequestId: string
-    callTask:         CallTaskInitial | null
+    callTask:         CallTaskData | null
   }
 }
 

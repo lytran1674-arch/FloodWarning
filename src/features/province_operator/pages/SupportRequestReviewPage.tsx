@@ -1,6 +1,7 @@
 // src/features/province_operator/pages/SupportRequestReviewPage.tsx
 
 import { useEffect, useMemo, useState } from "react";
+import { useAppSelector } from "@/hooks/redux.hooks";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, ChevronDown, ChevronRight } from "lucide-react";
 import { toast } from "react-toastify";
@@ -37,14 +38,19 @@ interface ReviewLocationState {
   sosId?: string;
   supportRequestId?: string;
   items?: SupportRequestDetail[];
+  dispatcherUserId?: string | null;
+  dispatcherUserName?: string | null;
 }
 
 export function SupportRequestReviewPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { sosId, supportRequestId, items } =
+const { sosId, supportRequestId, items, dispatcherUserId, dispatcherUserName } =
     (location.state as ReviewLocationState | null) ?? {};
+
+  const currentUser = useAppSelector((state) => state.auth.user);
+  const isDispatcher = !dispatcherUserId || currentUser?.id === dispatcherUserId;
 
   const { detail, loading: loadingSOS, getDetailSoS } = useSoS();
 
@@ -151,7 +157,11 @@ export function SupportRequestReviewPage() {
     return null;
   }
 
-  const handleApprove = async () => {
+const handleApprove = async () => {
+    if (!isDispatcher) {
+      toast.error(`Chỉ ${dispatcherUserName ?? "Dispatcher"} mới được duyệt yêu cầu này`);
+      return;
+    }
     if (!allSelected) {
       toast.warning("Vui lòng chọn đủ số nhóm hỗ trợ cho từng loại");
       return;
@@ -213,7 +223,11 @@ export function SupportRequestReviewPage() {
     }
   };
 
-  const handleReject = async () => {
+const handleReject = async () => {
+    if (!isDispatcher) {
+      toast.error(`Chỉ ${dispatcherUserName ?? "Dispatcher"} mới được từ chối yêu cầu này`);
+      return;
+    }
     if (!rejectReason.trim()) {
       toast.warning("Vui lòng nhập lý do từ chối");
       return;
@@ -324,8 +338,16 @@ export function SupportRequestReviewPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border bg-white p-5 shadow-sm">
+         <div className="rounded-xl border bg-white p-5 shadow-sm">
             <h3 className="mb-3 text-sm font-semibold">Xác nhận điều phối</h3>
+
+            {!isDispatcher && (
+              <p className="mb-3 rounded-lg bg-yellow-50 p-3 text-sm text-yellow-700">
+                Yêu cầu này đang được xử lý bởi{" "}
+                <span className="font-semibold">{dispatcherUserName ?? "một Dispatcher khác"}</span>.
+                Bạn chỉ có thể xem, không thể duyệt/từ chối.
+              </p>
+            )}
 
             <div className="mb-4">
               <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -340,19 +362,19 @@ export function SupportRequestReviewPage() {
               />
             </div>
 
-            {!showRejectBox ? (
+           {!showRejectBox ? (
               <div className="flex gap-2">
                 <button
                   onClick={handleApprove}
-                  disabled={submitting || !allSelected}
+                  disabled={submitting || !allSelected || !isDispatcher}
                   className="flex-1 rounded-lg bg-blue-600 py-2 text-sm text-white disabled:opacity-50"
                 >
                   {submitting ? "Đang duyệt..." : "Xác nhận duyệt"}
                 </button>
                 <button
                   onClick={() => setShowRejectBox(true)}
-                  disabled={submitting}
-                  className="flex-1 rounded-lg border border-red-300 py-2 text-sm text-red-600"
+                  disabled={submitting || !isDispatcher}
+                  className="flex-1 rounded-lg border border-red-300 py-2 text-sm text-red-600 disabled:opacity-50"
                 >
                   Từ chối
                 </button>
