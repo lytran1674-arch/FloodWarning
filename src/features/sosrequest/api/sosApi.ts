@@ -146,4 +146,16 @@ export const SoSAPI = {
     return response.data.result;
   },
 
+    // Team Leader / Deputy Leader / Province Operator nhận điều phối 1 SOS
+  // khi Call Workflow của SOS đó đã thất bại (không ai bắt máy)
+  async claimSosDispatcher(sosId: string): Promise<void> {
+    await axiosClient.post(`${API_URL}/${sosId}/claim-dispatcher`);
+  },
+
+   // Province Operator nhận điều phối 1 Support Request
+  // khi không Province Operator nào bắt máy
+  async claimSupportRequestDispatcher(supportRequestId: string): Promise<void> {
+    await axiosClient.post(`/support-request/${supportRequestId}/claim-dispatcher`);
+  },
+
 }

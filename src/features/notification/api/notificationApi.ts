@@ -2,7 +2,6 @@ import { axiosClient } from "@/api/axiosClient";
 import type { Alarm, NotificationPopup } from "../type/notificationType";
 
 const API_URL = "/notification";
-
 export const notificationApi = {
   // lấy danh sách notification popup
   async getPopupNotifications(): Promise<NotificationPopup[]> {
@@ -20,4 +19,8 @@ export const notificationApi = {
     const response = await axiosClient.get("/alarms");
     return response.data.result?.content ?? [];
   },
+
+
+
+ 
 };

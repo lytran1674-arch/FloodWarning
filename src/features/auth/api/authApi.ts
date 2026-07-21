@@ -53,6 +53,8 @@ export const authAPI = {
   logout(payload:LogoutPayload) {
     return axiosClient.post(
       "/auth/logout",payload
+      
     );
+   
   },
 };

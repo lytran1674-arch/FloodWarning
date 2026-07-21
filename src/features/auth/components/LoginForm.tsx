@@ -45,7 +45,7 @@ export const LoginForm: React.FC = () => {
       }
 
       // Lưu accessToken vào Redux
-      dispatch(setCredentials({ user: { role, hoten, id, areaId, teamId, teamName, isTeamLeader, isGroupLeader, sodt, groupType,refreshToken }, accessToken }))
+      dispatch(setCredentials({ user: { role, hoten, id, areaId, teamId, teamName, isTeamLeader, isGroupLeader, sodt, groupType },refreshToken, accessToken }))
       await flushPendingFcmToken(accessToken, id)
       // Lưu userId riêng vào localStorage — dùng để fcmService biết token hiện tại thuộc về ai
       localStorage.setItem("userId", id)

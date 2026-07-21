@@ -6,6 +6,7 @@ import { app } from "@/firebase";
 import type { NotificationPopup } from "../type/notificationType";
 import { useAppSelector } from "@/hooks/redux.hooks";
 import { notificationApi } from "../api/notificationApi";
+import { SoSAPI } from "@/features/sosrequest/api/sosApi";
 
 // fallback, phòng trường hợp FCM rớt / không hỗ trợ trên trình duyệt
 const FALLBACK_POLL_INTERVAL = 60000;
@@ -95,5 +96,43 @@ export function useNotificationPopup() {
     }
   }, [current]);
 
-  return { current, remainingCount: queue.length, closeCurrent, audioRef };
+  const [claiming, setClaiming] = useState(false);
+  const [claimError, setClaimError] = useState("");
+
+  // reset lỗi mỗi khi chuyển sang popup khác
+  useEffect(() => {
+    setClaimError("");
+  }, [current?.id]);
+
+  const claimCurrent = useCallback(async () => {
+    if (!current) return;
+    setClaiming(true);
+    setClaimError("");
+    try {
+      if (current.type === "SUPPORT_REQUEST_CALL_FAILED" && current.supportRequestId) {
+        await SoSAPI.claimSupportRequestDispatcher(current.supportRequestId);
+      } else if (current.sosId) {
+        await SoSAPI.claimSosDispatcher(current.sosId);
+      }
+      await closeCurrent();
+    } catch (err: any) {
+      // Người khác đã nhận điều phối trước -> hiển thị lỗi cho người dùng,
+      // để họ tự bấm nút Đóng (theo đúng spec bước 8)
+      setClaimError(
+        err?.response?.data?.message || "Đã có người khác nhận điều phối trước bạn."
+      );
+    } finally {
+      setClaiming(false);
+    }
+  }, [current, closeCurrent]);
+
+return {
+    current,
+    remainingCount: queue.length,
+    closeCurrent,
+    claimCurrent,
+    claiming,
+    claimError,
+    audioRef,
+  };
 }

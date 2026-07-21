@@ -34,6 +34,8 @@ export interface ResTeam{
   areaName:string
   leaderId:string | null
   leaderName:string |null
+  deputyLeaderId:string | null
+  deputyLeaderName:string | null
   lat:number
   lon:number
   emergencyPhone:string

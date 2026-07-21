@@ -1,6 +1,4 @@
-
-import type { CallTaskInitial } from "@/features/emergency/types/emergencyType"
-
+import type { CallTaskData } from "@/features/calltask/type/CallTaskType"
 
 export type SosStatus =
   | "PENDING"
@@ -192,6 +190,5 @@ export interface Assign{
 
 export interface AssignSosResult {
   assignmentId: string
-  callTask:     CallTaskInitial | null
+  callTask:     CallTaskData | null
 }
-

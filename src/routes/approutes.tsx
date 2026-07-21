@@ -60,6 +60,7 @@ import { AssignmentGroup } from "@/features/grouprescue/components/AssignmentGro
 
 import { SoSDetail } from "@/features/sosrequest/components/SoSDetail"
 import { DataFlood } from "@/features/citizen/component/DataFlood"
+import { CallWorkflowPage } from "@/features/calltask/pages/CallWorkflowPage"
 
 
 
@@ -125,7 +126,7 @@ const AppRoutes = () => {
         <Route path="/support-request-group/:assignmentId" element={<SupportRequestGroup/>}/>
         <Route path="/support-group-assign/:supportRequestId" element={<AssignmentGroup/>}/>
         <Route path="/detail-sos-request/:sosId" element={<SoSDetail/>}/>
-{/* <Route path= "/call-workflow" element= {<CallWorkflowPage /> }/> */}
+<Route path= "/call-workflow" element= {<CallWorkflowPage /> }/>
         </Route>
        
       </Routes>

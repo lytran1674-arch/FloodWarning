@@ -25,6 +25,7 @@ export const LogOut = ({ className }: Props) => {
     try {
       if (accessToken && refreshToken) {
         await authAPI.logout({ accessToken, refreshToken });
+        console.log(accessToken,refreshToken);
       }
     } catch (e) {
       console.error(e);
