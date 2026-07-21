@@ -343,7 +343,7 @@ export const FormSOS = () => {
               </>
             )}
           </button>
-
+{/*
           {isGpsDisabled && (
             <p className="text-xs text-slate-500 flex items-start gap-1">
               <TriangleAlert className="w-3 h-3 shrink-0 mt-0.5" />
@@ -421,6 +421,7 @@ export const FormSOS = () => {
                 <span className="text-sm text-slate-500">Đang xác định vị trí...</span>
               </div>
             )}
+              */}
             <GeoMap
               currentLat={effectiveLat}
               currentLon={effectiveLon}
@@ -428,7 +429,7 @@ export const FormSOS = () => {
               centerOnUser={true}
               className="w-full h-full"
             />
-          </div>
+       
         </section>
 
         {/* Số người */}

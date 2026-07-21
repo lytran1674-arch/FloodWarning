@@ -307,38 +307,8 @@ export const SOSRequestAnonymous = () => {
             Vị trí
           </Label>
 
-          <button
-            type="button"
-            onClick={getLocation}
-            disabled={locLoading || isGpsDisabled}
-            className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 text-sm font-medium transition-all duration-200 ${
-              locLoading
-                ? "border-blue-200 text-blue-400 bg-blue-50 cursor-not-allowed"
-                : isGpsDisabled
-                ? "border-slate-200 text-slate-400 bg-slate-50 cursor-not-allowed"
-                : lat
-                ? "border-green-400 text-green-600 bg-green-50 hover:bg-green-100"
-                : "border-red-300 text-red-500 bg-red-50 hover:bg-red-100"
-            }`}
-          >
-            {locLoading ? (
-              <>
-                <Loader className="w-4 h-4 animate-spin" />
-                Đang lấy vị trí GPS...
-              </>
-            ) : lat && !isGpsDisabled ? (
-              <>
-                <Navigation className="w-4 h-4" />
-                GPS: {lat.toFixed(5)}, {lon?.toFixed(5)} · Nhấn để cập nhật
-              </>
-            ) : (
-              <>
-                <Navigation className="w-4 h-4" />
-                Nhấn để lấy vị trí GPS của bạn
-              </>
-            )}
-          </button>
-
+        
+{/* 
           {isGpsDisabled && (
             <p className="text-xs text-slate-500 flex items-center gap-1">
               <TriangleAlert className="w-3 h-3" />
@@ -414,6 +384,8 @@ export const SOSRequestAnonymous = () => {
                 <span className="text-sm text-slate-500">Đang xác định vị trí...</span>
               </div>
             )}
+
+             */}
             <GeoMap
               currentLat={effectiveLat}
               currentLon={effectiveLon}
@@ -421,8 +393,38 @@ export const SOSRequestAnonymous = () => {
               centerOnUser={true}
               className="w-full h-full"
             />
-          </div>
-        </section>
+              <button
+            type="button"
+            onClick={getLocation}
+            disabled={locLoading || isGpsDisabled}
+            className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 text-sm font-medium transition-all duration-200 ${
+              locLoading
+                ? "border-blue-200 text-blue-400 bg-blue-50 cursor-not-allowed"
+                : isGpsDisabled
+                ? "border-slate-200 text-slate-400 bg-slate-50 cursor-not-allowed"
+                : lat
+                ? "border-green-400 text-green-600 bg-green-50 hover:bg-green-100"
+                : "border-red-300 text-red-500 bg-red-50 hover:bg-red-100"
+            }`}
+          >
+            {locLoading ? (
+              <>
+                <Loader className="w-4 h-4 animate-spin" />
+                Đang lấy vị trí GPS...
+              </>
+            ) : lat && !isGpsDisabled ? (
+              <>
+                <Navigation className="w-4 h-4" />
+                GPS: {lat.toFixed(5)}, {lon?.toFixed(5)} · Nhấn để cập nhật
+              </>
+            ) : (
+              <>
+                <Navigation className="w-4 h-4" />
+                Nhấn để lấy vị trí GPS của bạn
+              </>
+            )}
+          </button>
+             </section>
 
         {/* Số người */}
         <section className="space-y-3">
