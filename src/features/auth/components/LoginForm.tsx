@@ -18,6 +18,23 @@ export const LoginForm: React.FC = () => {
   const dispatch  = useDispatch<AppDispatch>()
   const navigate  = useNavigate()
 
+  const primeAlarmAudio = () => {
+  try {
+    const audio = new Audio("/sounds/alarm.mp3");
+    audio.volume = 0;
+    audio.play()
+      .then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+      })
+      .catch(() => {
+        // một số trình duyệt vẫn chặn — không sao, chỉ là không mở khoá được lần này
+      });
+  } catch {
+    // ignore
+  }
+};
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
@@ -81,6 +98,7 @@ localStorage.removeItem("deviceId");
     }
   }
 
+  
   const handleOnClick=()=>{
     navigate("/register")
   }
@@ -133,6 +151,7 @@ localStorage.removeItem("deviceId");
           </div>
 
           <button
+          onClick={primeAlarmAudio}
             type="submit"
             disabled={isLoading}
             className="w-full text-xl bg-[#FFD66D] text-black p-2 rounded-3xl hover:bg-[#EF960F] transition-colors font-bold disabled:bg-gray-400 disabled:cursor-not-allowed"

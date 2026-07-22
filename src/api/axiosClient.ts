@@ -8,6 +8,7 @@ import {
 } from "@/features/auth/store/authSlice";
 
 import { authAPI } from "@/features/auth/api/authApi";
+import { clearFcmTokenOnLogout } from "@/utils/firebaseNotification";
 
 const BASE_URL = "https://api-lulut.io.vn";
 
@@ -70,7 +71,9 @@ function onRefreshFailed(err: any) {
 
 function forceLogout() {
   store.dispatch(logout());
-  window.location.href = "/";
+  clearFcmTokenOnLogout().finally(() => {
+    window.location.href = "/";
+  });
 }
 
 // ================= RESPONSE INTERCEPTOR =================
