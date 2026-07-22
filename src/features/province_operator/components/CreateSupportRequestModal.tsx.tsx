@@ -3,14 +3,15 @@
 import { useState } from "react";
 import { createSupportRequest } from "../api/supportRequestApi";
 import type { SupportType } from "../types/provinceType";
-import type { CallTaskInitial } from "@/features/emergency/types/emergencyType";
+import type { CallTaskData } from "@/features/calltask/type/CallTaskType";
+
 
 // Đổi prop signature
 interface CreateSupportRequestModalProps {
   sosId:     string
   open:      boolean
   onClose:   () => void
-  onSuccess: (supportRequestId: string, callTask: CallTaskInitial | null) => void  // ✅
+  onSuccess: (supportRequestId: string, callTask: CallTaskData | null) => void  // ✅
 }
 
 interface SupportItem {

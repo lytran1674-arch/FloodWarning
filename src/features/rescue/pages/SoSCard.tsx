@@ -109,7 +109,7 @@ export default function SoSCard({ selectedSosId, onSelectSos }: SoSCardProps) {
           {sosList.map((sos) => {
             // Ưu tiên xác định "đã phân công" dựa trên việc đã có dispatcher hay chưa,
             // vì đây là dữ liệu chắc chắn hơn so với chuỗi status (có thể không khớp PENDING).
-            const isAssigned = Boolean(sos.dispatcherUserId || sos.dispatcherName);
+           // const isAssigned = Boolean(sos.dispatcherUserId || sos.dispatcherName);
             const isSelected = sos.id === selectedSosId;
 
             return (

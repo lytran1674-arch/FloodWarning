@@ -144,6 +144,12 @@ export const SoSAPI = {
   async trackingCode(trackingCode:string):Promise<SoSResponse>{
     const response=await publicApi.get(`${API_URL}/tracking/${trackingCode}`)
     return response.data.result;
+  },
+  async SearchSoSBySoDt(keyword:string):Promise<SoSResponse>{
+    const res=await publicApi.get(`${API_URL}/search`,{
+      params:keyword
+    })
+    return res.data.result?.content??[];
   }
 ,
     // Team Leader / Deputy Leader / Province Operator nhận điều phối 1 SOS

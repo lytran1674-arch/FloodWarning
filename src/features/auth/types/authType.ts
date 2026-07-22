@@ -21,6 +21,7 @@ export interface User{
     teamName?:string
     isLeader?:boolean
     isTeamLeader?:boolean
+    isTeamDeputy:boolean
     isGroupLeader?:boolean
     groupType?:GROUPTYPE
     refreshToken?:string

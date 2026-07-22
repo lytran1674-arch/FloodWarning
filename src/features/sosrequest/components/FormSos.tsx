@@ -9,7 +9,7 @@ import {
   PhoneCall,
   FileText,
   Phone,
-  MapPin,
+
 } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import Counter from "../../../components/ui/Counter";
@@ -86,7 +86,7 @@ export const FormSOS = () => {
     lat,
     lon,
     loading: locLoading,
-    error: locError,
+   
     getLocation,
   } = useGeoLocation();
 

@@ -114,17 +114,13 @@ export const RegisterForm: React.FC = () => {
         {/* Banner */}
         <img
           src={imageLogin}
-          className="w-full h-[150px] rounded-lg object-cover"
+          className="  w-full h-[210px] rounded-lg object-cover"
           alt="Banner"
         />
 
         <h2 className="text-sm md:text-xl font-bold text-center my-2 text-gray-800">
           HỆ THỐNG CẢNH BÁO VÀ CỨU HỘ LŨ LỤT
         </h2>
-
-        <p className="text-center text-xs text-gray-500 mb-3">
-          Tạo tài khoản mới
-        </p>
 
         {/* Lỗi */}
         {errorMsg && (

@@ -65,7 +65,9 @@ export const Menu = ({
                 className={`
                   flex items-center gap-1
                   mx-2 border-b-2
-                  rounded-md py-[7px]
+                 py-[7px]
+                 hover:bg-blue-700
+                 hover:rounded-md
                   text-xs sm:text-sm lg:text-[15px]
                   font-medium
                   transition-all duration-300

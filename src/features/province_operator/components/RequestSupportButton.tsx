@@ -29,19 +29,22 @@ export function RequestSupportButton({
         sosId={sosId}
         open={open}
         onClose={() => setOpen(false)}
-        onSuccess={(supportRequestId, callTask) => {
+       onSuccess={(supportRequestId, callTask) => {
           setOpen(false);
 
-          // Gọi callback báo cho component cha biết đã tạo thành công
-          onCreated?.(supportRequestId);
-
           if (callTask) {
-            // ✅ Có callTask → mở màn gọi điện ngay
+            // Có callTask → mở màn gọi điện ngay.
+            // KHÔNG gọi onCreated ở đây — onCreated (ở component cha) thường
+            // tự điều hướng đi chỗ khác (VD navigate(-1)), sẽ xung đột với
+            // navigate("/call-workflow") bên dưới nếu gọi cả 2.
             navigate("/call-workflow", {
               state: { initialCallTask: callTask, supportRequestId },
             });
           } else {
+            // Không có callTask (VD BE không cần gọi điện) → báo thành công
+            // và để component cha tự quyết định điều hướng tiếp theo.
             toast.success("Đã tạo yêu cầu hỗ trợ");
+            onCreated?.(supportRequestId);
           }
         }}
       />

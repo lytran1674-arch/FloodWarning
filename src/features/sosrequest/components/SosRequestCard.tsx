@@ -101,7 +101,7 @@ export default function SosRequestCard({
   return (
     <div className={`
       group relative bg-white rounded-2xl border overflow-hidden
-      transition-all duration-200
+      transition-all duration-200 
       ${highlight
         ? "border-amber-400 shadow-[0_0_0_3px_rgba(251,191,36,0.2)] shadow-md"
         : "border-gray-200 hover:border-gray-300 hover:shadow-md"

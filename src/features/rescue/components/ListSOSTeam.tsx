@@ -50,7 +50,7 @@ export default function TeamSOSPage() {
 
   const user = useAppSelector((state) => state.auth.user);
   const currentUserId = user?.id;
-  const isTeamLeader = user?.isTeamLeader===true
+  const isTeamLeader = user?.isTeamLeader === true || user?.isTeamDeputy === true
   useEffect(() => {
     loadSOS();
   }, []);
