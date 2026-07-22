@@ -125,9 +125,6 @@ import { useNavigate } from "react-router-dom";
                         <ShieldAlert className="text-blue-700" size={22} />
                       </div>
                       <div>
-                        <h2 className="font-semibold text-slate-800">
-                          SOS #{assigment.sosId?.slice(0, 8)}
-                        </h2>
                         <p className="text-xs text-slate-400 mt-1">
                           Assignment: {assigment.assignmentId?.slice(0, 12)}
                         </p>

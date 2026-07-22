@@ -283,9 +283,7 @@ const closeAssignModal = () => {
               {/* HEADER — thông tin cấp phiếu SOS cha */}
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="mt-1 text-sm text-gray-500">
-                    SOS ID: <span className="font-mono">{request.sosId}</span>
-                  </p>
+                 
 
                   <p className="mt-1 text-sm text-gray-500">
                     Người yêu cầu: {request.requestedByName}
