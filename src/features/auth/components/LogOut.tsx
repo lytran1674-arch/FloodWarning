@@ -22,11 +22,11 @@ export const LogOut = ({ className }: Props) => {
 
     const accessToken = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
-
+    const fcmToken=localStorage.getItem("fcm_token");
     try {
       if (accessToken && refreshToken) {
-        await authAPI.logout({ accessToken, refreshToken });
-        console.log(accessToken,refreshToken);
+        await authAPI.logout({ accessToken, refreshToken ,fcmToken});
+        console.log(accessToken,refreshToken,fcmToken);
       }
     } catch (e) {
       console.error(e);

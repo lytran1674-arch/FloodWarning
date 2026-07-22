@@ -8,6 +8,7 @@ import {
 export interface LogoutPayload{
   accessToken:string;
   refreshToken:string
+  fcmToken:string | null;
 }
 export const authAPI = {
 

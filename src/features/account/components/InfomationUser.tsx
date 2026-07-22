@@ -1,4 +1,4 @@
-import { Pen, Shield, UserCircle2, Lock, CheckCircle2 } from "lucide-react"
+import { Pen, Shield, UserCircle2, CheckCircle2 } from "lucide-react"
 import type { Account } from "../type/accountType";
 import { UseAccount } from "../hooks/useAccount";
 import { AccountApi } from "../api/accountApi";
@@ -173,9 +173,9 @@ export const InfomationUser = ({ data }: Props) => {
                   label="Họ và tên"
                   value={formData.hoten || ""}
                   type="text"
-                  disabled
+                  disabled={!isEditing}
                 />
-                <Lock className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 text-gray-400" />
+               
               </div>
 
               <Input
@@ -233,7 +233,7 @@ export const InfomationUser = ({ data }: Props) => {
               <Input label="Khu vực" value={formData.area || ""} type="text" disabled />
             )}
 
-            {(rescue || admin || province_operator) && (
+            {(rescue|| province_operator) && (
               <Input label="Vai trò" value={roleLabel} type="text" disabled />
             )}
 
@@ -272,7 +272,7 @@ export const InfomationUser = ({ data }: Props) => {
                 label="Chức vụ"
                 value={formData.chucVu || ""}
                 type="text"
-                disabled={!isEditing}
+                disabled
                 onChange={(value) => handleChange("chucVu", value)}
               />
             )}
