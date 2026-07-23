@@ -11,11 +11,24 @@ import { ListSoSSupportCard } from "@/features/grouprescue/components/ListSoSSup
 
 
 
-const STATUS_COLOR: Record<string, string> = {
-  PENDING: "bg-yellow-100 text-yellow-700",
-  APPROVED: "bg-blue-100 text-blue-700",
-  REJECTED: "bg-red-100 text-red-700",
-  COMPLETED: "bg-green-100 text-green-700",
+// Cấu hình trạng thái yêu cầu hỗ trợ
+const STATUS_CONFIG: Record<string, { nhan: string; mau: string }> = {
+  PENDING: {
+    nhan: "Chờ duyệt",
+    mau: "bg-yellow-100 text-yellow-700",
+  },
+  APPROVED: {
+    nhan: "Đã duyệt",
+    mau: "bg-blue-100 text-blue-700",
+  },
+  REJECTED: {
+    nhan: "Từ chối",
+    mau: "bg-red-100 text-red-700",
+  },
+  COMPLETED: {
+    nhan: "Hoàn thành",
+    mau: "bg-green-100 text-green-700",
+  },
 };
 
 const SUPPORT_TYPE_LABEL: Record<string, string> = {
@@ -294,14 +307,21 @@ const closeAssignModal = () => {
                   </p>
                 </div>
 
-                {/* STATUS — status chỉ có ở cấp cha */}
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                    STATUS_COLOR[request.status]
-                  }`}
-                >
-                  {request.status}
-                </span>
+               {/* STATUS — status chỉ có ở cấp cha */}
+{(() => {
+  const trangThai = STATUS_CONFIG[request.status] ?? {
+    nhan: request.status,
+    mau: "bg-gray-100 text-gray-600",
+  };
+
+  return (
+    <span
+      className={`rounded-full px-3 py-1 text-xs font-semibold ${trangThai.mau}`}
+    >
+      {trangThai.nhan}
+    </span>
+  );
+})()}
               </div>
 
               {/* REASON */}

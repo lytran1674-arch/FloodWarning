@@ -1,7 +1,7 @@
 // pages/Home/HomePage.tsx
 // import { useUserProvince } from "../../map/hooks/useUserProvince"
 //import { StatusSoS } from "../components/StatusSoS"
-import AssigmentCard from "../components/AsssignGroup"
+//import AssigmentCard from "../components/AsssignGroup"
 import ListMyRequestSupport from "@/features/province_operator/components/ListMyRequestSupport"
 import SosDetailPanel from "../components/SosDetailMoPanel"
 import { useState } from "react"
@@ -21,11 +21,8 @@ export const MyRequestSupportPage = () => {
             <ListMyRequestSupport
   onSelectSos={setSelectedSosId}
 />
-            <AssigmentCard
-            selectedSosId={selectedSosId}
-            onSelectSos={setSelectedSosId}
-          />
-            
+           
+              
             </div>
              <div className="w-full xl:w-1/2 xl:sticky xl:top-4">
           <SosDetailPanel sosId={selectedSosId} />

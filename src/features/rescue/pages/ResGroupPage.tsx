@@ -12,6 +12,22 @@ import { rescueApi } from "../api/rescureApi";
 import { Button } from "../../../components/ui/Button";
 import { useAppSelector } from "@/hooks/redux.hooks";
 
+// Cấu hình trạng thái nhóm
+const TRANG_THAI_NHOM: Record<string, { nhan: string; mau: string }> = {
+  AVAILABLE: {
+    nhan: "Sẵn sàng",
+    mau: "bg-green-100 text-green-700",
+  },
+  BUSY: {
+    nhan: "Bận",
+    mau: "bg-yellow-100 text-yellow-700",
+  },
+  OFFLINE: {
+    nhan: "Hỏng",
+    mau: "bg-red-100 text-red-700",
+  },
+};
+
 export default function ResGroupPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -58,7 +74,7 @@ export default function ResGroupPage() {
   return (
     <div className="p-6">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Danh sách Group</h1>
+        <h1 className="text-2xl font-bold">Danh sách nhóm cứu hộ</h1>
 
         <div className="flex gap-2">
           <Button
@@ -67,7 +83,7 @@ export default function ResGroupPage() {
             disabled={!teamId}
           >
             <Users />
-            Thành viên chưa có Group
+            Thành viên chưa có nhóm
           </Button>
 
           {canCreateGroup && (
@@ -101,55 +117,64 @@ export default function ResGroupPage() {
       )}
 
       <div className="grid gap-4">
-        {groups.map((group) => (
-          <div
-            key={group.id}
-            onClick={() =>
-              navigate(`/res-groups/${group.id}/members`)
-            }
-            className="cursor-pointer rounded-xl border p-4 hover:bg-slate-50 hover:shadow-sm"
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">
-                {group.name}
-              </h3>
+        {groups.map((group) => {
+          const trangThai = TRANG_THAI_NHOM[group.status] ?? {
+            nhan: group.status,
+            mau: "bg-slate-100 text-slate-600",
+          };
 
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-sm">
-                {group.status}
-              </span>
+          return (
+            <div
+              key={group.id}
+              onClick={() =>
+                navigate(`/res-groups/${group.id}/members`)
+              }
+              className="cursor-pointer rounded-xl border p-4 hover:bg-slate-50 hover:shadow-sm"
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">
+                  {group.name}
+                </h3>
+
+                <span
+                  className={`rounded-full px-3 py-1 text-sm font-semibold ${trangThai.mau}`}
+                >
+                  {trangThai.nhan}
+                </span>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-4">
+                {group.hasBoat && (
+                  <div className="flex items-center gap-1 text-blue-600">
+                    <Ship size={16} />
+                    <span>Có xuồng</span>
+                  </div>
+                )}
+
+                {group.hasMedical && (
+                  <div className="flex items-center gap-1 text-red-600">
+                    <Cross size={16} />
+                    <span>Y tế</span>
+                  </div>
+                )}
+
+                {group.hasSearchRescue && (
+                  <div className="flex items-center gap-1 text-orange-600">
+                    <LifeBuoy size={16} />
+                    <span>Tìm kiếm cứu nạn</span>
+                  </div>
+                )}
+
+                {group.hasLogistics && (
+                  <div className="flex items-center gap-1 text-emerald-600">
+                    <Package size={16} />
+                    <span>Hậu cần</span>
+                  </div>
+                )}
+              </div>
             </div>
-
-            <div className="mt-3 flex flex-wrap gap-4">
-              {group.hasBoat && (
-                <div className="flex items-center gap-1 text-blue-600">
-                  <Ship size={16} />
-                  <span>Có xuồng</span>
-                </div>
-              )}
-
-              {group.hasMedical && (
-                <div className="flex items-center gap-1 text-red-600">
-                  <Cross size={16} />
-                  <span>Y tế</span>
-                </div>
-              )}
-
-              {group.hasSearchRescue && (
-                <div className="flex items-center gap-1 text-orange-600">
-                  <LifeBuoy size={16} />
-                  <span>Tìm kiếm cứu nạn</span>
-                </div>
-              )}
-
-              {group.hasLogistics && (
-                <div className="flex items-center gap-1 text-emerald-600">
-                  <Package size={16} />
-                  <span>Hậu cần</span>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

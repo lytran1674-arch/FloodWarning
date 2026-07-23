@@ -29,6 +29,7 @@ export const HomeRescue = () => {
             />
           )}
         </div>
+        
 
         {/* CỘT PHẢI: chi tiết SOS */}
         <div className="w-full xl:w-1/2 xl:sticky xl:top-4">

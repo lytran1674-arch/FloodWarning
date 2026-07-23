@@ -198,9 +198,10 @@ export const clearFcmTokenOnLogout = async (): Promise<void> => {
 
   await clearFirebaseIndexedDB()
 
-  localStorage.removeItem(KEY_TOKEN)
-  localStorage.removeItem(KEY_OWNER)
-  localStorage.removeItem(KEY_PENDING)
+localStorage.removeItem("fcm_token")
+localStorage.removeItem("fcm_token_owner")
+localStorage.removeItem("pending_fcm_token")
+
 
   console.log("[FCM] Cleanup complete")
 }

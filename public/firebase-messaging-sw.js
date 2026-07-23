@@ -14,10 +14,16 @@ firebase.initializeApp({
   appId: "...",
 });
 
+// const user=useAppSelector((state)=>state.auth.user);
+// const
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
   console.log("📩 Background message:", payload);
+    console.log("📩 [SW] Full payload:", JSON.stringify(payload, null, 2))
+  console.log("📩 [SW] areaId nhận được:", payload.data?.area_id)
+  console.log("📩 [SW] title:", payload.notification?.title)
+  console.log("📩 [SW] body:", payload.notification?.body)
 
   const title = payload.notification?.title ?? "⚠️ Cảnh báo lũ lụt";
   const body = payload.notification?.body ?? "Có cảnh báo mới trong khu vực của bạn";
@@ -60,7 +66,7 @@ self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
   if (event.action === "dismiss") return;
-
+  
   const targetUrl = event.notification.data?.url ?? "/dashboard";
 
   event.waitUntil(

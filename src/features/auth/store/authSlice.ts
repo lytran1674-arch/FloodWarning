@@ -11,10 +11,12 @@ interface AuthState {
 const savedUser = localStorage.getItem("user");
 const savedAccessToken = localStorage.getItem("accessToken");
 
+
 const initialState: AuthState = {
   user: savedUser ? JSON.parse(savedUser) : null,
   accessToken: savedAccessToken || null,
   isAuthenticated: !!savedAccessToken,
+
 };
 
 interface SetCredentialsPayload {

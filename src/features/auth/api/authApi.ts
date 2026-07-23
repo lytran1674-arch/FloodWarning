@@ -37,17 +37,8 @@ export const authAPI = {
   },
 
   // ================= REFRESH TOKEN =================
-  refreshToken() {
-
-    const refreshToken =
-      localStorage.getItem("refreshToken");
-
-    return publicApi.post(
-      "/auth/refresh",
-      {
-        refreshToken,
-      }
-    );
+   refreshToken(refreshToken: string) {
+    return axiosClient.post("/auth/refresh", { refreshToken });
   },
 
   // ================= LOGOUT =================

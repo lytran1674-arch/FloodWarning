@@ -130,4 +130,4 @@ export const useFirebaseNotification = () => {
       if (intervalRef.current) clearInterval(intervalRef.current)
     }
   }, [isAuthenticated])
-}
+} 

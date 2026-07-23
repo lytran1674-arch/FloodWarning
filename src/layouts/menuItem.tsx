@@ -35,7 +35,7 @@ export const rescuerMenu: MenuItem[] = [
   {
     text:"Yêu cầu hỗ trợ" ,icon:Files, path:"/support-request"
   },
-  { text: "Yêu cầu hỗ trợ đã gửi",      icon: Files,    path: "/sent-requestsupport" }
+   { text: "Yêu cầu hỗ trợ đã gửi",      icon: Files,    path: "/sent-requestsupport" }
  
   ,{text:"Quản lý nhóm cứu hộ" ,icon:FileText, path:"/group-management"},
   
