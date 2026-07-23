@@ -4,7 +4,7 @@ import { useFloodRiskData } from "@/features/floodriskdata/hooks/useFloodRiskDat
 import type { FloodRiskData } from "@/features/floodriskdata/types/floodriskType"
 import {
   ChartColumn, MapPin, ShieldCheck, ShieldAlert, ShieldMinus,
-  Clock, Calendar, ArrowRight, Map as MapIcon, Database,
+  Clock, Calendar, Map as MapIcon, Database,
   ChevronDown, Search, X, Loader2, Activity, AlertCircle,
 } from "lucide-react"
 import { useAppSelector } from "@/hooks/redux.hooks"
@@ -80,7 +80,7 @@ export const DataFlood = () => {
   // Hook lấy dữ liệu
   const { data, loading, getFloodDataByAreaId } = useFloodRiskData()
   const [selectedLead, setSelectedLead] = useState<LeadKey>(1)
-  
+
   // State quản lý khu vực đang chọn
   const [selectedAreaId, setSelectedAreaId] = useState("")
   // State lưu dữ liệu hiển thị thực tế, tránh hiển thị dữ liệu cũ
@@ -132,8 +132,6 @@ export const DataFlood = () => {
   const displayLoading = loading || (selectedAreaId && !displayData && !error)
 
   const selectedArea = flatAreas.find(a => a.area_id === selectedAreaId)
-
-  const LEAD_TITLE: Record<LeadKey, string> = { 1: "Ngày mai", 2: "Ngày kia", 3: "Ngày mốt" }
 
   const getLead = (d: FloodRiskData | null | undefined, lead: LeadKey) => {
     if (!d) return { level: "LOW" as MucDo, probability: 0 }
@@ -213,59 +211,119 @@ export const DataFlood = () => {
         <>
           {/* 3 FORECAST CARDS */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {([1, 2, 3] as LeadKey[]).map((leadKey) => {
-              const { level, probability } = getLead(displayData, leadKey)
-              const cfg = RISK_CONFIG[level] ?? RISK_CONFIG.LOW
-              const pct = Math.min(Math.max(probability, 0), 100)
-              const isSelected = leadKey === selectedLead
+            {/* Ngày mai — lead1 */}
+            <button
+              type="button"
+              onClick={() => setSelectedLead(1)}
+              className={`text-left rounded-2xl p-4 border transition-all
+                ${selectedLead === 1
+                  ? "border-blue-600 bg-indigo-50 shadow-sm"
+                  : "border-slate-200 bg-white hover:border-blue-200"}`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Calendar className={`w-4 h-4 ${selectedLead === 1 ? "text-blue-700" : "text-slate-600"}`} />
+                  <span className={`text-sm font-semibold ${selectedLead === 1 ? "text-blue-800" : "text-slate-800"}`}>
+                    Ngày mai
+                  </span>
+                </div>
+                <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${(RISK_CONFIG[displayData.lead1] ?? RISK_CONFIG.LOW).badgeBg} ${(RISK_CONFIG[displayData.lead1] ?? RISK_CONFIG.LOW).badgeText}`}>
+                  {RISK_LABEL[displayData.lead1]}
+                </span>
+              </div>
 
-              return (
-                <button
-                  key={leadKey}
-                  type="button"
-                  onClick={() => setSelectedLead(leadKey)}
-                  className={`text-left rounded-2xl p-4 border transition-all
-                    ${isSelected
-                      ? "border-blue-600 bg-indigo-50 shadow-sm"
-                      : "border-slate-200 bg-white hover:border-blue-200"}`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <Calendar className={`w-4 h-4 ${isSelected ? "text-blue-700" : "text-slate-600"}`} />
-                      <span className={`text-sm font-semibold ${isSelected ? "text-blue-800" : "text-slate-800"}`}>
-                        {LEAD_TITLE[leadKey]}
-                      </span>
-                    </div>
-                    <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${cfg.badgeBg} ${cfg.badgeText}`}>
-                      {RISK_LABEL[level]}
-                    </span>
-                  </div>
+              <p className="text-xs text-slate-400 mb-2">
+                {dateForLead(displayData.weatherFrom, 1) ?? "—"}
+              </p>
 
-                  <p className="text-xs text-slate-400 mb-2">
-                    {dateForLead(displayData?.weatherFrom, leadKey) ?? "—"}
-                  </p>
+             <p className="text-sm text-slate-500 mb-3">
+                <span className="text-xl font-bold text-slate-800">{Math.min(Math.max(displayData.lead1Probability * 100, 0), 100).toFixed(1)}%</span>{" "}
+                xác suất
+              </p>
 
-                  <p className="text-sm text-slate-500 mb-3">
-                    <span className="text-xl font-bold text-slate-800">{pct.toFixed(0)}%</span>{" "}
-                    xác suất
-                  </p>
+              <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${(RISK_CONFIG[displayData.lead1] ?? RISK_CONFIG.LOW).bar}`}
+                  style={{ width: `${Math.min(Math.max(displayData.lead1Probability * 100, 0), 100)}%` }}
+                />
+              </div>
+            </button>
 
-                  {isSelected ? (
-                    <span className="inline-flex items-center gap-1 text-sm font-semibold text-blue-700 hover:gap-2 transition-all">
-                      Chi tiết vận hành
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
-                  ) : (
-                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-500 ${cfg.bar}`}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                  )}
-                </button>
-              )
-            })}
+            {/* Ngày kia — lead2 */}
+            <button
+              type="button"
+              onClick={() => setSelectedLead(2)}
+              className={`text-left rounded-2xl p-4 border transition-all
+                ${selectedLead === 2
+                  ? "border-blue-600 bg-indigo-50 shadow-sm"
+                  : "border-slate-200 bg-white hover:border-blue-200"}`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Calendar className={`w-4 h-4 ${selectedLead === 2 ? "text-blue-700" : "text-slate-600"}`} />
+                  <span className={`text-sm font-semibold ${selectedLead === 2 ? "text-blue-800" : "text-slate-800"}`}>
+                    Ngày kia
+                  </span>
+                </div>
+                <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${(RISK_CONFIG[displayData.lead2] ?? RISK_CONFIG.LOW).badgeBg} ${(RISK_CONFIG[displayData.lead2] ?? RISK_CONFIG.LOW).badgeText}`}>
+                  {RISK_LABEL[displayData.lead2]}
+                </span>
+              </div>
+
+              <p className="text-xs text-slate-400 mb-2">
+                {dateForLead(displayData.weatherFrom, 2) ?? "—"}
+              </p>
+
+             <p className="text-sm text-slate-500 mb-3">
+                <span className="text-xl font-bold text-slate-800">{Math.min(Math.max(displayData.lead2Probability * 100, 0), 100).toFixed(1)}%</span>{" "}
+                xác suất
+              </p>
+
+              <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${(RISK_CONFIG[displayData.lead2] ?? RISK_CONFIG.LOW).bar}`}
+                  style={{ width: `${Math.min(Math.max(displayData.lead1Probability * 100, 0), 100)}%` }}
+                />
+              </div>
+            </button>
+
+            {/* Ngày mốt — lead3 */}
+            <button
+              type="button"
+              onClick={() => setSelectedLead(3)}
+              className={`text-left rounded-2xl p-4 border transition-all
+                ${selectedLead === 3
+                  ? "border-blue-600 bg-indigo-50 shadow-sm"
+                  : "border-slate-200 bg-white hover:border-blue-200"}`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Calendar className={`w-4 h-4 ${selectedLead === 3 ? "text-blue-700" : "text-slate-600"}`} />
+                  <span className={`text-sm font-semibold ${selectedLead === 3 ? "text-blue-800" : "text-slate-800"}`}>
+                    Ngày mốt
+                  </span>
+                </div>
+                <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${(RISK_CONFIG[displayData.lead3] ?? RISK_CONFIG.LOW).badgeBg} ${(RISK_CONFIG[displayData.lead3] ?? RISK_CONFIG.LOW).badgeText}`}>
+                  {RISK_LABEL[displayData.lead3]}
+                </span>
+              </div>
+
+              <p className="text-xs text-slate-400 mb-2">
+                {dateForLead(displayData.weatherFrom, 3) ?? "—"}
+              </p>
+
+              <p className="text-sm text-slate-500 mb-3">
+                <span className="text-xl font-bold text-slate-800">{Math.min(Math.max(displayData.lead3Probability * 100, 0), 100).toFixed(1)}%</span>{" "}
+                xác suất
+              </p>
+
+              <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${(RISK_CONFIG[displayData.lead3] ?? RISK_CONFIG.LOW).bar}`}
+                  style={{ width: `${Math.min(Math.max(displayData.lead1Probability * 100, 0), 100)}%` }}
+                />
+              </div>
+            </button>
           </div>
 
           {/* BOTTOM: Analysis card + Map placeholder */}
@@ -291,41 +349,8 @@ export const DataFlood = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-slate-500">
-                    Chỉ số rủi ro tổng hợp ({LEAD_TITLE[selectedLead]})
-                  </p>
-                  <p className="text-2xl font-bold text-blue-800 tabular-nums">{selectedPct.toFixed(0)}%</p>
-                </div>
-
-                <div className="relative h-2.5 bg-indigo-100 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-500 ${selectedCfg.bar}`}
-                    style={{ width: `${selectedPct}%` }}
-                  />
-                </div>
-
-                <div className="flex justify-between text-[11px] font-medium text-slate-400">
-                  <span>0% AN TOÀN</span>
-                  <span>{selectedPct.toFixed(0)}%</span>
-                  <span>100% CẢNH BÁO</span>
-                </div>
-              </div>
             </div>
-
-            {/* Map placeholder */}
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 sm:p-5 flex flex-col">
-              <p className="text-sm font-semibold text-slate-700 flex items-center gap-1.5 mb-3">
-                <MapIcon className="w-4 h-4 text-blue-500" />
-                Vị trí trạm đo
-              </p>
-              <div className="flex-1 min-h-[160px] rounded-xl bg-slate-50 border border-dashed border-slate-200 flex items-center justify-center">
-                <p className="text-xs text-slate-400 text-center px-4">
-                  Bản đồ chưa được tích hợp
-                </p>
-              </div>
-            </div>
+           
           </div>
 
           {/* Thông số kỹ thuật chi tiết */}
@@ -342,7 +367,7 @@ export const DataFlood = () => {
                 label="Trạng thái dự báo ngày mai"
                 value={<RiskTag level={displayData.lead1} />}
               />
-              <TechField label="Xác suất ngày mai" value={`${displayData.lead1Probability.toFixed(1)}%`} />
+              <TechField label="Xác suất ngày mai" value={displayData.lead1Probability} />
               <TechField
                 label="Trạng thái dự báo ngày kia"
                 value={<RiskTag level={displayData.lead2} />}

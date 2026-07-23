@@ -1,8 +1,6 @@
 import { useCallback, useState } from "react"
 import { toast } from "react-toastify"
-
 import { sosService } from "../services/sosService"
-
 import type {
   AssignSos,
   AssignSosResult,
@@ -26,9 +24,14 @@ export const useSoS = () => {
   // =========================
   // DATA
   // =========================
-  const [request, setRequest] = useState<SoSResponse[]>([])   // đồng bộ về SoSResponse[]
-  const [, setDetailSOS] = useState<DetailSos | null>(null)
- const [detail, setDetail] = useState<DetailSoSCitizen | null>(null)
+  const [request, setRequest] = useState<SoSResponse[]>([])
+
+  // Chi tiết SOS dành cho RESCUER / PROVINCE OPERATOR
+  const [detailSOS, setDetailSOS] = useState<DetailSos | null>(null)
+
+  // Chi tiết SOS dành cho NGƯỜI DÂN (citizen)
+  const [detail, setDetail] = useState<DetailSoSCitizen | null>(null)
+
   // =========================
   // CREATE SOS
   // =========================
@@ -36,24 +39,18 @@ export const useSoS = () => {
     try {
       setLoading(true)
       setError(null)
-
       const response = await sosService.createsos(payload)
-
       toast.success(
         response.alreadyExists
           ? "Bạn đã có yêu cầu SOS đang xử lý, vui lòng cập nhật"
           : "Gửi SOS thành công"
       )
-
       return response
     } catch (err: any) {
       console.error("CREATE SOS ERROR:", err)
-
       const message = err?.response?.data?.message || "Không thể gửi SOS"
-
       setError(message)
       toast.error(message)
-
       throw err
     } finally {
       setLoading(false)
@@ -67,19 +64,14 @@ export const useSoS = () => {
     try {
       setLoading(true)
       setError(null)
-
       const data = await sosService.getListSosRequest()
       setRequest(data)
       return data
     } catch (err: any) {
       console.error("LIST SOS ERROR:", err)
-
-      const message =
-        err?.response?.data?.message || "Không thể tải danh sách SOS"
-
+      const message = err?.response?.data?.message || "Không thể tải danh sách SOS"
       setError(message)
       toast.error(message)
-
       return []
     } finally {
       setLoading(false)
@@ -87,28 +79,22 @@ export const useSoS = () => {
   }, [])
 
   // =========================
-  // DETAIL SOS
+  // DETAIL SOS — DÀNH CHO RESCUER / PROVINCE OPERATOR
   // =========================
   const getDetailSoS = useCallback(
     async (id: string): Promise<DetailSos | null> => {
       try {
         if (!id) return null
-
         setLoading(true)
         setError(null)
-
         const data = await sosService.getDetailSoS(id)
-        setDetailSOS(data)
+        setDetailSOS(data) // ✅ sửa: lưu đúng vào state có getter là detailSOS
         return data
       } catch (err: any) {
         console.error("GET DETAIL SOS ERROR:", err)
-
-        const message =
-          err?.response?.data?.message || "Không thể tải chi tiết SOS"
-
+        const message = err?.response?.data?.message || "Không thể tải chi tiết SOS"
         setError(message)
         toast.error(message)
-
         return null
       } finally {
         setLoading(false)
@@ -120,28 +106,18 @@ export const useSoS = () => {
   // =========================
   // UPDATE SOS
   // =========================
-  const updateSoS = async (
-    id: string,
-    payload: SoSRequest
-  ): Promise<boolean> => {
+  const updateSoS = async (id: string, payload: SoSRequest): Promise<boolean> => {
     try {
       setLoading(true)
       setError(null)
-
       await sosService.updateSOS(id, payload)
-
       toast.success("Cập nhật SOS thành công")
-
       return true
     } catch (err: any) {
       console.error("UPDATE SOS ERROR:", err)
-
-      const message =
-        err?.response?.data?.message || "Không thể cập nhật SOS"
-
+      const message = err?.response?.data?.message || "Không thể cập nhật SOS"
       setError(message)
       toast.error(message)
-
       return false
     } finally {
       setLoading(false)
@@ -151,18 +127,14 @@ export const useSoS = () => {
   // =========================
   // ASSIGNMENT
   // =========================
-const assignment = async (
-    payload: AssignSos
-  ): Promise<AssignSosResult | null> => {
+  const assignment = async (payload: AssignSos): Promise<AssignSosResult | null> => {
     try {
       setSubmitting(true)
       const res = await sosService.postassign(payload)
       console.log("Phân công thành công:", res)
       return res
     } catch (err: any) {
-      toast.error(
-        err?.response?.data?.message || "Phân công cứu hộ thất bại"
-      )
+      toast.error(err?.response?.data?.message || "Phân công cứu hộ thất bại")
       return null
     } finally {
       setSubmitting(false)
@@ -177,22 +149,14 @@ const assignment = async (
       try {
         setLoading(true)
         setError(null)
-
-        const data = await sosService.getListAnonymousSosRequest(
-          sodt,
-          clientDeviceId
-        )
+        const data = await sosService.getListAnonymousSosRequest(sodt, clientDeviceId)
         setRequest(data)
         return data
       } catch (err: any) {
         console.error("LIST SOS ANONYMOUS ERROR:", err)
-
-        const message =
-          err?.response?.data?.message || "Không thể tải danh sách SOS"
-
+        const message = err?.response?.data?.message || "Không thể tải danh sách SOS"
         setError(message)
         toast.error(message)
-
         return []
       } finally {
         setLoading(false)
@@ -213,8 +177,7 @@ const assignment = async (
       return res
     } catch (err: any) {
       console.error("CANCEL SOS ERROR:", err)
-      const message =
-        err?.response?.data?.message || "Lỗi không thể hủy yêu cầu!"
+      const message = err?.response?.data?.message || "Lỗi không thể hủy yêu cầu!"
       setError(message)
       return null
     } finally {
@@ -223,12 +186,15 @@ const assignment = async (
   }, [])
 
   // =========================
-  // RESET DETAIL
+  // RESET DETAIL (RESCUER/PROVINCE)
   // =========================
   const clearDetailSOS = () => {
     setDetailSOS(null)
   }
 
+  // =========================
+  // DETAIL SOS — DÀNH CHO NGƯỜI DÂN (citizen)
+  // =========================
   const fetchDetail = useCallback(async (id: string) => {
     try {
       setLoading(true)
@@ -244,12 +210,6 @@ const assignment = async (
     }
   }, [])
 
-
-  
-  // =========================
-  // TRA CỨU SOS THEO SỐ ĐIỆN THOẠI
-  // =========================
-
   // =========================
   // RETURN
   // =========================
@@ -261,7 +221,8 @@ const assignment = async (
 
     // data
     request,
-    detail,
+    detail,       // dùng cho NGƯỜI DÂN (fetchDetail)
+    detailSOS,    // dùng cho RESCUER / PROVINCE OPERATOR (getDetailSoS) — ✅ giờ đã có getter
 
     // actions
     createSoS,
@@ -272,13 +233,13 @@ const assignment = async (
     clearDetailSOS,
     listAnonymousSosRequest,
     cancelSosRequest,
+    fetchDetail,
 
     // custom setters
     setRequest,
     setDetailSOS,
-    fetchDetail,
+
     // cancel result
     cancel,
-
   }
 }

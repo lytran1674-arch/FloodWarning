@@ -1,6 +1,6 @@
 // features/sos/hooks/useSoS.ts
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import type { AssignSos, AssignSosResult, DetailSos, ListSOS, SentedSupportRequest, SoSRequest, SoSResponse } from "../../sosrequest/types/sosType"
 import { sosService } from "../../sosrequest/services/sosService"
 import { toast } from "react-toastify"
@@ -45,17 +45,23 @@ const getDetailSoS = async (id: string) => {
     }
   }
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
-
     try {
       const data = await SoSAPI.SentedSupportRequest();
       setRequests(data);
+    } catch (err: any) {
+      // ✅ thêm catch để không văng lỗi ra console dạng uncaught
+      console.error("FETCH SUPPORT REQUEST ERROR:", err);
+      setError(err?.response?.data?.message || "Không thể tải yêu cầu hỗ trợ");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
+useEffect(() => {
+  fetchData(); // ⚠️ tự động chạy MỖI KHI bất kỳ trang nào gọi useSoS(), không cần biết trang đó có cần data này không
+}, []);
   
 
   // const listSosRequest = async () => {

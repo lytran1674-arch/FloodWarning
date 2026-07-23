@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import type { FloodRiskData } from '../types/floodriskType'
 import { FloodRiskDataApi } from '../api/floodriskApi'
 import { FloodriskdataService } from '../services/floodriskService'
@@ -11,7 +11,7 @@ export const useFloodRiskData = () => {
   const [loading, setLoading] = useState(false)
   const [data,setData]=useState<FloodRiskData|null>(null);
    // const [areaOptions, setAreaOptions] = useState<Option[]>([]);
-  const fetchFloodRiskData = async () => {
+ const fetchFloodRiskData = useCallback(async () => {
     try {
       setLoading(true)
       const list = await FloodRiskDataApi.getAll()
@@ -21,9 +21,9 @@ export const useFloodRiskData = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const getFloodDataByAreaId=async(areaId:string)=>{
+  const getFloodDataByAreaId = useCallback(async (areaId: string) => {
     try{
       setLoading(true);
       const res=await FloodriskdataService.getListPredictById(areaId);
@@ -36,7 +36,7 @@ export const useFloodRiskData = () => {
     }finally{
       setLoading(false);
     }
-  }
+  }, [])
     
   useEffect(() => {
     fetchFloodRiskData();
