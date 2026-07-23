@@ -62,7 +62,8 @@ const getIoTWaterSummaryByAreaId=async(area_id:string)=>{
   try{
     setLoading(true);
     const res=await waterlevalService.getWaterLevelsByArea(area_id);
-    setWater(res);
+    // API trả về mảng (có phân trang) -> lấy bản ghi đầu tiên (mới nhất) cho khu vực này
+    setWater(res?.[0] ?? null);
     return true;
     
   }catch(error){
@@ -73,7 +74,6 @@ const getIoTWaterSummaryByAreaId=async(area_id:string)=>{
     setLoading(false)
   }
 }
-
   return {
     data,
     loading,

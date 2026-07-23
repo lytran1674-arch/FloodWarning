@@ -7,8 +7,8 @@ export const waterlevalService ={
     return await waterlevelApi.getIoTWaterSummary();
  }
  ,
- async getWaterLevelsByArea(area_id:string):Promise<IoTAggregate>{
-    return await waterlevalService.getWaterLevelsByArea(area_id)
+async getWaterLevelsByArea(area_id:string):Promise<IoTAggregate[]>{
+    return await waterlevelApi.getWaterLevelsByArea(area_id)
  },
 
 }

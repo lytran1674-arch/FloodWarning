@@ -47,9 +47,8 @@ const flattenAreas = (nodes: AreaTree[], depth = 0, parentName?: string): FlatAr
   })
   return result
 }
-
 export const WaterLevelOverview = () => {
-  const { data, loading } = useWaterLevel()
+  const { data, loading, water, getIoTWaterSummaryByAreaId } = useWaterLevel()
   const { areas, loading: areasLoading } = useAreaContext()
   const user = useAppSelector(s => s.auth.user)
   const userAreaId = (user as any)?.areaId ?? (user as any)?.area_id
@@ -63,11 +62,13 @@ export const WaterLevelOverview = () => {
         ? userAreaId
         : flatAreas[0].area_id
       setSelectedAreaId(defaultId)
+       getIoTWaterSummaryByAreaId(selectedAreaId)
     }
   }, [flatAreas, userAreaId, selectedAreaId])
 
-  const selectedArea = flatAreas.find(a => a.area_id === selectedAreaId)
-  const current = data.find(item => item.area_id === selectedAreaId)
+ const selectedArea = flatAreas.find(a => a.area_id === selectedAreaId)
+  // Dùng dữ liệu fetch riêng theo khu vực (water), không lọc client-side từ data toàn hệ thống nữa
+  const current = water ?? data.find(item => item.area_id === selectedAreaId)
 
   // ── Map đúng field từ IoTAggregate, không tự phát sinh dữ liệu ──
   const level    = current?.currentWater          ?? 0

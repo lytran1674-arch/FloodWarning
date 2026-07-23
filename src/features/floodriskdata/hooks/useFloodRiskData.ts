@@ -14,8 +14,8 @@ export const useFloodRiskData = () => {
   const fetchFloodRiskData = async () => {
     try {
       setLoading(true)
-      const data = await FloodRiskDataApi.getAll()
-      setFloodRiskData(data)
+      const list = await FloodRiskDataApi.getAll()
+      setFloodRiskData(list)
     } catch (error) {
       console.log(error)
     } finally {
@@ -27,7 +27,8 @@ export const useFloodRiskData = () => {
     try{
       setLoading(true);
       const res=await FloodriskdataService.getListPredictById(areaId);
-      setData(res);
+      // API trả về mảng (list-by-area) -> lấy bản ghi mới nhất (đầu mảng)
+      setData(res?.[0] ?? null);
       return true;
     }catch(error){
       console.error(error)
