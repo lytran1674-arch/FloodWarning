@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 
 import SOSDetailCard from "@/features/sosrequest/components/ChiTietSOS";
 
+
 import type {
   ApprovedItem,
   ApprovePayload,
@@ -25,9 +26,11 @@ const STATUS_BADGE: Record<string, string> = {
   APPROVED: "bg-blue-100 text-blue-700",
   REJECTED: "bg-red-100 text-red-700",
   COMPLETED: "bg-green-100 text-green-700",
+  // THÊM: thiếu trạng thái này trước đó -> class CSS ra "undefined", badge mất style
   TEAM_REJECTED: "bg-orange-100 text-orange-700",
 };
 
+// THÊM: fallback style cho status lạ chưa được liệt kê ở trên
 const statusBadgeClass = (status: string) =>
   STATUS_BADGE[status] ?? "bg-gray-100 text-gray-600";
 
@@ -43,42 +46,38 @@ export function SupportRequestReviewPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ Nguồn dữ liệu DUY NHẤT là location.state, vì backend chưa có
-  // endpoint GET /support-request/:id để fetch lại khi thiếu state
-  const { sosId, supportRequestId, items, dispatcherUserId, dispatcherUserName } =
+const { sosId, supportRequestId, items, dispatcherUserId, dispatcherUserName } =
     (location.state as ReviewLocationState | null) ?? {};
 
   const currentUser = useAppSelector((state) => state.auth.user);
   const isDispatcher = !dispatcherUserId || currentUser?.id === dispatcherUserId;
 
-  const { detail, loading: loadingSOS, getDetailSoS } = useSoS();
+const { detail, loadingDetail: loadingSOS, getDetailSoS } = useSoS();
 
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [selectedTeamsByItem, setSelectedTeamsByItem] = useState<Record<string, string[]>>({});
+  const [selectedTeamsByItem, setSelectedTeamsByItem] = useState<
+    Record<string, string[]>
+  >({});
   const [submitting, setSubmitting] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [showRejectBox, setShowRejectBox] = useState(false);
+
+  // THÊM: ô "Ghi chú" trước đó không có state -> gõ vào là mất, không gửi
+  // được lên đâu cả (textarea uncontrolled, không value/onChange).
   const [note, setNote] = useState("");
 
   const { teamsByItem, loadingItemId, fetchCandidateTeams } = useCandidateTeams();
 
-  // ✅ Guard: nếu thiếu dữ liệu (mở link trực tiếp / reload / navigate thiếu state)
-  // -> báo rõ nguyên nhân và đưa về danh sách, KHÔNG cố fetch API chưa tồn tại
   useEffect(() => {
     if (!sosId || !supportRequestId || !items || items.length === 0) {
-      toast.error(
-        "Không có dữ liệu yêu cầu hỗ trợ. Vui lòng mở trang này từ danh sách yêu cầu, không dùng link trực tiếp."
-      );
+      toast.error("Không có dữ liệu yêu cầu hỗ trợ");
       navigate("/support-request");
     }
   }, [sosId, supportRequestId, items, navigate]);
 
-  // ✅ Sửa: bỏ getDetailSoS khỏi dependency vì hook chưa bọc useCallback
-  // -> nếu giữ trong deps, function đổi reference mỗi render -> gọi API lặp vô hạn
   useEffect(() => {
     if (sosId) getDetailSoS(sosId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sosId]);
+  }, [sosId, getDetailSoS]);
 
   const handleItemClick = (itemId: string) => {
     if (selectedItemId === itemId) {
@@ -86,6 +85,7 @@ export function SupportRequestReviewPage() {
       return;
     }
     setSelectedItemId(itemId);
+    // Chỉ fetch nếu chưa có data cho item này, tránh gọi lại API mỗi lần mở/đóng
     if (!teamsByItem[itemId]) {
       fetchCandidateTeams(itemId);
     }
@@ -94,19 +94,26 @@ export function SupportRequestReviewPage() {
   const handleToggleTeam = (itemId: string, teamId: string) => {
     setSelectedTeamsByItem((prev) => {
       const current = prev[itemId] ?? [];
+
       const item = items?.find((i) => i.id === itemId);
       const required = item?.requiredGroupCount ?? 1;
 
       if (current.includes(teamId)) {
+        // Bỏ chọn
         return { ...prev, [itemId]: current.filter((id) => id !== teamId) };
       }
+
       if (required === 1) {
+        // Chỉ cần 1 nhóm -> replace, không cho chọn thêm
         return { ...prev, [itemId]: [teamId] };
       }
+
       if (current.length >= required) {
+        // Đã đủ số nhóm -> không cho chọn thêm
         toast.warning(`Chỉ cần ${required} nhóm cho loại hỗ trợ này`);
         return prev;
       }
+
       return { ...prev, [itemId]: [...current, teamId] };
     });
   };
@@ -150,7 +157,7 @@ export function SupportRequestReviewPage() {
     return null;
   }
 
-  const handleApprove = async () => {
+const handleApprove = async () => {
     if (!isDispatcher) {
       toast.error(`Chỉ ${dispatcherUserName ?? "Dispatcher"} mới được duyệt yêu cầu này`);
       return;
@@ -166,12 +173,15 @@ export function SupportRequestReviewPage() {
       const selectedTeamIds = selectedTeamsByItem[item.id] || [];
       const teams = teamsByItem[item.id] || [];
       const teamMap = new Map(teams.map((t) => [t.id, t]));
+
       let remaining = item.requiredGroupCount || 0;
 
       for (const teamId of selectedTeamIds) {
         if (remaining <= 0) break;
+
         const team = teamMap.get(teamId);
         if (!team) continue;
+
         const available = getAvailableGroups(team, item.supportType);
         if (available <= 0) continue;
 
@@ -183,9 +193,12 @@ export function SupportRequestReviewPage() {
             supportRequestItemId: item.id,
             assignedTeamId: teamId,
             status: "APPROVED",
+            // THÊM: gắn ghi chú (nếu có) vào từng item được duyệt, vì
+            // ApprovePayload không có field ghi chú ở cấp ngoài
             ...(note.trim() ? { provinceResponse: note.trim() } : {}),
           });
         }
+
         remaining -= Math.min(available, remaining);
       }
     });
@@ -210,7 +223,7 @@ export function SupportRequestReviewPage() {
     }
   };
 
-  const handleReject = async () => {
+const handleReject = async () => {
     if (!isDispatcher) {
       toast.error(`Chỉ ${dispatcherUserName ?? "Dispatcher"} mới được từ chối yêu cầu này`);
       return;
@@ -325,7 +338,7 @@ export function SupportRequestReviewPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border bg-white p-5 shadow-sm">
+         <div className="rounded-xl border bg-white p-5 shadow-sm">
             <h3 className="mb-3 text-sm font-semibold">Xác nhận điều phối</h3>
 
             {!isDispatcher && (
@@ -349,7 +362,7 @@ export function SupportRequestReviewPage() {
               />
             </div>
 
-            {!showRejectBox ? (
+           {!showRejectBox ? (
               <div className="flex gap-2">
                 <button
                   onClick={handleApprove}

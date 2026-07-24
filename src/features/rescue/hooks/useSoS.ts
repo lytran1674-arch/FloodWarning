@@ -9,6 +9,7 @@ import { SoSAPI } from "@/features/sosrequest/api/sosApi"
 
 export const useSoS = () => {
   const [loading, setLoading] = useState(false)
+  const [loadingDetail, setLoadingDetail] = useState(false)
   const [error, setError] = useState("")
   const [request] = useState<ListSOS[]>([])
   const [submit, setSubmitting] = useState(false)
@@ -18,7 +19,7 @@ export const useSoS = () => {
 
 const getDetailSoS = async (id: string) => {
   try {
-    setLoading(true);
+    setLoadingDetail(true);
     setError("");
     const data = await sosService.getDetailSoS(id); // gọi đúng bản rescuer (DetailSos)
     setDetail(data);
@@ -27,7 +28,7 @@ const getDetailSoS = async (id: string) => {
     setError(err?.response?.data?.message || "Không thể tải chi tiết SOS");
     return null;
   } finally {
-    setLoading(false);
+    setLoadingDetail(false);
   }
 };
   // Tạo mới hoặc cập nhật — BE tự phân biệt qua sodt + clientDeviceId
@@ -60,7 +61,7 @@ const getDetailSoS = async (id: string) => {
   }, []);
 
 useEffect(() => {
-  fetchData(); // ⚠️ tự động chạy MỖI KHI bất kỳ trang nào gọi useSoS(), không cần biết trang đó có cần data này không
+  fetchData();
 }, []);
   
 
@@ -77,10 +78,7 @@ useEffect(() => {
   //   }
   // }
 
-  
-  useEffect(() => {
-    fetchData();
-  }, []);
+
 
   const updateSoS = async (
     id: string,
@@ -109,13 +107,14 @@ const assignment = async (
       setSubmitting(false)
     }
   }
-  return {
+ return {
     // listSosRequest,
     createSoS,
     updateSoS,
     assignment,
     submit,
     loading,
+    loadingDetail,
     error,
     request,
     requests,
