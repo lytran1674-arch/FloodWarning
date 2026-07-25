@@ -4,7 +4,7 @@ import { useFloodRiskData } from "@/features/floodriskdata/hooks/useFloodRiskDat
 import type { FloodRiskData } from "@/features/floodriskdata/types/floodriskType"
 import {
   ChartColumn, MapPin, ShieldCheck, ShieldAlert, ShieldMinus,
-  Clock, Calendar, Map as MapIcon, Database,
+  Clock, Calendar, Database,
   ChevronDown, Search, X, Loader2, Activity, AlertCircle,
 } from "lucide-react"
 import { useAppSelector } from "@/hooks/redux.hooks"
@@ -142,7 +142,7 @@ export const DataFlood = () => {
 
   const selected = getLead(displayData, selectedLead)
   const selectedCfg = RISK_CONFIG[selected.level] ?? RISK_CONFIG.LOW
-  const selectedPct = Math.min(Math.max(selected.probability, 0), 100)
+  // const selectedPct = Math.min(Math.max(selected.probability, 0), 100)
 
   return (
     <div className="lg:m-5 space-y-4">

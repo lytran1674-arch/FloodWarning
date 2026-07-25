@@ -41,10 +41,10 @@ export const authService = {
   },
 
   // ================= REFRESH TOKEN =================
-  async refreshToken() {
+  async refreshToken(refreshToken:string) {
 
     const response =
-      await authAPI.refreshToken();
+      await authAPI.refreshToken(refreshToken);
 
     return response.data;
   },

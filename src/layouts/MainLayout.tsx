@@ -5,8 +5,16 @@ import { defaultConfig, roleConfig } from "./menuItem";
 import { Header } from "../components/sidebar/Header";
 import { Menu } from "../components/sidebar/Menu";
 import { AreaProvider } from "../features/areas/components/AreaContext";
+import { useAppSelector } from "@/hooks/redux.hooks";
 
 export const MainLayout = () => {
+  const role = useAppSelector((state) => state.auth.user)
+let subRole: string | null = null;
+if (role?.isTeamLeader) subRole = "TEAM_LEADER";
+else if (role?.isTeamDeputy) subRole = "TEAM_DEPUTY";
+else if (role?.isGroupLeader) subRole = "GROUP_LEADER";
+else if (role?.groupType === "HOTLINE") subRole = "HOTLINE";
+
   const [openMenu, setOpenMenu] = useState(false);
   const { user, isAuthenticated } = useAuth();
   const [openLogout, setOpenLogout] = useState(false);

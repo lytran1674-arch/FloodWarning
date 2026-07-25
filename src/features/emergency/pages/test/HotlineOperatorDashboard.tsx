@@ -296,7 +296,8 @@ export default function HotlineOperatorDashboard() {
   const [refreshKey, setRefreshKey]                   = useState(0)
 
   // ✅ Dùng SosHotlineCreateResult — type duy nhất, không còn ActiveResult riêng
-  const [activeResult, setActiveResult] = useState<SosHotlineCreateResult | null>(null)
+  const [activeResult, setActiveResult] = useState<SosHotlineCreateResult | null>(null);
+
 
   const handleCreated = (result: SosHotlineCreateResult) => {
     setSelectedCallEventId(null)
@@ -380,12 +381,13 @@ export default function HotlineOperatorDashboard() {
         onClose={() => setSelectedCallEventId(null)}
         onCreated={handleCreated}
       />
-
+{isHotline&&(
       <CreateManualSosModal
         open={manualModalOpen}
         onClose={() => setManualModalOpen(false)}
         onCreated={handleCreated}
       />
+      )}
     </div>
   )
 }

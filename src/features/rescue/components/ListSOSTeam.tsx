@@ -78,6 +78,13 @@ export default function TeamSOSPage() {
         return "bg-green-100 text-green-700";
     }
   };
+  const LabelPriority:Record<string,string>={
+   CRITICAL:"ƯU TIÊN",
+   HIGH:"CAO",
+   MEDIUM:"TRUNG BÌNH",
+   LOW:"THẤP",
+
+  }
 
   return (
     <div className="p-6">
@@ -127,7 +134,7 @@ export default function TeamSOSPage() {
                       sos.priority
                     )}`}
                   >
-                    {sos.priority}
+                  {LabelPriority[sos.priority]}
                   </span>
                 </div>
 

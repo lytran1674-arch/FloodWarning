@@ -14,8 +14,8 @@ import {
 import type { IoTAggregate } from "../types/waterlevelType";
 
 const getBarColor = (value: number) => {
-  if (value >= 12) return "#EF4444"; // đỏ
-  if (value >= 10) return "#F59E0B"; // vàng
+  if (value >= 3) return "#EF4444"; // đỏ
+  if (value >= 2.5) return "#F59E0B"; // vàng
   return "#3B82F6";                  // xanh
 };
 interface Props {

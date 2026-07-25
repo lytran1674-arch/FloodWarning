@@ -77,12 +77,12 @@ localStorage.removeItem("deviceId");
 
       // Role trả về chữ HOA theo API
       switch (role) {
-        case "ADMIN":   navigate("/areas-management"); break
+        case "ADMIN":   navigate("/evaluation"); break
          case "RESCUER":
     if (groupType === "HOTLINE") {
       navigate("/hotline");
     } else {
-      navigate("/team-sos");
+      navigate("/homerescue");
     }
     break;
         case "CITIZEN": navigate("/dashboard");             break

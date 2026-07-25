@@ -226,76 +226,76 @@ interface SosDetailPanelProps {
 
 export default function SosDetailPanel({ sosId }: SosDetailPanelProps) {
   const { data: detail, loading, error } = useSosDetail(sosId);
-const timeline = detail
-  ? [
-      {
-        id: "created",
-        title: "SOS được tạo",
-        time: detail.createdAt,
-        color: "bg-blue-500",
-      },
+// const timeline = detail
+//   ? [
+//       {
+//         id: "created",
+//         title: "SOS được tạo",
+//         time: detail.createdAt,
+//         color: "bg-blue-500",
+//       },
 
-      ...detail.assignments.flatMap((a) => [
-        {
-          id: `${a.id}-assigned`,
-          title: `Phân công ${a.groupName}`,
-          time: a.assignedAt,
-          color: "bg-indigo-500",
-        },
-        ...(a.acknowledgedAt
-          ? [{
-              id: `${a.id}-ack`,
-              title: `${a.groupName} đã xác nhận`,
-              time: a.acknowledgedAt,
-              color: "bg-cyan-500",
-            }]
-          : []),
-        ...(a.arrivedAt
-          ? [{
-              id: `${a.id}-arrived`,
-              title: `${a.groupName} đã đến hiện trường`,
-              time: a.arrivedAt,
-              color: "bg-orange-500",
-            }]
-          : []),
-        ...(a.completedAt
-          ? [{
-              id: `${a.id}-completed`,
-              title: `${a.groupName} hoàn thành`,
-              time: a.completedAt,
-              color: "bg-green-500",
-            }]
-          : []),
-      ]),
+//       ...detail.assignments.flatMap((a) => [
+//         {
+//           id: `${a.id}-assigned`,
+//           title: `Phân công ${a.groupName}`,
+//           time: a.assignedAt,
+//           color: "bg-indigo-500",
+//         },
+//         ...(a.acknowledgedAt
+//           ? [{
+//               id: `${a.id}-ack`,
+//               title: `${a.groupName} đã xác nhận`,
+//               time: a.acknowledgedAt,
+//               color: "bg-cyan-500",
+//             }]
+//           : []),
+//         ...(a.arrivedAt
+//           ? [{
+//               id: `${a.id}-arrived`,
+//               title: `${a.groupName} đã đến hiện trường`,
+//               time: a.arrivedAt,
+//               color: "bg-orange-500",
+//             }]
+//           : []),
+//         ...(a.completedAt
+//           ? [{
+//               id: `${a.id}-completed`,
+//               title: `${a.groupName} hoàn thành`,
+//               time: a.completedAt,
+//               color: "bg-green-500",
+//             }]
+//           : []),
+//       ]),
 
-      ...detail.supportRequests.flatMap((r) => [
-        {
-          id: `${r.id}-create`,
-          title: "Gửi yêu cầu chi viện",
-          time: r.createdAt,
-          color: "bg-purple-500",
-        },
-        ...(r.reviewedAt
-          ? [{
-              id: `${r.id}-review`,
-              title:
-                r.status === "APPROVED"
-                  ? "Yêu cầu được phê duyệt"
-                  : "Yêu cầu bị từ chối",
-              time: r.reviewedAt,
-              color:
-                r.status === "APPROVED"
-                  ? "bg-emerald-500"
-                  : "bg-red-500",
-            }]
-          : []),
-      ]),
-    ].sort(
-      (a, b) =>
-        new Date(a.time).getTime() -
-        new Date(b.time).getTime()
-    )
-  : [];
+//       ...detail.supportRequests.flatMap((r) => [
+//         {
+//           id: `${r.id}-create`,
+//           title: "Gửi yêu cầu chi viện",
+//           time: r.createdAt,
+//           color: "bg-purple-500",
+//         },
+//         ...(r.reviewedAt
+//           ? [{
+//               id: `${r.id}-review`,
+//               title:
+//                 r.status === "APPROVED"
+//                   ? "Yêu cầu được phê duyệt"
+//                   : "Yêu cầu bị từ chối",
+//               time: r.reviewedAt,
+//               color:
+//                 r.status === "APPROVED"
+//                   ? "bg-emerald-500"
+//                   : "bg-red-500",
+//             }]
+//           : []),
+//       ]),
+//     ].sort(
+//       (a, b) =>
+//         new Date(a.time).getTime() -
+//         new Date(b.time).getTime()
+//     )
+//   : [];
   if (!sosId) {
     return (
       <div className="bg-white rounded-2xl border border-slate-200 p-10 text-center h-full flex flex-col items-center justify-center">
@@ -445,35 +445,8 @@ const timeline = detail
         </div>
       </div>
 
-      {/* TIMELINE */}
-      <div className="border rounded-xl p-4">
-        <div className="flex items-center gap-2 font-medium text-slate-700 mb-4">
-          <Clock size={18} className="text-blue-500" />
-          Timeline
-        </div>
 
-       
-
-       <div className="space-y-4 border-l-2 border-slate-200 ml-2 pl-5">
-  {timeline.map((item) => (
-    <div key={item.id} className="relative">
-      <span
-        className={`absolute -left-[29px] top-1 w-3 h-3 rounded-full ${item.color}`}
-      />
-
-      <p className="font-medium text-sm">
-        {item.title}
-      </p>
-
-      <p className="text-xs text-slate-500">
-        {new Date(item.time).toLocaleString("vi-VN")}
-      </p>
-    </div>
-  ))}
-</div>
-        
-  
-      </div>
+      
     </>
   ) : null}
 

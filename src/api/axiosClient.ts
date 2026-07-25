@@ -8,7 +8,6 @@ import {
 } from "@/features/auth/store/authSlice";
 
 import { authAPI } from "@/features/auth/api/authApi";
-import { clearFcmTokenOnLogout } from "@/utils/firebaseNotification";
 
 const BASE_URL = "https://api-lulut.io.vn";
 
@@ -52,6 +51,15 @@ let refreshSubscribers: Array<{
   reject: (err: any) => void;
 }> = [];
 
+export function waitForOngoingRefresh(): Promise<void> {
+  if (!isRefreshing) return Promise.resolve();
+  return new Promise((resolve) => {
+    subscribeTokenRefresh(
+      () => resolve(),
+      () => resolve()
+    );
+  });
+}
 function subscribeTokenRefresh(
   resolve: (token: string) => void,
   reject: (err: any) => void
@@ -71,9 +79,13 @@ function onRefreshFailed(err: any) {
 
 function forceLogout() {
   store.dispatch(logout());
-  clearFcmTokenOnLogout().finally(() => {
-    window.location.href = "/";
-  });
+
+  import("@/utils/firebaseNotification")
+    .then(({ clearFcmTokenOnLogout }) => clearFcmTokenOnLogout())
+    .catch((err) => console.error("...", err))
+    .finally(() => {
+      window.location.href = "/";
+    });
 }
 
 // ================= RESPONSE INTERCEPTOR =================
@@ -111,8 +123,14 @@ axiosClient.interceptors.response.use(
 
     isRefreshing = true;
 
-    try {
-      const res = await authAPI.refreshToken();
+  try {
+      const storedRefreshToken = localStorage.getItem("refreshToken");
+
+      if (!storedRefreshToken) {
+        throw new Error("Không có refresh token trong localStorage");
+      }
+
+      const res = await authAPI.refreshToken(storedRefreshToken);
 
       const newAccessToken = res.data.result.accessToken;
       const newRefreshToken = res.data.result.refreshToken;

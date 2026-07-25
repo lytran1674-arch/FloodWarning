@@ -62,8 +62,7 @@ const { detail, loadingDetail: loadingSOS, getDetailSoS } = useSoS();
   const [rejectReason, setRejectReason] = useState("");
   const [showRejectBox, setShowRejectBox] = useState(false);
 
-  // THÊM: ô "Ghi chú" trước đó không có state -> gõ vào là mất, không gửi
-  // được lên đâu cả (textarea uncontrolled, không value/onChange).
+
   const [note, setNote] = useState("");
 
   const { teamsByItem, loadingItemId, fetchCandidateTeams } = useCandidateTeams();

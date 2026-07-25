@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { authAPI } from "../api/authApi";
 import { logout } from "../store/authSlice";
 import { clearFcmTokenOnLogout } from "@/utils/firebaseNotification";
+import { waitForOngoingRefresh } from "@/api/axiosClient";
 
 type Props = {
   className?: string;
@@ -20,6 +21,7 @@ export const LogOut = ({ className }: Props) => {
     if (loading) return;
     setLoading(true);
 
+    await waitForOngoingRefresh();
     const accessToken = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
     const fcmToken=localStorage.getItem("fcm_token");

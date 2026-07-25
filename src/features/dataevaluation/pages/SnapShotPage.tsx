@@ -6,6 +6,7 @@ import { useDataEvalution } from "../hooks/useDataEvalution";
 import { useState } from "react";
 import { RiskScore } from "../component/RiskScore";
 import { NotepadText } from "lucide-react";
+import { useAppSelector } from "@/hooks/redux.hooks";
 
 export const SnapShotPage = () => {
   const [selectedArea, setSelectedArea] = useState(
@@ -15,7 +16,8 @@ export const SnapShotPage = () => {
   const { data,handleSnapShot,chartData } = useDataEvalution(selectedArea);
 
   const areaOption = useAreaOptions();
-
+  const user=useAppSelector((state)=>state.auth.user);
+  const admin=user?.role==="ADMIN";
   const handleAreaChange = (value: string) => {
     setSelectedArea(value);
     localStorage.setItem("selectedArea", value);
@@ -57,7 +59,7 @@ export const SnapShotPage = () => {
               
             />
           </div>
-
+      {admin &&(
           <div className="flex flex-col ">
             <Button
               className="
@@ -82,6 +84,7 @@ export const SnapShotPage = () => {
   Đánh giá thủ công (2 phút/lần)
 </p>
           </div>
+          )}
         </div>
       </div>
 
@@ -159,7 +162,7 @@ Chu kỳ đánh giá
 
 <br/>
 
-2 phút/lần (thủ công)
+1 phút/lần (thủ công)
 
 </InfoItem>
 

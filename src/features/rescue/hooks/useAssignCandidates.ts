@@ -22,7 +22,10 @@ export const useAssignCandidates = () => {
       setLoading(true);
       setError("");
       const res = await axiosClient.get(`/sos-assignment/assign-candidates/${sosId}`);
-      setGroups(res.data.result ?? []);
+      const all: AssignCandidateGroup[] = res.data.result ?? [];
+      // Nhóm trực tổng đài (HOTLINE) không đi hiện trường -> không được phép
+      // xuất hiện trong danh sách phân công cứu hộ
+      setGroups(all.filter((g) => g.type !== "HOTLINE"));
       return true;
     } catch (err) {
       console.error(err);

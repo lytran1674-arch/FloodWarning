@@ -7,7 +7,7 @@ export interface SnapShot{
     iotRiskScore?:string
     predictionProbability?:number
     dangerRatio?:number
-    dangerDuraionMinutes?:number
+    dangerDurationMinutes?:number
     waterRiseRatePerMinute?:number
     dangerAggregateCount?:number
     dangerPercent?:number

@@ -4,6 +4,7 @@ import { WaterChart } from "../components/WaterChart";
 import { Button } from "@/components/ui/Button";
 import { useWaterLevel } from "../hooks/useWaterLevel";
 import { ChartColumnBig } from "lucide-react";
+import { useAppSelector } from "@/hooks/redux.hooks";
 
 export const SummaryWaterPage = () => {
   const {
@@ -11,9 +12,11 @@ export const SummaryWaterPage = () => {
     loading,
     handleAggregate,
   } = useWaterLevel();
-
+const user=useAppSelector((state)=>state.auth.user);
+const admin=user?.role==="ADMIN";
   return (
-    <div>
+    <div className="lg:mt-2 ">
+      {admin&&(
     <div className="flex justify-end mt-8 mr-5">
   <Button
     onClick={handleAggregate}
@@ -23,6 +26,7 @@ export const SummaryWaterPage = () => {
     Tổng hợp mực nước
   </Button>
 </div>
+)}
 
       <StatusCard data={data} />
 

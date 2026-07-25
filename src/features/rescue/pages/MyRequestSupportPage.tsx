@@ -5,6 +5,7 @@
 import ListMyRequestSupport from "@/features/province_operator/components/ListMyRequestSupport"
 import SosDetailPanel from "../components/SosDetailMoPanel"
 import { useState } from "react"
+import { ListSoSSupportCard } from "@/features/grouprescue/components/ListSoSSupportCard";
 
 export const MyRequestSupportPage = () => {
   const [selectedSosId, setSelectedSosId] = useState<string | null>(null);
@@ -24,6 +25,7 @@ export const MyRequestSupportPage = () => {
            
               
             </div>
+            <ListSoSSupportCard/>
              <div className="w-full xl:w-1/2 xl:sticky xl:top-4">
           <SosDetailPanel sosId={selectedSosId} />
         </div>

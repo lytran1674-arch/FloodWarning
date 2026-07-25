@@ -17,7 +17,7 @@ export const useSoS = () => {
 
   const [detail, setDetail] = useState<DetailSos | null>(null); // phải là DetailSos, không phải DetailSoSCitizen
 
-const getDetailSoS = async (id: string) => {
+const getDetailSoS = useCallback(async (id: string) => {
   try {
     setLoadingDetail(true);
     setError("");
@@ -30,7 +30,7 @@ const getDetailSoS = async (id: string) => {
   } finally {
     setLoadingDetail(false);
   }
-};
+}, []);
   // Tạo mới hoặc cập nhật — BE tự phân biệt qua sodt + clientDeviceId
   // Trả về SoSResponse với alreadyExists để FormSOS xử lý navigate
   const createSoS = async (payload: SoSRequest): Promise<SoSResponse> => {

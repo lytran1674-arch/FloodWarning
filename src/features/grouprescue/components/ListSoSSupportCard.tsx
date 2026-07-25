@@ -2,10 +2,12 @@ import { Calendar, Users, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSupportRequestListGroup } from "../hooks/useSupportRequestListGroup";
 
+
 export const ListSoSSupportCard = () => {
   const { sossupport } = useSupportRequestListGroup();
+  
   const navigate = useNavigate();
-
+  
   const statusConfig: Record<string, { label: string; className: string }> = {
     PENDING: {
       label: "Chờ xử lý",
@@ -85,6 +87,13 @@ export const ListSoSSupportCard = () => {
             {/* Action */}
             {(item.status === "PENDING" || item.status === "PROCESSING") && (
               <div className="flex justify-end mt-6">
+                <button
+  type="button"
+ 
+  className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+>
+  Xem chi tiết
+</button>
                 <button
                   onClick={() => navigate(`/support-group-assign/${item.id}`)}
                   className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-8 py-2.5 transition"

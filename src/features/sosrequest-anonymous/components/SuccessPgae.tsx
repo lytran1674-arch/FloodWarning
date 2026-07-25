@@ -93,13 +93,13 @@ export default function SuccessPageAnonymous() {
                 Xem yêu cầu của tôi
               </button>
               <button
-                onClick={() => navigate("/request-sos")}
+                onClick={() => navigate("/dashboard")}
                 className="
                   flex-1 bg-white hover:bg-slate-100 border text-slate-700
                   py-3.5 rounded-2xl font-semibold transition-all
                 "
               >
-                Gửi yêu cầu khác
+                Quay về trang chủ
               </button>
             </div>
 

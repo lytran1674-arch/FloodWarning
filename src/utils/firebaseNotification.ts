@@ -1,10 +1,9 @@
-// src/services/fcmService.ts
-import axios                          from "axios"
+import { axiosClient } from "@/api/axiosClient"
 import { getMessaging, getToken, deleteToken, isSupported } from "firebase/messaging"
 import { app }                        from "../firebase"
 
 // ── Constants ──
-const API_URL          = "https://api-lulut.io.vn/notification/token"
+const API_URL = "/notification/token" 
 const VAPID_KEY        = "BJpZLQUn5cvE-lotcGk9C-1eu8SOI7y_9vANyUtPJD9pIVUMkIsAjXfhUBjYhiUfcURJMK_JwBn2gwBw61Ogw0g"
 const SW_PATH          = "/firebase-messaging-sw.js"
 const KEY_TOKEN        = "fcm_token"
@@ -61,11 +60,11 @@ const sendTokenToBackend = async (
   userId:      string,
 ): Promise<boolean> => {
   try {
-    const res = await axios.post(
-      API_URL,
-      { token },
-      { headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" } }
-    )
+    const res = await axiosClient.post(
+    API_URL,
+    { token },
+    { headers: { Authorization: `Bearer ${accessToken}` } }
+  )
     console.log("[FCM] Token registered for user:", userId, res.data)
     localStorage.setItem(KEY_TOKEN,  token)
     localStorage.setItem(KEY_OWNER,  userId)

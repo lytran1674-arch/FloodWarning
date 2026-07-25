@@ -58,8 +58,8 @@ export const DataEvaluationTable = ({data}:Props) => {
      },
      {
        title: "Thời gian nguy hiểm",
-       key: "dangerDuraionMinutes" as keyof SnapShot,
-       render: (item: SnapShot) => `${item.dangerDuraionMinutes}`,
+       key: "dangerDurationMinutes" as keyof SnapShot,
+       render: (item: SnapShot) => `${item.dangerDurationMinutes}`,
      },
      {
        title: "Tốc độ nước dâng ",

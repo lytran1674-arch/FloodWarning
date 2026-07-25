@@ -21,6 +21,14 @@ interface TeamSOS {
   createdAt: string;
 }
 
+const LabelPriority:Record<string,string>={
+   CRITICAL:"ƯU TIÊN",
+   HIGH:"CAO",
+   MEDIUM:"TRUNG BÌNH",
+   LOW:"THẤP",
+
+  }
+
 interface SoSCardProps {
   // sosId đang được chọn để xem chi tiết ở panel bên cạnh (nếu component cha có quản lý)
   selectedSosId?: string | null;
@@ -141,7 +149,7 @@ export default function SoSCard({ selectedSosId, onSelectSos }: SoSCardProps) {
                       sos.priority
                     )}`}
                   >
-                    {sos.priority}
+                  {LabelPriority[sos.priority]}
                   </span>
 
                   <div className="flex items-center gap-2">

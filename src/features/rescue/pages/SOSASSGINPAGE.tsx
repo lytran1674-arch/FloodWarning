@@ -48,6 +48,7 @@ export const SOSASSGINPAGE = () => {
   const { sosId } = useParams<{ sosId: string }>();
   const navigate = useNavigate();
 
+
   // Đã sửa: gọi đúng endpoint mới theo sosId, BE tự lọc team + AVAILABLE,
   // không tự fetch toàn bộ group của team rồi lọc client-side như trước.
   const { groups, loading: loadingGroups, error: candidatesError, getAssignCandidates } =
@@ -86,8 +87,8 @@ const handleSubmit = async () => {
   state: {
     initialCallTask:  res.callTask,
     supportRequestId: res.assignmentId,
-    flowType:         "ASSIGN_GROUP",  // ✅ thêm
-    sosId:            sosId,           // ✅ thêm — để navigate về đúng SOS
+    flowType:         "ASSIGN_GROUP",  
+    sosId:            sosId,           
   }
 })
     } else {

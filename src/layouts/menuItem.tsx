@@ -7,10 +7,14 @@ import IconRescuer from "../assets/rescuer.png"
 
 
 
+
+
+
 export type MenuItem = {
   text: string
   icon: LucideIcon | string
   path: string
+   allowedSubRoles?: string[]
 
 }
 export const adminMenu: MenuItem[] = [
@@ -44,7 +48,7 @@ export const rescuerMenu: MenuItem[] = [
   
    {text:"Thông tin đội cứu hội", icon:FileText ,path:"/information-team"},
     { text: "Tài khoản ",      icon: User,    path: "/account" },
-    { text: "HotLine ",      icon: User,    path: "/hotline" }
+    { text: "HotLine ",      icon: User,    path: "/hotline",allowedSubRoles:["HOTLINE"] }
 ]
 
 export const userMenu: MenuItem[] = [

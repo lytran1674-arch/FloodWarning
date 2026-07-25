@@ -38,7 +38,7 @@ export const authAPI = {
 
   // ================= REFRESH TOKEN =================
    refreshToken(refreshToken: string) {
-    return axiosClient.post("/auth/refresh", { refreshToken });
+    return publicApi.post("/auth/refresh", { refreshToken });
   },
 
   // ================= LOGOUT =================

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import axios from "axios";
+
 import {
   MapPin,
   Radio,
@@ -7,6 +7,7 @@ import {
   Clock,
   Navigation
 } from "lucide-react";
+import { axiosClient } from "@/api/axiosClient";
 
 type HistoryItem = {
   waterLevel: number;
@@ -32,15 +33,9 @@ export const NearestDevicePage = () => {
 
   const fetchData = async () => {
     try {
-      const token = localStorage.getItem("accessToken");
-      const res = await axios.get(
-        "https://api-lulut.io.vn/iot-device/nearest/history?lat=10.738483&lon=106.67873",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+const res = await axiosClient.get(
+  "/iot-device/nearest/history?lat=10.738483&lon=106.67873"
+);
       setData(res.data.result);
     } catch (err) {
       console.log("API ERROR:", err);

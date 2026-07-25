@@ -1,6 +1,6 @@
-import type { Polygon, MultiPolygon } from "geojson"
+
 import type { Area } from "../types/areaType"
-import { publicApi } from "@/api/axiosClient"
+import { axiosClient, publicApi } from "@/api/axiosClient"
 
 const API_URL = "/area" // 
 
@@ -31,15 +31,8 @@ export const areaApi = {
     return { ...data, id: data.id ?? areaId }
   },
 
-  async getPolygonById(id: string): Promise<{ geometry: Polygon | MultiPolygon } | null> {
-    // fetch gốc không có interceptor, cần gắn token thủ công
-    const token = localStorage.getItem("accessToken")
-    const res = await fetch(`https://api-lulut.io.vn${API_URL}/polygon-by-id?id=${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    if (!res.ok) return null
-    return res.json()
-  },
+  async getPolygonById(id: string) {
+  const res = await axiosClient.get(`${API_URL}/polygon-by-id`, { params: { id } })
+  return res.data
+}
 }
