@@ -83,8 +83,8 @@ export const sosService = {
     return await SoSAPI.cancelSosRequest(sosId)
   },
   //tra cứu trackingCode
-  async trackingCode(trackingCode:string):Promise<SoSResponse>{
-    return SoSAPI.trackingCode(trackingCode);
+  async tracusos(keyword:string):Promise<SoSResponse>{
+    return SoSAPI.tracuusos(keyword);
   }
 
 }

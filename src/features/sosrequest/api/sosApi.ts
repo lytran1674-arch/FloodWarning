@@ -141,10 +141,12 @@ export const SoSAPI = {
     return response.data.result?.content??[]
   },
   ///tra cứu sos theo mã tracking cho người dân 
-  async trackingCode(trackingCode:string):Promise<SoSResponse>{
-    const response=await publicApi.get(`${API_URL}/tracking/${trackingCode}`)
-    return response.data.result;
-  },
+async tracuusos(keyword: string): Promise<SoSResponse> {
+  const response = await publicApi.get(`${API_URL}/search`, {
+    params: { keyword },
+  })
+  return response.data.result?.content?.[0];
+},
   async SearchSoSBySoDt(keyword:string):Promise<SoSResponse>{
     const res=await publicApi.get(`${API_URL}/search`,{
       params:keyword

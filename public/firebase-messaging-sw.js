@@ -42,7 +42,7 @@ messaging.onBackgroundMessage((payload) => {
   // Chỉ bắt buộc user phải tương tác (không tự tắt) với mức cảnh báo cao
   const requireInteraction = level === "HIGH";
 
-  self.registration.showNotification(title, {
+  return self.registration.showNotification(title, {
     body,
     icon,
     badge: "/icons/badge.png",

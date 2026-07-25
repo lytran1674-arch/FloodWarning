@@ -169,6 +169,68 @@ export const flushPendingFcmToken = async (
 }
 
 // ════════════════════════════════════════════
+// ÉP LẤY TOKEN MỚI (xóa token cũ trước khi lấy)
+// Dùng khi cần rotate token thủ công để test
+// ════════════════════════════════════════════
+export const forceRefreshFcmToken = async (
+  accessToken?: string,
+  userId?:      string,
+): Promise<string | null> => {
+  const messaging = await getMessagingInstance()
+  if (!messaging) {
+    console.warn("[FCM] Browser not supported")
+    return null
+  }
+
+  // Bước 1: xóa token cũ ở phía Firebase + push subscription
+  try {
+    const registration = await navigator.serviceWorker.getRegistration(SW_PATH)
+    if (registration) {
+      const sub = await registration.pushManager.getSubscription()
+      if (sub) await sub.unsubscribe()
+    }
+    await deleteToken(messaging)
+    console.log("[FCM] Old token deleted, requesting a new one...")
+  } catch (err) {
+    console.warn("[FCM] deleteToken warning (có thể chưa có token cũ):", err)
+  }
+
+  // Bước 2: lấy SW registration (đảm bảo còn active sau unregister/unsubscribe)
+  const registration = await getSwRegistration()
+  if (!registration) return null
+
+  // Bước 3: lấy token mới
+  let token: string
+  try {
+    token = await getToken(messaging, {
+      vapidKey:                  VAPID_KEY,
+      serviceWorkerRegistration: registration,
+    })
+  } catch (err) {
+    console.error("[FCM] getToken error:", err)
+    return null
+  }
+
+  if (!token) {
+    console.warn("[FCM] Empty token received")
+    return null
+  }
+
+  console.log("[FCM] New token:", token)
+
+  // Chưa đăng nhập → lưu pending
+  if (!accessToken || !userId) {
+    console.log("[FCM] Not logged in — saving pending token")
+    localStorage.setItem(KEY_PENDING, token)
+    return token
+  }
+
+  // Gửi lên backend
+  await sendTokenToBackend(token, accessToken, userId)
+  return token
+}
+
+// ════════════════════════════════════════════
 // XÓA TOKEN KHI LOGOUT
 // ════════════════════════════════════════════
 export const clearFcmTokenOnLogout = async (): Promise<void> => {
@@ -197,10 +259,9 @@ export const clearFcmTokenOnLogout = async (): Promise<void> => {
 
   await clearFirebaseIndexedDB()
 
-localStorage.removeItem("fcm_token")
-localStorage.removeItem("fcm_token_owner")
-localStorage.removeItem("pending_fcm_token")
-
+  localStorage.removeItem("fcm_token")
+  localStorage.removeItem("fcm_token_owner")
+  localStorage.removeItem("pending_fcm_token")
 
   console.log("[FCM] Cleanup complete")
 }

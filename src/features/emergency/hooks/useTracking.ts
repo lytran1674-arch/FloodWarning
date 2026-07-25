@@ -68,7 +68,7 @@ export const useTracking = () => {
     try {
       setLoading(true);
       setError("");
-      const res = await sosService.trackingCode(code);
+      const res = await sosService.tracusos(code);
       setTrackingCode(res); // ✅ set vào state riêng "trackingCode", không đụng "search"
     } catch (error) {
       console.error(error);

@@ -3,7 +3,7 @@ import { useState, useEffect, useRef }   from "react"
 import { useLocation, useNavigate }      from "react-router-dom"
 import type { SoSResponse, FilterStatus } from "../types/sosType"
 import { axiosClient }                   from "@/api/axiosClient"
-import { AlertCircle, X, ChevronLeft, Loader2, Inbox } from "lucide-react"
+import { AlertCircle, X, ChevronLeft, Loader2, Inbox, Plus } from "lucide-react"
 import { useSoS }                        from "../hooks/useSoS"
 import SosRequestCard                    from "../components/SosRequestCard"
 
@@ -42,6 +42,11 @@ export const RequestListPage = () => {
   const [successBannerVisible,  setSuccessBannerVisible]  = useState(!!showSuccessBanner)
 
   const highlightRef = useRef<HTMLDivElement | null>(null)
+  
+  const handletoFormSOS=()=>{
+    navigate("/request-sos");
+  }
+
 
   // ── Fetch ──
   const fetchRequests = async () => {
@@ -107,6 +112,7 @@ export const RequestListPage = () => {
 
   return (
     <div className="p-3 sm:p-5 flex-1 flex flex-col max-w-3xl mx-auto w-full">
+      <div className="flex justify-between items-center">
 
       {/* Back */}
       <button
@@ -116,7 +122,11 @@ export const RequestListPage = () => {
         <ChevronLeft className="w-4 h-4" />
         Quay lại
       </button>
-
+        <div className="flex justify-start items-center lg:gap-1 border bg-[#FF9100] rounded-md lg:text-xl text-sm p-1 text-black font-bold">
+    <Plus/>
+          <button>Tạo yêu cầu cứu hộ</button>
+        </div>
+      </div>
       {/* Heading */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
