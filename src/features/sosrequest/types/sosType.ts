@@ -149,17 +149,29 @@ export interface DetailSoSCitizen{
   lon:number
   address?:string
   status:string
+  currentHandler:CurrentHandler
   createdAt:string
-  assignments:DetailSoSCitizenItem[]
+  updatedAt:string
+ timeline:Timeline[];
 }
 
-export interface DetailSoSCitizenItem{
-  groupName:string
-  groupLeaderName:string
-  groupLeaderPhone:string
-  status:string
-  role:String
+export interface CurrentHandler{
+  label:string
+  name:string
+  phone:string
 }
+export interface Timeline{
+  status:string
+  updatedAt:string
+  note:string
+}
+// export interface DetailSoSCitizenItem{
+//   groupName:string
+//   groupLeaderName:string
+//   groupLeaderPhone:string
+//   status:string
+//   role:String
+// }
 
 export interface SentedSupportRequest{
   id:string

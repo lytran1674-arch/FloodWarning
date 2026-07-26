@@ -88,7 +88,7 @@ export const AlertCard = ({
           <p className='text-black font-bold text-[10px] sm:text-xs'>{time}</p>
           <p className='text-[10px] sm:text-xs text-gray-500'>{date}</p>
         </div>
-        <ChevronRight className='text-black w-4 h-4 sm:w-5 sm:h-5' />
+       
       </div>
     </div>
   )

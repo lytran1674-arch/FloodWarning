@@ -75,6 +75,7 @@ export interface SupportRequestGroupLeader{
 
 export interface DetailSupportRequestGroupLeader{
    id:string
+   sosId:string
   groupName:string
   groupLeaderName:string
   reason:string

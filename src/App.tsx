@@ -1,5 +1,6 @@
 
 
+import { AlertPopupModal } from "./features/alert/components/AlertPopUpModal";
 import { AlarmPopup } from "./features/notification/component/AlarmPopup";
 import { useFirebaseNotification } from "./hooks/useFirebaseNotification";
 import AppRoutes from "./routes/approutes"
@@ -11,6 +12,7 @@ function App() {
   return(
   <>
        <AlarmPopup />
+         <AlertPopupModal />
   <AppRoutes />
    </>
   )

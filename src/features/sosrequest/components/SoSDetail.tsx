@@ -15,8 +15,10 @@ import {
   Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import type { DetailSoSCitizenItem } from "../types/sosType";
+
 import GeoMap from "@/features/map/components/GeoMap";
+
+
 
 const STATUS_LABELS: Record<string, string> = {
   PENDING: "Đang chờ tiếp nhận",
@@ -42,7 +44,10 @@ const TIMELINE_STEPS: { key: string; label: string }[] = [
   { key: "PROCESSING", label: "Điều phối viên đang xử lý" },
   { key: "ASSIGNED", label: "Đội cứu hộ đã được phân công" },
   { key: "DONE", label: "Cứu hộ hoàn tất" },
+  {key:"ASSIGNED", label:"Đã xác nhận"}
 ];
+
+
 
 const formatDateTime = (iso?: string) => {
   if (!iso) return "—";
@@ -87,6 +92,32 @@ export const SoSDetail = () => {
   // whole page (including the confirm modal) while cancelling.
   const [isCancelling, setIsCancelling] = useState(false);
 
+const timeline = detail
+  ? [
+      {
+        id: "created",
+        title: "SOS được tạo",
+        time: detail.createdAt,
+        color: "bg-blue-500",
+      },
+      ...(detail.currentHandler
+        ? [
+            {
+              id: "current-handler",
+              title: `Đang được xử lý bởi ${detail.currentHandler.label} ${detail.currentHandler.name}`,
+              time: detail.updatedAt,
+              color: "bg-green-500",
+            },
+          ]
+        : []),
+      ...detail.timeline.map((entry, i) => ({
+        id: `${entry.status}-${entry.updatedAt}-${i}`,
+        title: entry.note ? `${entry.status}: ${entry.note}` : entry.status,
+        time: entry.updatedAt,
+        color:STATUS_STYLE[entry.status] ?? "bg-blue-500",
+      })),
+    ]
+  : [];
   useEffect(() => {
     if (sosId) fetchDetail(sosId);
   }, [sosId, fetchDetail]);
@@ -312,11 +343,11 @@ export const SoSDetail = () => {
                 Đội cứu hộ hỗ trợ
               </p>
             </div>
-            {detail?.assignments && detail.assignments.length > 0 ? (
+            {detail?.currentHandler?(
               <div className="space-y-2">
-                {detail.assignments.map((a: DetailSoSCitizenItem, i: number) => (
+                    
                   <div
-                    key={`${a.groupName}-${i}`}
+                    key={`${detail?.currentHandler.name}`}
                     className="flex flex-wrap sm:flex-nowrap items-center gap-3 p-2 border border-gray-100 rounded-md"
                   >
                     <div className="rounded-full bg-blue-100 text-blue-700 p-2 shrink-0">
@@ -324,23 +355,23 @@ export const SoSDetail = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-black break-words">
-                        {a.groupName}
+                         Người điều phối: {detail?.currentHandler.name}
                       </p>
                       <p className="text-xs text-gray-500 break-words">
-                        Nhóm trưởng: {a.groupLeaderName} · {a.groupLeaderPhone}
+                        {detail?.currentHandler.label}
                       </p>
                     </div>
-                    <span
-                      className={`shrink-0 px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                        STATUS_STYLE[a.status] ?? "bg-gray-100 text-gray-600"
-                      }`}
-                    >
-                      {STATUS_LABELS[a.status] ?? a.status}
-                    </span>
+                   <span
+  className={`shrink-0 px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+    STATUS_STYLE[detail?.status ?? ""] ?? "bg-gray-100 text-gray-600"
+  }`}
+>
+  {STATUS_LABELS[detail?.status ?? ""] ?? detail?.status}
+</span>
                   </div>
-                ))}
+           
               </div>
-            ) : (
+                      ):(
               <div className="flex flex-col items-center justify-center text-center py-6 gap-2">
                 <div className="rounded-full bg-gray-100 text-gray-400 p-3">
                   <UserPlus size={22} />
@@ -350,8 +381,9 @@ export const SoSDetail = () => {
                   lòng giữ bình tĩnh.
                 </p>
               </div>
-            )}
+                     )}
           </section>
+         
         </div>
 
         {/* RIGHT: 1/3 width */}
@@ -378,75 +410,40 @@ export const SoSDetail = () => {
           </section>
 
           {/* Timeline */}
-          <section className="border border-gray-200 rounded-md p-3 lg:p-4 bg-white">
-            <div className="flex items-center gap-2 mb-3">
-              <Clock className="text-blue-600" size={18} />
-              <p className="text-black text-sm lg:text-lg font-semibold">
-                Tình trạng của bạn
-              </p>
-            </div>
-            {isCancelled && (
-              <div className="mb-3 flex items-center gap-2 rounded-md bg-gray-100 px-3 py-2">
-                <span className="text-xs font-semibold text-gray-600">
-                  Yêu cầu này đã bị hủy
-                </span>
-              </div>
-            )}
-            <ol className="relative border-l border-gray-200 ml-2 space-y-5">
-              {TIMELINE_STEPS.map((step, i) => {
-                const isDone =
-                  !isCancelled &&
-                  currentStepIndex >= 0 &&
-                  (i < currentStepIndex ||
-                    (i === currentStepIndex && statusKey === "DONE"));
-                const isCurrent =
-                  !isCancelled &&
-                  i === currentStepIndex &&
-                  statusKey !== "DONE";
-                return (
-                  <li key={step.key} className="ml-4">
-                    <span
-                      className={`absolute -left-[9px] flex items-center justify-center rounded-full ${
-                        isDone
-                          ? "text-green-600"
-                          : isCurrent
-                          ? "text-yellow-500"
-                          : "text-gray-300"
-                      }`}
-                    >
-                      {isDone ? (
-                        <CheckCircle2 size={18} className="bg-white" />
-                      ) : (
-                        <Circle size={18} className="bg-white" />
-                      )}
-                    </span>
-                    <p
-                      className={`text-xs lg:text-sm font-medium break-words ${
-                        isDone || isCurrent ? "text-black" : "text-gray-400"
-                      }`}
-                    >
-                      {step.label}
-                    </p>
-                    {isDone && (
-                      <>
-                        <p className="text-[11px] text-gray-400">
-                          {formatDateTime(detail?.createdAt)}
-                        </p>
-                        <span className="inline-block mt-0.5 text-[10px] font-semibold text-green-600 bg-green-50 rounded px-1.5 py-0.5">
-                          COMPLETED
-                        </span>
-                      </>
-                    )}
-                    {isCurrent && (
-                      <span className="inline-block mt-0.5 text-[10px] font-semibold text-yellow-600 bg-yellow-50 rounded px-1.5 py-0.5">
-                        WAITING
-                      </span>
-                    )}
-                  </li>
-                );
-              })}
-            </ol>
-          </section>
+         <section className="border border-gray-200 rounded-md p-3 lg:p-4 bg-white">
+  <div className="flex items-center gap-2 mb-3">
+    <Clock className="text-blue-600" size={18} />
+    <p className="text-black text-sm lg:text-lg font-semibold">
+      Lịch sử xử lý
+    </p>
+  </div>
+  {isCancelled && (
+    <div className="mb-3 flex items-center gap-2 rounded-md bg-gray-100 px-3 py-2">
+      <span className="text-xs font-semibold text-gray-600">
+        Yêu cầu này đã bị hủy
+      </span>
+    </div>
+  )}
+  {timeline.length > 0 ? (
+    <ol className="relative border-l border-gray-200 ml-2 space-y-5">
+      {timeline.map((step) => (
+        <li key={step.id} className="ml-4">
+          <span
+            className={`absolute -left-[9px] flex items-center justify-center rounded-full w-4 h-4 ${step.color}`}
+          />
+          <p className="text-xs lg:text-sm font-medium break-words text-black">
+            {step.title}
+          </p>
+          <p className="text-[11px] text-gray-400">
+            {formatDateTime(step.time)}
+          </p>
+        </li>
+      ))}
+    </ol>
+  ) : (
+    <p className="text-xs text-gray-400">Chưa có lịch sử xử lý.</p>
+  )}
+</section>
         </div>
       </div>
 

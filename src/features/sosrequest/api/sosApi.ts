@@ -127,13 +127,18 @@ export const SoSAPI = {
       `${API_URL}/${sosId}/cancel`
     )
     return response.data
+  },  
+
+  //chi tiết sos của ng dân 
+  // async getDetailSoSCitizen(sosId:string):Promise<DetailSoSCitizen>{
+  //   const response=await axiosClient.get(`${API_URL}/my/${sosId}`)
+  //   return response.data.result
+  // },
+  async getDetailSoSCitizen(sosId:string):Promise<DetailSoSCitizen>{
+    const res=await axiosClient.get(`${API_URL}/my/${sosId}`);
+    return res.data.result;
   },
 
-  //chi tiết sos của ng dân (đã có tài khoản)
-  async getDetailSoSCitizen(sosId:string):Promise<DetailSoSCitizen>{
-    const response=await axiosClient.get(`${API_URL}/my/${sosId}`)
-    return response.data.result
-  },
 
   // yêu cầu hỗ trợ đã gửi 
   async SentedSupportRequest():Promise<SentedSupportRequest[]>{

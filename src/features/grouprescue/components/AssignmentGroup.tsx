@@ -106,15 +106,14 @@ if (
           <ArrowLeft className="w-4 h-4" />
           Quay lại
         </button>
-
-        {supportRequestId && (
-          <RequestSupportButton
-            sosId={supportRequestId}
-            onCreated={(requestId) => {
-              console.log("Đã tạo đơn hỗ trợ:", requestId);
-            }}
-          />
-        )}
+{detail?.sosId && (
+  <RequestSupportButton
+    sosId={detail.sosId}
+    onCreated={(requestId) => {
+      console.log("Đã tạo đơn hỗ trợ:", requestId);
+    }}
+  />
+)}
       </div>
 
       <h1 className="text-xl font-bold mb-4">Phân công đội cứu hộ</h1>
