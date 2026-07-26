@@ -7,8 +7,7 @@ import {
   Users,
   FileText,
   UserPlus,
-  CheckCircle2,
-  Circle,
+
   Clock,
   MapPin,
   AlertCircle,
@@ -39,13 +38,7 @@ const STATUS_STYLE: Record<string, string> = {
 // Mirrors the `status` field on DetailSoSCitizen (PENDING → PROCESSING →
 // ASSIGNED → DONE). CANCELLED is a terminal state handled separately below,
 // not shown as a step in this forward timeline.
-const TIMELINE_STEPS: { key: string; label: string }[] = [
-  { key: "PENDING", label: "Yêu cầu SOS đã tạo" },
-  { key: "PROCESSING", label: "Điều phối viên đang xử lý" },
-  { key: "ASSIGNED", label: "Đội cứu hộ đã được phân công" },
-  { key: "DONE", label: "Cứu hộ hoàn tất" },
-  {key:"ASSIGNED", label:"Đã xác nhận"}
-];
+
 
 
 
@@ -196,7 +189,7 @@ const timeline = detail
   const statusKey = detail?.status ?? "PENDING";
   const isCancelled = statusKey === "CANCELLED";
   // index of current status within the timeline, used to mark completed steps
-  const currentStepIndex = TIMELINE_STEPS.findIndex((s) => s.key === statusKey);
+  // const currentStepIndex = TIMELINE_STEPS.findIndex((s) => s.key === statusKey);
 
   return (
     <div className="lg:m-8 m-4 space-y-4">

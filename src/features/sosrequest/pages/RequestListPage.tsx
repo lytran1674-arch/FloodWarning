@@ -124,7 +124,7 @@ export const RequestListPage = () => {
       </button>
         <div className="flex justify-start items-center lg:gap-1 border bg-[#FF9100] rounded-md lg:text-xl text-sm p-1 text-black font-bold">
     <Plus/>
-          <button>Tạo yêu cầu cứu hộ</button>
+          <button onClick={handletoFormSOS}>Tạo yêu cầu cứu hộ</button>
         </div>
       </div>
       {/* Heading */}

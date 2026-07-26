@@ -6,6 +6,8 @@ import type { IoTAggregate } from "../types/waterlevelType";
 import { waterlevelApi } from "../api/waterlevelApi";
 import { useEffect, useMemo, useState } from "react";
 
+const REFRESH_INTERVAL = 60000; 
+
 export const useWaterLevel = () => {
   const [data, setData] = useState<IoTAggregate[]>([]);
   const [loading, setLoading] = useState(false);
@@ -15,6 +17,9 @@ export const useWaterLevel = () => {
 
 useEffect(()=>{
     loadData();
+     const interval = setInterval(loadData, REFRESH_INTERVAL);
+     return () => clearInterval(interval); 
+
 },[])
   const loadData = async () => {
     try {

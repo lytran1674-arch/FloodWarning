@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useSupportRequestListGroup } from "../hooks/useSupportRequestListGroup";
 
 
+
 export const ListSoSSupportCard = () => {
   const { sossupport } = useSupportRequestListGroup();
+  
   
   const navigate = useNavigate();
   
@@ -85,23 +87,25 @@ export const ListSoSSupportCard = () => {
             </div>
 
             {/* Action */}
-            {(item.status === "PENDING" || item.status === "PROCESSING") && (
-              <div className="flex justify-end mt-6">
+          
+                <div className="flex justify-end mt-6">
                 <button
   type="button"
- 
+  onClick={() => navigate(`/support-group-assign/${item.id}`)}
   className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
 >
   Xem chi tiết
 </button>
+  {(item.status === "PENDING" || item.status === "PROCESSING") && (
                 <button
                   onClick={() => navigate(`/support-group-assign/${item.id}`)}
                   className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-8 py-2.5 transition"
                 >
                   Phân công
                 </button>
+                   )}
               </div>
-            )}
+         
           </div>
         );
       })}

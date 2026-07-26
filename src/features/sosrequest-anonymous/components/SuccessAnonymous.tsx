@@ -7,7 +7,7 @@ import { useAppSelector } from "../../../hooks/redux.hooks"
 import anh from "../../../assets/4bf97db0-6d66-45d2-bfe3-de444053b78c.png"
 import { StatusTimeline } from "../../sosrequest/components/StatusTimeline"
 
-export default function SuccessPageAnonymous() {
+export default function SuccessAnonymous() {
   const navigate = useNavigate()
 
   // Người đã đăng nhập → xem đầy đủ lịch sử yêu cầu (/sent-request)

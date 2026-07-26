@@ -4,9 +4,10 @@ import { Input } from '../../../components/ui/Input'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { authAPI } from '../api/authApi'
-import { setCredentials } from '../store/authSlice'
+import { setAudioUnlocked, setCredentials } from '../store/authSlice'
 import type { AppDispatch } from '../../../app/store'
 import { flushPendingFcmToken } from '@/utils/firebaseNotification'
+import { unlockAudioContext } from '../utils/audioUnlock'
 
 
 export const LoginForm: React.FC = () => {
@@ -37,7 +38,7 @@ export const LoginForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-
+ const unlocked = unlockAudioContext();
     if (!email || !password) {
       setError("Vui lòng nhập đầy đủ email và mật khẩu!")
       return
@@ -62,6 +63,7 @@ export const LoginForm: React.FC = () => {
       }
 
       // Lưu accessToken vào Redux
+      dispatch(setAudioUnlocked(unlocked));
       dispatch(setCredentials({ user: { role, hoten, id, areaId, teamId, teamName, isTeamLeader, isGroupLeader,isTeamDeputy ,sodt, groupType },refreshToken, accessToken }))
       await flushPendingFcmToken(accessToken, id)
       // Lưu userId riêng vào localStorage — dùng để fcmService biết token hiện tại thuộc về ai

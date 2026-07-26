@@ -5,11 +5,6 @@ import type { CSSProperties } from "react"
 import IconRescuer from "../assets/rescuer.png"
 
 
-
-
-
-
-
 export type MenuItem = {
   text: string
   icon: LucideIcon | string

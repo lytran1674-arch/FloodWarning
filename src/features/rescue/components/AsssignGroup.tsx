@@ -130,7 +130,7 @@ import { useNavigate } from "react-router-dom";
                         </p>
                       </div>
                     </div>
-                       {["ASSIGNED","ACKNOWLEDGED","MOVING","ARRIVED","RESCUING"].includes(assigment.status)&&(
+                     {["ASSIGNED","ACKNOWLEDGED","MOVING","ARRIVED","RESCUING"].includes(assigment.status)&& !assigment.supportGroup &&(
                       <div className="lg:bg-red-600 lg:p-2 rounded-lg">                      
                         <Button className="text-white font-medium lg:text-sm text-xs"
                          onClick={() => handleOnClick(assigment.assignmentId)}

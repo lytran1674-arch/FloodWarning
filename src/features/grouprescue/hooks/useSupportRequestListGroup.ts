@@ -23,7 +23,7 @@ export const useSupportRequestListGroup = () => {
     }
     useEffect(()=>{
         ListSupportRequestGroup()
-    })
+    },[])
     return {loading,error,sossupport}
 
 }

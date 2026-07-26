@@ -1,3 +1,5 @@
+// public/firebase-messaging-sw.js
+
 importScripts(
   "https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"
 );
@@ -14,71 +16,81 @@ firebase.initializeApp({
   appId: "...",
 });
 
-// const user=useAppSelector((state)=>state.auth.user);
-// const
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-  console.log("📩 Background message:", payload);
-    console.log("📩 [SW] Full payload:", JSON.stringify(payload, null, 2))
-  console.log("📩 [SW] areaId nhận được:", payload.data?.area_id)
-  console.log("📩 [SW] title:", payload.notification?.title)
-  console.log("📩 [SW] body:", payload.notification?.body)
+  console.log("📩 [SW] Full payload:", JSON.stringify(payload, null, 2));
 
   const title = payload.notification?.title ?? "⚠️ Cảnh báo lũ lụt";
-  const body = payload.notification?.body ?? "Có cảnh báo mới trong khu vực của bạn";
+  const body =
+    payload.notification?.body ?? "Có cảnh báo mới trong khu vực của bạn";
 
   const level = payload.data?.level ?? ""; // "HIGH" | "MEDIUM" | "LOW"
-  const areaId = payload.data?.areaId ?? "";
+
+  // Backend có thể trả area_id (snake_case) hoặc areaId (camelCase) -> đọc cả 2 cho chắc
+  const areaId = payload.data?.areaId ?? payload.data?.area_id ?? "";
 
   const icon =
-    level === "HIGH" ? "/icons/warning-high.png" :  
-    level === "MEDIUM" ? "/icons/warning-medium.png" :
-    "/logo.png";
+    level === "HIGH"
+      ? "/icons/warning-high.png"
+      : level === "MEDIUM"
+      ? "/icons/warning-medium.png"
+      : "/logo.png";
 
-  // Tag động theo khu vực -> cảnh báo khác khu vực không đè lên nhau
-  const tag = areaId ? `flood-warning-${areaId}` : `flood-warning-${Date.now()}`;
+  // QUAN TRỌNG: tag phải UNIQUE cho từng message để đảm bảo
+  // mỗi message đều hiện noti + phát âm riêng, không bị OS gộp/đè
+  // (nếu 2 tag trùng nhau đến gần nhau, một số OS chỉ update noti cũ,
+  // không đảm bảo phát âm lại)
+  const tag = `flood-warning-${areaId || "unknown"}-${Date.now()}`;
 
-  // Chỉ bắt buộc user phải tương tác (không tự tắt) với mức cảnh báo cao
   const requireInteraction = level === "HIGH";
 
-  return self.registration.showNotification(title, {
+  const notificationOptions = {
     body,
     icon,
     badge: "/icons/badge.png",
     tag,
-    renotify: true,
+    renotify: true, // vẫn giữ để mỗi noti mới đều rung/phát âm dù trùng tag trong trường hợp hiếm
     requireInteraction,
-    silent: false, // QUAN TRỌNG: đảm bảo phát âm thanh mặc định của hệ điều hành, không cần chạm vào web
-    vibrate: [200, 100, 200],
+    silent: false, // bắt buộc để phát âm thanh mặc định của OS
+    vibrate:
+      level === "HIGH"
+        ? [300, 100, 300, 100, 300] // rung mạnh/dài hơn cho mức cao
+        : [200, 100, 200],
     actions: [
       { action: "view", title: "📍 Xem bản đồ" },
       { action: "dismiss", title: "Bỏ qua" },
     ],
     data: {
-      url: "/dashboard",
+      url: "https://tranthitrucly.io.vn/dashboard",
+      areaId,
+      level,
       ...payload.data,
     },
-  });
+  };
+
+  return self.registration.showNotification(title, notificationOptions);
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
   if (event.action === "dismiss") return;
-  
+
   const targetUrl = event.notification.data?.url ?? "/dashboard";
 
   event.waitUntil(
-    clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
-      for (const client of clientList) {
-        if (client.url.includes(targetUrl) && "focus" in client) {
-          return client.focus();
+    clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((clientList) => {
+        for (const client of clientList) {
+          if (client.url.includes(targetUrl) && "focus" in client) {
+            return client.focus();
+          }
         }
-      }
-      if (clients.openWindow) {
-        return clients.openWindow(targetUrl);
-      }
-    })
+        if (clients.openWindow) {
+          return clients.openWindow(targetUrl);
+        }
+      })
   );
 });

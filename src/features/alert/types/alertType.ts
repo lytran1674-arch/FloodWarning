@@ -17,7 +17,7 @@ export interface Alert{
 export interface PopupAlert{
     id:string
     title:string
-    content:string
+    message:string
     tenkhuvuc:string
     riskLevel:string
     createdAt:string

@@ -106,7 +106,7 @@ if (
           <ArrowLeft className="w-4 h-4" />
           Quay lại
         </button>
-{detail?.sosId && (
+{detail?.sosId&&(detail?.status==="PENDING" || detail?.status==="PROCESSING") && (
   <RequestSupportButton
     sosId={detail.sosId}
     onCreated={(requestId) => {

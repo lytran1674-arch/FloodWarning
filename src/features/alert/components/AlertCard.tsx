@@ -1,4 +1,4 @@
-import { ChevronRight, TriangleAlert } from 'lucide-react'
+import { TriangleAlert } from 'lucide-react'
 
 interface AlertCardProps {
   riskLevel: string

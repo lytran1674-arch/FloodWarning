@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import {
   MapPin,
   MessageSquare,
-  Clock,
+
   Users,
 
   Inbox,
@@ -308,7 +308,7 @@ export default function SosDetailPanel({ sosId }: SosDetailPanelProps) {
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden ">
       {/* HEADER */}
       <div className="p-5 border-b border-slate-100 flex items-start justify-between gap-3">
         <div>

@@ -11,26 +11,24 @@ export const MyRequestSupportPage = () => {
   const [selectedSosId, setSelectedSosId] = useState<string | null>(null);
 
    return (
-    <div className="p-3 md:p-4 space-y-4">
-
-   
-
- 
+    <div className="md:p-4 ">
         <div className="w-full xl:flex-1 gap-2 flex lg:justify-start">
-          <div className="flex-wrap space-y-2">
+          <div className="flex-wrap space-y-1">
            {/* <StatusSoS />*/}
             <ListMyRequestSupport
   onSelectSos={setSelectedSosId}
 />
            
               
-            </div>
+        
             <ListSoSSupportCard/>
-             <div className="w-full xl:w-1/2 xl:sticky xl:top-4">
+                 </div>
+             <div className="w-full xl:w-1/2 xl:sticky xl:top-4 lg:mt-11">
           <SosDetailPanel sosId={selectedSosId} />
         </div>
        </div>
        </div>
+  
         
   )
 }

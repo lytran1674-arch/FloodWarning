@@ -34,13 +34,13 @@ const STATUS_STYLE: Record<string, string> = {
   CANCELLED: "bg-gray-200 text-gray-600",
 };
 
-const ASSIGNMENT_STATUS_LABELS: Record<string, string> = {
-  PENDING: "Chờ xác nhận",
-  ACCEPTED: "Đã nhận nhiệm vụ",
-  ON_THE_WAY: "Đang di chuyển",
-  DONE: "Hoàn tất",
-  FAILED: "Không thành công",
-};
+// const ASSIGNMENT_STATUS_LABELS: Record<string, string> = {
+//   PENDING: "Chờ xác nhận",
+//   ACCEPTED: "Đã nhận nhiệm vụ",
+//   ON_THE_WAY: "Đang di chuyển",
+//   DONE: "Hoàn tất",
+//   FAILED: "Không thành công",
+// };
 
 const formatDateTime = (iso: string) => {
   try {
@@ -200,33 +200,26 @@ export default function DetailSos() {
                 Đội cứu hộ được điều phối
               </h2>
 
-              {detail.assignments.length === 0 ? (
-                <p className="text-sm text-gray-400">
-                  Chưa có đội cứu hộ nào được điều phối cho yêu cầu này
-                </p>
-              ) : (
-                <div className="space-y-2">
-                  {detail.assignments.map((a, idx) => (
-                    <div
-                      key={`${a.groupName}-${idx}`}
-                      className="flex items-center justify-between gap-3 rounded-lg border border-gray-100 bg-slate-50 p-3"
-                    >
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold truncate">
-                          {a.groupName}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-0.5">
-                          Trưởng nhóm: {a.groupLeaderName} · {a.groupLeaderPhone}
-                        </p>
-                      </div>
-
-                      <span className="shrink-0 text-xs font-medium px-2.5 py-1 rounded-full bg-white border text-gray-600">
-                        {ASSIGNMENT_STATUS_LABELS[a.status] ?? a.status}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
+              {!detail?.currentHandler ? (
+  <p className="text-sm text-gray-400">
+    Chưa có đội cứu hộ nào được điều phối cho yêu cầu này
+  </p>
+) : (
+  <div className="flex items-center justify-between gap-3 rounded-lg border border-gray-100 bg-slate-50 p-3">
+    <div className="min-w-0">
+      <p className="text-sm font-semibold truncate">
+        {detail.currentHandler.label}
+      </p>
+      <p className="text-xs text-gray-500 mt-0.5">
+        Người nhận nhiệm vụ: {detail.currentHandler.name}
+      </p>
+      <p className="text-xs text-gray-500 mt-0.5">
+        SĐT: {detail.currentHandler.phone}
+      </p>
+    </div>
+  </div>
+)}
+         
             </div>
           </div>
         )}

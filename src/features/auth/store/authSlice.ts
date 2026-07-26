@@ -6,17 +6,18 @@ interface AuthState {
   user: Partial<User> | null;
   accessToken: string | null;
   isAuthenticated: boolean;
+  audioUnlocked:boolean;
 }
 
 const savedUser = localStorage.getItem("user");
 const savedAccessToken = localStorage.getItem("accessToken");
-
+const savedAudioUnlocked = localStorage.getItem("audioUnlocked");
 
 const initialState: AuthState = {
   user: savedUser ? JSON.parse(savedUser) : null,
   accessToken: savedAccessToken || null,
   isAuthenticated: !!savedAccessToken,
-
+ audioUnlocked: savedAudioUnlocked === "1",
 };
 
 interface SetCredentialsPayload {
@@ -55,18 +56,25 @@ const authSlice = createSlice({
       localStorage.setItem("accessToken", action.payload);
     },
 
+     setAudioUnlocked: (state, action: PayloadAction<boolean>) => {
+      state.audioUnlocked = action.payload;
+      localStorage.setItem("audioUnlocked", action.payload ? "1" : "0");
+    },
+
    logout: (state) => {
       state.user = null;
       state.accessToken = null;
       state.isAuthenticated = false;
+       state.audioUnlocked = false;
 
       localStorage.removeItem("user");
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
+      localStorage.removeItem("audioUnlocked");
     },
   },
 });
 
-export const { setCredentials, updateUser, refreshToken, logout } =
+export const { setCredentials, updateUser, refreshToken, setAudioUnlocked,logout } =
   authSlice.actions;
 export default authSlice.reducer;

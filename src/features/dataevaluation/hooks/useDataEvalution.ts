@@ -3,7 +3,7 @@ import type { SnapShot } from '../types/dataevaluationType';
 import { dataevaluationService } from '../services/dataevaluationService';
 import { toast } from 'react-toastify';
 
-
+const REFRESH_INTERVAL = 120000;
 export const useDataEvalution = (areaId:string) => {
   
 
@@ -26,8 +26,8 @@ export const useDataEvalution = (areaId:string) => {
 
       setData(null);
       setChartData([]);
-
-      return;
+ const interval = setInterval(setData, REFRESH_INTERVAL);
+     return () => clearInterval(interval); 
     }
 
 

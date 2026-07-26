@@ -1,5 +1,5 @@
 // src/map/hooks/useRegionalForecast.ts
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { axiosClient } from "@/api/axiosClient"
 import type { AreaMapItem, RiskLevel } from "../../map/types/mapType"
 
@@ -12,16 +12,31 @@ interface ForecastItem {
   snapshotAt: string
 }
 
+// 2 phút / lần
+const POLL_INTERVAL_MS = 2 * 60 * 1000
+
 export const useRegionalForecast = (areaId: string | null) => {
   const [areas, setAreas] = useState<AreaMapItem[]>([])
   const [loading, setLoading] = useState(false)
+
+  // Dùng ref để biết đây là lần load đầu tiên hay load ngầm (polling)
+  const isFirstLoadRef = useRef(true)
 
   useEffect(() => {
     console.log("🔍 useRegionalForecast areaId:", areaId)
     if (!areaId) return
 
+    // Mỗi khi areaId đổi, coi như bắt đầu lại từ lần load đầu
+    isFirstLoadRef.current = true
+
+    let cancelled = false
+
     const fetchAll = async () => {
-      setLoading(true)
+      // Chỉ bật overlay "Đang tải bản đồ..." ở lần load đầu tiên.
+      // Các lần polling sau chạy ngầm, giữ nguyên dữ liệu cũ trên map.
+      if (isFirstLoadRef.current) {
+        setLoading(true)
+      }
       try {
         // Bước 1: lấy danh sách khu vực + riskLevel
         const forecastRes = await axiosClient.get(
@@ -71,15 +86,30 @@ export const useRegionalForecast = (areaId: string | null) => {
           hasGeometry: !!a.geometry,
         })))
 
-        setAreas(withGeometry)
+        if (!cancelled) {
+          setAreas(withGeometry)
+        }
       } catch (err) {
         console.error("useRegionalForecast error:", err)
+        // Lỗi ở lần polling ngầm: KHÔNG xoá dữ liệu cũ đang hiển thị,
+        // chỉ log lỗi và để lần polling tiếp theo thử lại.
       } finally {
-        setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
+        }
+        isFirstLoadRef.current = false
       }
     }
 
     fetchAll()
+
+    // Polling mỗi 2 phút, chạy ngầm không che dữ liệu
+    const intervalId = setInterval(fetchAll, POLL_INTERVAL_MS)
+
+    return () => {
+      cancelled = true
+      clearInterval(intervalId)
+    }
   }, [areaId])
 
   return { areas, loading }

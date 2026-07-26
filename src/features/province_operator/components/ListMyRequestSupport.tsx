@@ -66,6 +66,7 @@ export default function ListMyRequestSupport({
     error,
     getListRequestSupportMyTeam,
     assignGroupToRequest,
+    teamleaderReject
   } = useRequestSupport();
 
 
@@ -97,7 +98,6 @@ const [selectedGroupsByItem, setSelectedGroupsByItem] = useState<Record<string, 
 
 // STATE CHO MODAL TỪ CHỐI
 const [reason,setReason]=useState("")
-const {teamleaderReject}=useRequestSupport()
 const [rejectTarget, setRejectTarget] = useState<string | null>(null); // request.id
 const [rejecting, setRejecting] = useState(false);
 const [rejectError, setRejectError] = useState<string | null>(null);
@@ -267,7 +267,7 @@ const closeAssignModal = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="">
       <h1 className="mb-4 text-xl font-bold">Danh sách yêu cầu hỗ trợ</h1>
 
       {/* LOADING */}
@@ -281,9 +281,9 @@ const closeAssignModal = () => {
       )}
 
       {/* EMPTY */}
-      {!loading && !error && requestsupport.length === 0 && (
+      {/* {!loading && !error && requestsupport.length === 0 && (
         <p className="text-sm text-gray-500">Không có yêu cầu hỗ trợ</p>
-      )}
+      )} */}
 
       {/* LIST */}
       {!loading && requestsupport.length > 0 && (

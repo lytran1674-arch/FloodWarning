@@ -9,13 +9,13 @@ const RISK_TAG_COLOR: Record<string, string> = {
 }
 
 export function AlertPopupModal() {
-  const role = useAppSelector((state) => state.auth.user?.role)
+
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated)
 
   // Chỉ bật luồng popup cảnh báo này cho người dân (CITIZEN) đã đăng nhập,
   // đúng theo mô tả nghiệp vụ.
   const { current, remainingCount, closing, error, closeCurrent } =
-    useAlertPopup(isAuthenticated && role === "CITIZEN")
+    useAlertPopup(isAuthenticated)
 
   return (
     <Modal
@@ -41,7 +41,7 @@ export function AlertPopupModal() {
           <h2 className="text-lg font-bold text-red-600 mb-2">
             {current.title}
           </h2>
-          <p className="text-gray-800 mb-3">{current.content}</p>
+          <p className="text-gray-800 mb-3">{current.message}</p>
           <div className="text-sm text-gray-500 space-y-1">
             <p>
               Khu vực: <Tag>{current.tenkhuvuc}</Tag>

@@ -39,17 +39,17 @@ import { HomeProvince } from "@/features/province_operator/pages/Home"
 import { SupportRequestReviewPage } from "@/features/province_operator/pages/SupportRequestReviewPage"
 import ListProvinceOperatorPage from "@/features/province_operator/pages/ListProvinceOperatorPage"
 
-import SentRequestAnonymousPage from "@/features/sosrequest-anonymous/components/Sentrequestanonymouspage"
+
 import { MyRequestSupportPage } from "@/features/rescue/pages/MyRequestSupportPage"
 import { AccountPage } from "@/features/account/pages/AccountPage"
 import { InfTeamPage } from "@/features/rescue/pages/InfTeamPage"
-import SuccessPageAnonymous from "@/features/sosrequest-anonymous/components/SuccessPgae"
+import SuccessPageAnonymous from "@/features/sosrequest-anonymous/components/SuccessAnonymous"
 import MemberWithoutGroupPage from "@/features/rescue/pages/MemberWithoutGroupPage"
 import HotlineOperatorDashboard from "@/features/emergency/pages/test/HotlineOperatorDashboard"
-import { SOSRequestAnonymous } from "@/features/sosrequest-anonymous/components/SoSAnonymous"
+
 
 import { FormSOS } from "@/features/sosrequest/components/FormSos"
-import { UpdateSOSPageAnonymous } from "@/features/sosrequest-anonymous/pages/UpdateSosPage"
+
 import { UpdateSOSPage } from "@/features/sosrequest/pages/Updatesospage"
 import {MySupportRequestCard} from "@/features/rescue/pages/MyRequestSupportCard"
 
@@ -61,6 +61,9 @@ import { AssignmentGroup } from "@/features/grouprescue/components/AssignmentGro
 import { SoSDetail } from "@/features/sosrequest/components/SoSDetail"
 import { DataFlood } from "@/features/citizen/component/DataFlood"
 import { CallWorkflowPage } from "@/features/calltask/pages/CallWorkflowPage"
+import { FormSoSPage } from "@/features/sosrequest-anonymous/pages/FormSoSPage"
+import { SentSosPage } from "@/features/sosrequest-anonymous/pages/SentSosPage"
+import { UpdateSosPageAnonymous } from "@/features/sosrequest-anonymous/pages/UpdateSosPageAnonymous"
 
 
 
@@ -74,10 +77,10 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage/>}/>
-        <Route path="/sos-request-anonymous" element={<SOSRequestAnonymous/>}/>
-        <Route path="/sent-request-anonymous" element={<SentRequestAnonymousPage />} />
+        <Route path="/sos-request-anonymous" element={<FormSoSPage/>}/>
+        <Route path="/sent-request-anonymous" element={<SentSosPage />} />
         <Route path="/success-anonymous" element={<SuccessPageAnonymous/>}/>
-        <Route path="/update-sos-anonymous/:id" element={<UpdateSOSPageAnonymous />} />
+        <Route path="/update-sos-anonymous/:id" element={<UpdateSosPageAnonymous />} />
         <Route element={<MainLayout />}>          
           <Route path="/areas-management" element={<Area />} />
           <Route path="/weather-data/:area_id"/>

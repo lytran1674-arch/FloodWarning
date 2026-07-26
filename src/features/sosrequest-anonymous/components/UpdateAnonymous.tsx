@@ -80,7 +80,7 @@ function conditionsFromData(data: SoSResponseData): string[] {
   return result
 }
 
-export const UpdateSOSPageAnonymous = () => {
+export const UpdateSOSAnonymous = () => {
   const { id } = useParams<{ id: string }>()
   const { state } = useLocation()
   const navigate = useNavigate()

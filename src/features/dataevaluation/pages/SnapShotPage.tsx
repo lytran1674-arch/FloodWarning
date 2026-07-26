@@ -8,6 +8,7 @@ import { RiskScore } from "../component/RiskScore";
 import { NotepadText } from "lucide-react";
 import { useAppSelector } from "@/hooks/redux.hooks";
 
+
 export const SnapShotPage = () => {
   const [selectedArea, setSelectedArea] = useState(
     () => localStorage.getItem("selectedArea") ?? ""
