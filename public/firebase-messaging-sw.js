@@ -8,12 +8,12 @@ importScripts(
 );
 
 firebase.initializeApp({
-  apiKey: "...",
-  authDomain: "...",
-  projectId: "...",
-  storageBucket: "...",
-  messagingSenderId: "...",
-  appId: "...",
+  apiKey: "AIzaSyAVpeDnSbKLCcB97U-8iNxa7siDz8OCbts",
+  authDomain: "lulut-notification.firebaseapp.com",
+  projectId: "lulut-notification",
+  storageBucket: "lulut-notification.firebasestorage.app",
+  messagingSenderId: "759133098871",
+  appId: "1:759133098871:web:9c6c661ab034c458094772",
 });
 
 const messaging = firebase.messaging();

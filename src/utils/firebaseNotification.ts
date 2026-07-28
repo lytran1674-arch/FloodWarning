@@ -235,12 +235,11 @@ export const forceRefreshFcmToken = async (
 // ════════════════════════════════════════════
 export const clearFcmTokenOnLogout = async (): Promise<void> => {
   try {
-    const registration = await navigator.serviceWorker.getRegistration(SW_PATH)
-    if (registration) {
-      const sub = await registration.pushManager.getSubscription()
-      if (sub) await sub.unsubscribe()
-    }
-
+    // Để deleteToken() tự xử lý toàn bộ (huỷ push subscription + gọi API
+    // revoke token lên Google đúng cách). KHÔNG tự tay gọi
+    // registration.pushManager.getSubscription().unsubscribe() trước ở đây,
+    // vì làm vậy sẽ phá huỷ subscription/khoá xác thực mà deleteToken() cần
+    // dùng để revoke, gây lỗi 403 "messaging/token-unsubscribe-failed".
     const messaging = await getMessagingInstance()
     if (messaging) await deleteToken(messaging)
   } catch (err) {

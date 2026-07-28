@@ -17,13 +17,15 @@ export const adminMenu: MenuItem[] = [
   { text: "Thống kê",                       icon: PieChart,  path: "/thongke"            },
   { text: "Quản lý lực lượng cứu hộ",       icon: Files,     path: "/rescue-management"},
   { text: "Quản lý điều hành cứu hộ cấp tỉnh",       icon: Files,     path: "/province_operator-management"},
+    { text: "Quản lý khu vực",                icon: MapPin,    path: "/areas-management"        },
+      {text:"Quản lý thiết bị", icon:WavesArrowUp,path:"/iot-device" },
   { text: "Quản lý dữ liệu thời tiết",      icon: Calendar,  path: "/weather-data"      },
   // { text: "Quản lý người dùng",             icon: Users,     path: "/users-management"        },
-  { text: "Quản lý khu vực",                icon: MapPin,    path: "/areas-management"        },
+
   { text: "Quản lý dữ liệu nguy cơ lũ lụt",         icon: Snowflake, path: "/flood-risk" },
   {text:"Quản lý dữ liệu mực nước tổng hợp",icon:GlassWaterIcon, path:"/summary-water"},
   {text:"Quản lý dữ liệu đánh giá", icon:StarHalf,path:"/evaluation"},
-  {text:"Quản lý thiết bị", icon:WavesArrowUp,path:"/iot-device" },
+
     { text: "Tài khoản ",      icon: User,    path: "/account" },
 ]
 

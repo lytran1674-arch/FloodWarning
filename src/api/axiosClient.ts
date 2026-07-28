@@ -78,14 +78,31 @@ function onRefreshFailed(err: any) {
 }
 
 function forceLogout() {
-  store.dispatch(logout());
+  // Gửi accessToken/refreshToken/fcmToken MỚI NHẤT hiện có lên backend để
+  // thu hồi, trước khi xoá state cục bộ. Đây là "best-effort": nếu gọi lỗi
+  // (vd refreshToken cũng đã invalid luôn) thì vẫn tiếp tục logout ở FE bình
+  // thường, không chặn luồng.
+  const accessToken = localStorage.getItem("accessToken");
+  const refreshToken = localStorage.getItem("refreshToken");
+  const fcmToken = localStorage.getItem("fcm_token");
 
-  import("@/utils/firebaseNotification")
-    .then(({ clearFcmTokenOnLogout }) => clearFcmTokenOnLogout())
-    .catch((err) => console.error("...", err))
-    .finally(() => {
-      window.location.href = "/";
-    });
+  const notifyBackend =
+    accessToken && refreshToken
+      ? authAPI
+          .logout({ accessToken, refreshToken, fcmToken })
+          .catch((err) => console.error("[Auth] forceLogout: gọi /auth/logout lỗi:", err))
+      : Promise.resolve();
+
+  notifyBackend.finally(() => {
+    store.dispatch(logout());
+
+    import("@/utils/firebaseNotification")
+      .then(({ clearFcmTokenOnLogout }) => clearFcmTokenOnLogout())
+      .catch((err) => console.error("...", err))
+      .finally(() => {
+        window.location.href = "/";
+      });
+  });
 }
 
 // ================= RESPONSE INTERCEPTOR =================

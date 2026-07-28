@@ -43,7 +43,11 @@ export const authAPI = {
 
   // ================= LOGOUT =================
   logout(payload:LogoutPayload) {
-    return axiosClient.post(
+    // Dùng publicApi (không gắn Authorization, không có interceptor
+    // auto-refresh) — vì logout có thể được gọi ngay cả khi accessToken đã
+    // hết hạn/invalid (vd từ forceLogout), nên không nên phụ thuộc vào
+    // axiosClient để tránh lặp/đệ quy interceptor, tương tự lý do refreshToken().
+    return publicApi.post(
       "/auth/logout",payload
       
     );
