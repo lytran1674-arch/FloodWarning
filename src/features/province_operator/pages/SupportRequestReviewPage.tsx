@@ -213,7 +213,7 @@ const handleApprove = async () => {
     try {
       await provinceApi.approveSupportRequest(supportRequestId, payload);
       toast.success("Đã duyệt yêu cầu hỗ trợ");
-      navigate("/support-request");
+      navigate("/request-support");
     } catch (err: any) {
       console.error("APPROVE ERROR:", err);
       toast.error(err?.response?.data?.message || "Duyệt thất bại");

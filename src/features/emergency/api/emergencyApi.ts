@@ -14,18 +14,18 @@ import type { SoSRequestHotLine, SoSResponse } from "@/features/sosrequest/types
 
 const API_URL = "/hotline";
 
-export const emergencyApi = {
-  // Bước 1 — Dân bấm "Gọi Hotline": lấy số hotline của đội phụ trách theo lat/lon,
-  // trả về kèm callEventId để đối chiếu ở bước 3. Không cần đăng nhập -> publicApi.
-  async getEmergencyContact(
-    payload: EmergencyContactRequest
-  ): Promise<EmergencyContactResult> {
-    const response = await publicApi.post(
-      `${API_URL}/emergency-contact`,
-      payload
-    );
-    return response.data.result;
-  },
+  export const emergencyApi = {
+    // Bước 1 — Dân bấm "Gọi Hotline": lấy số hotline của đội phụ trách theo lat/lon,
+    // trả về kèm callEventId để đối chiếu ở bước 3. Không cần đăng nhập -> publicApi.
+    async getEmergencyContact(
+      payload: EmergencyContactRequest
+    ): Promise<EmergencyContactResult> {
+      const response = await publicApi.post(
+        `${API_URL}/emergency-contact`,
+        payload
+      );
+      return response.data.result;
+    },
 
   // Bước 3 — Người trực hotline xem danh sách cuộc gọi đang chờ tạo SOS
   // (status PENDING_MATCH). Cần đăng nhập -> axiosClient.
@@ -56,7 +56,7 @@ export const emergencyApi = {
   // Cần đăng nhập -> axiosClient.
   async listCallHistory(
     status: HotlineCallStatus
-  ): Promise<DetailHotlineCall[]> {
+  ): Promise<DetailHotlineCall[]> { 
     const response = await axiosClient.get(`${API_URL}/history`, {
       params: { status },
     });

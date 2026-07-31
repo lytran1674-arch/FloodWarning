@@ -35,8 +35,17 @@ export const rescueService = {
     return await rescueApi.removeMemberteam(groupId,userId)
   },
 
-  // group leader cập nhật trạng thái của nhóm khi đã sửa chữa xong
-  async UpdateStatusGroup(groupId:string,status:string):Promise<string>{
-    return rescueApi.updateStatusGroup(groupId,status);
+  // // group leader cập nhật trạng thái của nhóm khi đã sửa chữa xong
+  // async UpdateStatusGroup(groupId:string,status:string):Promise<string>{
+  //   return rescueApi.updateStatusGroup(groupId,status);
+  // },
+
+  //teamleader xoa nhom cuu ho
+  async deleteGroup(groupId:string):Promise<string>{
+   return await rescueApi.deleteGroup(groupId);
+  },
+  //group leader cập nhật trạng thái từ OFFLINE->AVAILABLE
+  async updateStatusgroup(groupId:string):Promise<string>{
+   return await rescueApi.updateStatusgroup(groupId);
   }
 };

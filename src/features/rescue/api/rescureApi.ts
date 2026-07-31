@@ -152,13 +152,22 @@ async removeMemberteam(teamId:string,userId:string):Promise<ResCue>{
   return response.data
 },
 
-// group leader cập nhật trạng thái lại của đội khi đã sửa chữa xong
-// (với tình trạng OFFLINE->AVAILABLE)
-async updateStatusGroup(groupId:string,status:string):Promise<string>{
-const response=await axiosClient.patch(`/res-groups/${groupId}/status`,status)
-return response.data;
-},
+// // group leader cập nhật trạng thái lại của đội khi đã sửa chữa xong
+// // (với tình trạng OFFLINE->AVAILABLE)
+// async updateStatusGroup(groupId:string,status:string):Promise<string>{
+// const response=await axiosClient.patch(`/res-groups/${groupId}/status`,status)
+// return response.data;
+// },
 
-//thêm đội phó và đội trưởng 
+//teamleader xoa nhom cuu ho
+async deleteGroup(groupId:string):Promise<string>{
+  const response=await axiosClient.patch(`/res-groups/${groupId}/status`)
+  return response.data;
+},
+//group leader cập nhật trạng thái từ OFFLINE->AVAILABLE
+async updateStatusgroup(groupId:string):Promise<string>{
+  const response=await axiosClient.patch(`/res-groups/${groupId}/status`);
+  return response.data;
+},
 
 };

@@ -22,7 +22,7 @@ export const isCallTaskTerminal = (status: CallTaskStatus): boolean =>
   status === "SUCCESS" || status === "FAILED"
 
 export const TARGET_TYPE_LABELS: Record<TARGETTYPE, string> = {
-  TEAM_LEADER:       "Trưởng nhóm",
+  TEAM_LEADER:       "Đội trưởng",
   DEPUTY_LEADER:     "Đội phó",
   PROVINCE_OPERATOR: "Điều phối viên tỉnh",
   GROUP_LEADER:      "Trưởng nhóm cứu hộ",
