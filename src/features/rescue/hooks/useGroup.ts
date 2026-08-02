@@ -2,11 +2,14 @@ import { useCallback, useEffect, useState } from "react";
 import { groupService } from "../../grouprescue/services/groupService";
 import { rescueService } from "../services/rescueService";
 import type { Group } from "../types/rescueType";
+import type { DetailResGroup } from "../types/grouptype";
 
 export const useGroup = (teamId?: string) => {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [detailgroup, setDetailGroup] = useState<DetailResGroup | undefined>(undefined);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   const fetchGroups = useCallback(async () => {
     if (!teamId) {
@@ -21,10 +24,7 @@ export const useGroup = (teamId?: string) => {
       const data = await groupService.getGroupsByTeam(teamId);
       setGroups(data);
     } catch (err: any) {
-      setError(
-        err?.response?.data?.message ??
-          "Không thể tải danh sách nhóm"
-      );
+      setError(err?.response?.data?.message ?? "Không thể tải danh sách nhóm");
     } finally {
       setLoading(false);
     }
@@ -37,15 +37,11 @@ export const useGroup = (teamId?: string) => {
         setError(null);
 
         await rescueService.RemoveMemberGroup(groupId, userId);
-
         await fetchGroups();
 
         return true;
       } catch (err: any) {
-        setError(
-          err?.response?.data?.message ??
-            "Không thể loại thành viên"
-        );
+        setError(err?.response?.data?.message ?? "Không thể loại thành viên");
         return false;
       } finally {
         setLoading(false);
@@ -53,6 +49,26 @@ export const useGroup = (teamId?: string) => {
     },
     [fetchGroups]
   );
+
+  /*****Chi tiết thông tin nhóm ******/
+  const detailGroup = useCallback(async (groupId: string) => {
+    try {
+      setDetailLoading(true);
+      setError(null);
+
+      const res = await rescueService.DetailResGroup(groupId);
+      setDetailGroup(res);
+    } catch (err: any) {
+      setError(err?.response?.data?.message ?? "Không thể tải chi tiết nhóm");
+      setDetailGroup(undefined);
+    } finally {
+      setDetailLoading(false);
+    }
+  }, []);
+
+  const clearDetailGroup = useCallback(() => {
+    setDetailGroup(undefined);
+  }, []);
 
   useEffect(() => {
     fetchGroups();
@@ -64,5 +80,9 @@ export const useGroup = (teamId?: string) => {
     error,
     refetch: fetchGroups,
     removeMemberGroup,
+    detailGroup,
+    detailgroup,
+    detailLoading,
+    clearDetailGroup,
   };
 };

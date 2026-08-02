@@ -1,4 +1,5 @@
 import { rescueApi } from "../api/rescureApi";
+import type { DetailResGroup } from "../types/grouptype";
 import type { CreateTeamRequest, ResCue, ResTeam } from "../types/rescueType";
 
 
@@ -47,5 +48,12 @@ export const rescueService = {
   //group leader cập nhật trạng thái từ OFFLINE->AVAILABLE
   async updateStatusgroup(groupId:string):Promise<string>{
    return await rescueApi.updateStatusgroup(groupId);
-  }
+  },
+  //chi tiết nhóm
+  async DetailResGroup(groupId:string):Promise<DetailResGroup>{
+    return await rescueApi.detailResGroup(groupId);
+  },
+
+  // Cập nhật thông tin nhóm 
+  
 };

@@ -64,6 +64,7 @@ import { CallWorkflowPage } from "@/features/calltask/pages/CallWorkflowPage"
 import { FormSoSPage } from "@/features/sosrequest-anonymous/pages/FormSoSPage"
 import { SentSosPage } from "@/features/sosrequest-anonymous/pages/SentSosPage"
 import { UpdateSosPageAnonymous } from "@/features/sosrequest-anonymous/pages/UpdateSosPageAnonymous"
+import  DetailResGroupPage  from "@/features/rescue/pages/DetailResGroupPage"
 
 
 
@@ -130,6 +131,7 @@ const AppRoutes = () => {
         <Route path="/support-group-assign/:supportRequestId" element={<AssignmentGroup/>}/>
         <Route path="/detail-sos-request/:sosId" element={<SoSDetail/>}/>
 <Route path= "/call-workflow" element= {<CallWorkflowPage /> }/>
+        <Route path="/detail-group/:groupId" element={<DetailResGroupPage/>}/>
         </Route>
        
       </Routes>

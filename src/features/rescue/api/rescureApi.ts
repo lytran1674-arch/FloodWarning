@@ -1,4 +1,5 @@
 
+import type { DetailResGroup, PayloadUpdateResGroup } from "../types/grouptype";
 import type { CreateTeamRequest,    ResCue, ResGroup, ResTeam } from "../types/rescueType";
 import { axiosClient } from "@/api/axiosClient";
 
@@ -169,5 +170,17 @@ async updateStatusgroup(groupId:string):Promise<string>{
   const response=await axiosClient.patch(`/res-groups/${groupId}/status`);
   return response.data;
 },
+// chi tiết nhóm 
+async detailResGroup(groupId:string):Promise<DetailResGroup>{
+  const res=await axiosClient.get(`/res-groups/${groupId}`)
+  return res.data.result;
+}
+,
+// cập nhật thông tin nhóm 
+async updateResGroup(groupId:string,payload:PayloadUpdateResGroup):Promise<string>{
+  const res=await axiosClient.put(`res-groups/${groupId}`,payload)
+  return res.data;
+}
+
 
 };

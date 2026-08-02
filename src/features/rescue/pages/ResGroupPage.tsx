@@ -13,6 +13,8 @@ import { Button } from "../../../components/ui/Button";
 import { useAppSelector } from "@/hooks/redux.hooks";
 import { ActiveGroup } from "../components/ActiveGroup";
 
+
+
 // Cấu hình trạng thái nhóm
 const TRANG_THAI_NHOM: Record<string, { nhan: string; mau: string }> = {
   AVAILABLE: {
@@ -37,6 +39,7 @@ export default function ResGroupPage() {
   const [loading, setLoading] = useState(false);
 
   const user = useAppSelector((state) => state.auth.user);
+
 
   const canCreateGroup = user?.isTeamLeader === true;
 
@@ -133,7 +136,7 @@ export default function ResGroupPage() {
           {/* ================= LEFT ================= */}
           <div
             className="flex-1 cursor-pointer"
-            onClick={() => navigate(`/res-groups/${group.id}/members`)}
+            onClick={() => navigate(`/detail-group/${group.id}`)}
           >
             <div className="flex items-center gap-3">
               <h3 className="text-xl font-semibold text-slate-800">
@@ -179,6 +182,7 @@ export default function ResGroupPage() {
           </div>
 
           {/* ================= RIGHT ================= */}
+        
           <div
             className="w-full lg:w-[360px]"
             onClick={(e) => e.stopPropagation()}
@@ -190,9 +194,14 @@ export default function ResGroupPage() {
                 setGroups(Array.isArray(data) ? data : []);
               }}
             />
+            {/* <DeleteGroup group={group} onSuccess={async()=>{
+              const data=await rescueApi.deleteGroup(teamId!);
+              setGroups(Array.isArray(data)?:data:[])
+            }}/> */}
+            </div>
           </div>
         </div>
-      </div>
+ 
     );
   })}
 </div>

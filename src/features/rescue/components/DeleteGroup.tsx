@@ -1,6 +1,7 @@
 import { useAppSelector } from "@/hooks/redux.hooks";
 import type { ResGroup } from "../types/rescueType"
 import { useResCue } from "../hooks/useResCue";
+import { Trash } from "lucide-react";
 
 type Props={
     group:ResGroup;
@@ -21,9 +22,12 @@ export const DeleteGroup = ({group,onSuccess}:Props) => {
     }
   return (
     <>
+    {isTeamLeader&&(
     <div>
-        <button>Gianr </button>
+        <Trash/>
+        <button>Giải tán nhóm </button>
     </div>
+    )}
     </>
   )
 }
