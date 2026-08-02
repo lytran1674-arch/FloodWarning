@@ -18,6 +18,7 @@ import { toast } from "react-toastify";
 import { useGroup } from "../hooks/useGroup";
 import { rescueApi } from "../api/rescureApi";
 import { useAppSelector } from "@/hooks/redux.hooks";
+import type { PayloadUpdateResGroup } from "../types/grouptype";
 
 // Nhãn hiển thị cho GroupStatus — cập nhật lại khi biết đủ giá trị enum thật
 const STATUS_LABEL: Record<string, { text: string; style: string }> = {
@@ -40,13 +41,9 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 }
 
 export default function GroupDetailPage() {
+    const navigate=useNavigate();
   const { groupId } = useParams<{ groupId: string }>();
   const { detailgroup: group, detailLoading, detailGroup, error } = useGroup();
-  const navigate=useNavigate();
-
-  const handleQuayLai=async()=>{
-    navigate(-1);
-  }
 
   // Chỉ leaderTeam (trưởng đội) mới được giải tán nhóm, loại thành viên
   // khỏi nhóm và đặt trưởng nhóm mới.
@@ -59,6 +56,19 @@ export default function GroupDetailPage() {
   // userId của thành viên đang có action chạy (loại khỏi nhóm hoặc đặt trưởng nhóm),
   // dùng để disable/hiện loading đúng dòng đó thôi, không khóa cả danh sách.
   const [processingUserId, setProcessingUserId] = useState<string | null>(null);
+  
+
+  // Modal + form cập nhật thông tin nhóm (tên, năng lực, ghi chú)
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [editForm, setEditForm] = useState<PayloadUpdateResGroup>({
+    name: "",
+    hasBoat: false,
+    hasMedical: false,
+    hasSearchRescue: false,
+    hasLogistics: false,
+    notes: "",
+  });
 
   useEffect(() => {
     if (groupId) {
@@ -111,6 +121,67 @@ export default function GroupDetailPage() {
     }
   };
 
+  // Mở form cập nhật thông tin nhóm (tên, năng lực, ghi chú).
+  // Chỉ Team Leader được cập nhật và không được cập nhật khi nhóm đang BUSY.
+  const openEditModal = () => {
+    if (!group) return;
+
+    if (!isLeaderTeam) {
+      toast.error("Chỉ trưởng đội mới được cập nhật thông tin nhóm.");
+      return;
+    }
+    if (group.status === "BUSY") {
+      toast.error("Không thể cập nhật nhóm đang thực hiện nhiệm vụ.");
+      return;
+    }
+
+    setEditForm({
+      name: group.name,
+      hasBoat: group.hasBoat,
+      hasMedical: group.hasMedical,
+      hasSearchRescue: group.hasSearchRescue,
+      hasLogistics: group.hasLogistics,
+      notes: group.notes ?? "",
+    });
+    setOpenMenuId(null);
+    setShowEditModal(true);
+  };
+
+  const handleQuaylai=async()=>{
+    navigate(-1);
+  }
+  // Gọi API PUT /res-groups/{groupId} để cập nhật thông tin nhóm.
+  // Backend tự kiểm tra thêm: chỉ Team Leader, không cho cập nhật khi BUSY,
+  // không cho đổi sang tên đã tồn tại trong cùng đội.
+  const handleUpdateGroup = async () => {
+    if (!groupId) return;
+    if (!isLeaderTeam) {
+      toast.error("Chỉ trưởng đội mới được cập nhật thông tin nhóm.");
+      return;
+    }
+
+    const name = editForm.name.trim();
+    if (!name) {
+      toast.error("Tên nhóm không được để trống.");
+      return;
+    }
+
+    try {
+      setSavingEdit(true);
+      await rescueApi.updateResGroup(groupId, { ...editForm, name });
+
+      toast.success("Cập nhật thông tin nhóm thành công.");
+      setShowEditModal(false);
+      await detailGroup(groupId);
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.message ?? "Không thể cập nhật thông tin nhóm."
+      );
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
   const statusInfo = group
     ? STATUS_LABEL[group.status] ?? { text: group.status, style: "bg-gray-100 text-gray-500" }
     : null;
@@ -156,7 +227,7 @@ export default function GroupDetailPage() {
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3 text-sm">
             <button type="button" aria-label="Quay lại" className="text-gray-400 hover:text-gray-600">
-              <ArrowLeft className="h-4 w-4" onClick={handleQuayLai} />
+              <ArrowLeft className="h-4 w-4" onClick={handleQuaylai}/>
             </button>
             <span className="text-gray-400">{group.teamName}</span>
             <span className="text-gray-300">/</span>
@@ -164,28 +235,29 @@ export default function GroupDetailPage() {
           </div>
 
           {isLeaderTeam && (
-            <div className="flex justify-end items-center lg:gap-3">
-             
+              <div className="flex justify-end items-center lg:gap-3">
+              
+            
               <div className="flex justify-start items-center gap-1 lg:p-2 border bg-blue-600  rounded-md">
               <Pen className="text-white"/>
                   <button
                     type="button"
+                    onClick={openEditModal}
                     className=" text-xs lg:text-sm font-medium text-white "
                   >
-                   Cập nhật 
+                    Cập nhật 
                   </button>
                   </div>
-                   <div className="flex justify-start items-center gap-1 lg:p-2 border bg-red-200  rounded-md">
+                  <div className="flex justify-start items-center gap-1 lg:p-2 border bg-red-200  rounded-md">
                    <Trash className="text-red-600"/>
                   <button
                     type="button"
                     onClick={() => setConfirmDelete(true)}
-                    className=" text-xs text-red-600 font-medium lg:text-sm"
-                  >
+                   className=" text-xs text-red-600 font-medium lg:text-sm">
                     Giải tán nhóm
                   </button>
-            </div>
-            
+                  </div>
+              
             </div>
           )}
         </div>
@@ -237,7 +309,24 @@ export default function GroupDetailPage() {
         {/* Thông tin + Thành viên */}
         <div className="grid grid-cols-1 gap-8 p-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
           <div>
-            <h2 className="mb-2 text-sm font-semibold text-gray-900">Thông tin nhóm</h2>
+            <div className="mb-2 flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-gray-900">Thông tin nhóm</h2>
+              {isLeaderTeam && (
+                <button
+                  type="button"
+                  onClick={openEditModal}
+                  disabled={group.status === "BUSY"}
+                  title={
+                    group.status === "BUSY"
+                      ? "Không thể cập nhật khi nhóm đang thực hiện nhiệm vụ"
+                      : undefined
+                  }
+                  className="rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Cập nhật
+                </button>
+              )}
+            </div>
             <div className="divide-y divide-gray-50">
               <InfoRow label="Tên nhóm" value={group.name} />
               <InfoRow label="Loại nhóm" value={TYPE_LABEL[group.type] ?? group.type} />
@@ -260,7 +349,7 @@ export default function GroupDetailPage() {
             </h2>
 
             <div className="overflow-x-auto rounded-lg border border-gray-100">
-              <table className="w-full text-sm hh">
+              <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 text-left text-xs text-gray-400">
                     <th className="w-10 py-2.5 pl-4 font-medium">#</th>
@@ -378,6 +467,84 @@ export default function GroupDetailPage() {
                 className="rounded-lg bg-rose-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-rose-700"
               >
                 Giải tán
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cập nhật thông tin nhóm */}
+      {showEditModal && (
+        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-xl">
+            <h3 className="text-sm font-semibold text-gray-900">Cập nhật thông tin nhóm</h3>
+
+            <div className="mt-4 space-y-4">
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-600">Tên nhóm</label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+                  placeholder="Nhập tên nhóm"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-600">Năng lực nhóm</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {(
+                    [
+                      { key: "hasBoat", label: "Xuồng" },
+                      { key: "hasMedical", label: "Y tế" },
+                      { key: "hasSearchRescue", label: "Tìm kiếm cứu nạn" },
+                      { key: "hasLogistics", label: "Hậu cần" },
+                    ] as { key: keyof PayloadUpdateResGroup; label: string }[]
+                  ).map(({ key, label }) => (
+                    <label key={key} className="flex items-center gap-2 text-sm text-gray-700">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(editForm[key])}
+                        onChange={(e) =>
+                          setEditForm((f) => ({ ...f, [key]: e.target.checked }))
+                        }
+                        className="h-4 w-4 rounded border-gray-300"
+                      />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-600">Ghi chú</label>
+                <textarea
+                  value={editForm.notes}
+                  onChange={(e) => setEditForm((f) => ({ ...f, notes: e.target.value }))}
+                  rows={3}
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+                  placeholder="Ghi chú về nhóm"
+                />
+              </div>
+            </div>
+
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowEditModal(false)}
+                disabled={savingEdit}
+                className="rounded-lg px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={handleUpdateGroup}
+                disabled={savingEdit}
+                className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              >
+                {savingEdit ? "Đang lưu..." : "Lưu thay đổi"}
               </button>
             </div>
           </div>

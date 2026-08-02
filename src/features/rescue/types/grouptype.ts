@@ -2,7 +2,7 @@
 
 import type { GROUPTYPE } from "./rescueType";
 
-  export type GroupStatus = "AVAILABLE" | "BUSY" | "UNAVAILABLE" | string;
+  export type GroupStatus = "AVAILABLE" | "BUSY" | "OFFLINE" | "DISBANDED" |string;
 
 
 //OPERATIONAL: Nhóm thực thi nhiệm vụ
