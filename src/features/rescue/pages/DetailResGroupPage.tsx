@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   MoreVertical,
@@ -9,8 +9,15 @@ import {
   Truck,
   Users2,
   Crown,
+  Pen,
+  Trash,
 } from "lucide-react";
+import { Popconfirm } from "antd";
+import { IoRemove } from "react-icons/io5";
+import { toast } from "react-toastify";
 import { useGroup } from "../hooks/useGroup";
+import { rescueApi } from "../api/rescureApi";
+import { useAppSelector } from "@/hooks/redux.hooks";
 
 // Nhãn hiển thị cho GroupStatus — cập nhật lại khi biết đủ giá trị enum thật
 const STATUS_LABEL: Record<string, { text: string; style: string }> = {
@@ -35,15 +42,74 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 export default function GroupDetailPage() {
   const { groupId } = useParams<{ groupId: string }>();
   const { detailgroup: group, detailLoading, detailGroup, error } = useGroup();
+  const navigate=useNavigate();
+
+  const handleQuayLai=async()=>{
+    navigate(-1);
+  }
+
+  // Chỉ leaderTeam (trưởng đội) mới được giải tán nhóm, loại thành viên
+  // khỏi nhóm và đặt trưởng nhóm mới.
+  const user = useAppSelector((state) => state.auth.user);
+  const isLeaderTeam = user?.isTeamLeader === true;
 
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  // userId của thành viên đang có action chạy (loại khỏi nhóm hoặc đặt trưởng nhóm),
+  // dùng để disable/hiện loading đúng dòng đó thôi, không khóa cả danh sách.
+  const [processingUserId, setProcessingUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (groupId) {
       detailGroup(groupId);
     }
   }, [groupId, detailGroup]);
+
+  // Loại thành viên khỏi nhóm (gộp từ GroupMembersPage)
+  const handleRemoveMember = async (member: { userId: string; fullName: string }) => {
+    if (!groupId) return;
+    if (!isLeaderTeam) {
+      toast.error("Chỉ trưởng đội mới được loại thành viên khỏi nhóm.");
+      return;
+    }
+
+    try {
+      setProcessingUserId(member.userId);
+      setOpenMenuId(null);
+      await rescueApi.removeMemberGroup(groupId, member.userId);
+
+      toast.success("Đã loại thành viên khỏi nhóm.");
+      await detailGroup(groupId);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message ?? "Không thể loại thành viên.");
+    } finally {
+      setProcessingUserId(null);
+    }
+  };
+
+  // Đặt trưởng nhóm mới (gộp từ GroupMembersPage). Sau khi đổi thành công,
+  // trưởng nhóm cũ trở thành thành viên thường và có thể bị loại như bình thường.
+  const handleSetLeader = async (member: { userId: string; fullName: string }) => {
+    if (!groupId) return;
+    if (!isLeaderTeam) {
+      toast.error("Chỉ trưởng đội mới được đặt trưởng nhóm mới.");
+      return;
+    }
+
+    try {
+      setProcessingUserId(member.userId);
+      setOpenMenuId(null);
+      await rescueApi.pickLeaderGroup(groupId, { userId: member.userId });
+
+      toast.success(`Đã đặt ${member.fullName} làm trưởng nhóm.`);
+      await detailGroup(groupId);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message ?? "Không thể đặt làm trưởng nhóm.");
+    } finally {
+      setProcessingUserId(null);
+    }
+  };
 
   const statusInfo = group
     ? STATUS_LABEL[group.status] ?? { text: group.status, style: "bg-gray-100 text-gray-500" }
@@ -90,40 +156,38 @@ export default function GroupDetailPage() {
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3 text-sm">
             <button type="button" aria-label="Quay lại" className="text-gray-400 hover:text-gray-600">
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="h-4 w-4" onClick={handleQuayLai} />
             </button>
             <span className="text-gray-400">{group.teamName}</span>
             <span className="text-gray-300">/</span>
             <span className="font-medium text-gray-900">Chi tiết nhóm</span>
           </div>
 
-          <div className="relative">
-            <button
-              type="button"
-              aria-label="Thêm tùy chọn"
-              onClick={() => setOpenMenuId(openMenuId === "header" ? null : "header")}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <MoreVertical className="h-5 w-5" />
-            </button>
-            {openMenuId === "header" && (
-              <div className="absolute right-0 top-8 z-10 w-44 rounded-lg border border-gray-100 bg-white py-1 shadow-lg">
-                <button
-                  type="button"
-                  className="block w-full px-3 py-2 text-left text-xs text-gray-700 hover:bg-gray-50"
-                >
-                  Đổi trạng thái nhóm
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setConfirmDelete(true)}
-                  className="block w-full px-3 py-2 text-left text-xs text-rose-600 hover:bg-rose-50"
-                >
-                  Giải tán nhóm
-                </button>
-              </div>
-            )}
-          </div>
+          {isLeaderTeam && (
+            <div className="flex justify-end items-center lg:gap-3">
+             
+              <div className="flex justify-start items-center gap-1 lg:p-2 border bg-blue-600  rounded-md">
+              <Pen className="text-white"/>
+                  <button
+                    type="button"
+                    className=" text-xs lg:text-sm font-medium text-white "
+                  >
+                   Cập nhật 
+                  </button>
+                  </div>
+                   <div className="flex justify-start items-center gap-1 lg:p-2 border bg-red-200  rounded-md">
+                   <Trash className="text-red-600"/>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmDelete(true)}
+                    className=" text-xs text-red-600 font-medium lg:text-sm"
+                  >
+                    Giải tán nhóm
+                  </button>
+            </div>
+            
+            </div>
+          )}
         </div>
 
         {/* Header card */}
@@ -196,7 +260,7 @@ export default function GroupDetailPage() {
             </h2>
 
             <div className="overflow-x-auto rounded-lg border border-gray-100">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm hh">
                 <thead>
                   <tr className="border-b border-gray-100 text-left text-xs text-gray-400">
                     <th className="w-10 py-2.5 pl-4 font-medium">#</th>
@@ -223,21 +287,60 @@ export default function GroupDetailPage() {
                         </td>
                         <td className="py-3 text-gray-600">{m.phone}</td>
                         <td className="relative py-3 pr-4 text-right">
+                          {isLeaderTeam && (
                           <button
                             type="button"
                             aria-label={`Tùy chọn cho ${m.fullName}`}
                             onClick={() => setOpenMenuId(openMenuId === m.userId ? null : m.userId)}
-                            className="text-gray-400 hover:text-gray-600"
+                            disabled={processingUserId === m.userId}
+                            className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
                           >
                             <MoreVertical className="h-4 w-4" />
                           </button>
-                          {openMenuId === m.userId && (
-                            <div className="absolute right-4 top-8 z-10 w-40 rounded-lg border border-gray-100 bg-white py-1 shadow-lg">
-                             
+                          )}
+                          {isLeaderTeam && openMenuId === m.userId && (
+                            <div className="absolute right-4 top-8 z-10 w-48 rounded-lg border border-gray-100 bg-white py-1 shadow-lg">
                               {!isLeader && (
-                                <button className="block w-full px-3 py-2 text-left text-xs text-rose-600 hover:bg-rose-50">
-                                 -
-                                </button>
+                                <Popconfirm
+                                  title="Đặt làm trưởng nhóm?"
+                                  description={`${m.fullName} sẽ trở thành trưởng nhóm mới.`}
+                                  okText="Xác nhận"
+                                  cancelText="Hủy"
+                                  onConfirm={() => handleSetLeader(m)}
+                                >
+                                  <button
+                                    type="button"
+                                    disabled={processingUserId !== null}
+                                    className="flex w-full items-center gap-1.5 px-3 py-2 text-left text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                                  >
+                                    <Crown className="h-3 w-3" /> Đặt làm trưởng nhóm
+                                  </button>
+                                </Popconfirm>
+                              )}
+
+                              {!isLeader && (
+                                <Popconfirm
+                                  title="Loại thành viên khỏi nhóm?"
+                                  description={`${m.fullName} sẽ mất quyền truy cập nhóm ngay lập tức.`}
+                                  okText="Xác nhận"
+                                  cancelText="Hủy"
+                                  okButtonProps={{ danger: true }}
+                                  onConfirm={() => handleRemoveMember(m)}
+                                >
+                                  <button
+                                    type="button"
+                                    disabled={processingUserId !== null}
+                                    className="flex w-full items-center gap-1.5 px-3 py-2 text-left text-xs text-rose-600 hover:bg-rose-50 disabled:opacity-50"
+                                  >
+                                    <IoRemove className="h-3 w-3" /> Loại khỏi nhóm
+                                  </button>
+                                </Popconfirm>
+                              )}
+
+                              {isLeader && (
+                                <span className="block px-3 py-2 text-left text-xs text-gray-400">
+                                  Trưởng nhóm không thể tự loại
+                                </span>
                               )}
                             </div>
                           )}
