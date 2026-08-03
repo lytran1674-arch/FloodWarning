@@ -178,3 +178,4 @@ export const GROUP_STATUS_COLOR: Record<Group["status"], { bg: string; text: str
   BUSY:      { bg: "#FEE2E2", text: "#991B1B" },
   INACTIVE:  { bg: "#F3F4F6", text: "#6B7280" },
 }
+

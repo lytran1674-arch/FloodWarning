@@ -7,11 +7,13 @@ import {
   LifeBuoy,
   Package,
   Users,
+  UserRoundX,
 } from "lucide-react";
 import { rescueApi } from "../api/rescureApi";
 import { Button } from "../../../components/ui/Button";
 import { useAppSelector } from "@/hooks/redux.hooks";
 import { ActiveGroup } from "../components/ActiveGroup";
+import { DeleteGroup } from "../components/DeleteGroup";
 
 
 
@@ -41,7 +43,7 @@ export default function ResGroupPage() {
   const user = useAppSelector((state) => state.auth.user);
 
 
-  const canCreateGroup = user?.isTeamLeader === true;
+  const LeaderTeam = user?.isTeamLeader === true;
 
   // teamId từ URL (Admin)
   const { teamId: paramTeamId } = useParams<{ teamId: string }>();
@@ -74,6 +76,7 @@ export default function ResGroupPage() {
 
     navigate(`/team/${teamId}/available-members`);
   };
+  
 
   return (
     <div className="p-6">
@@ -90,7 +93,18 @@ export default function ResGroupPage() {
             Thành viên chưa có nhóm
           </Button>
 
-          {canCreateGroup && (
+ {LeaderTeam && (
+           
+            <Button
+              onClick={() => navigate("/res-groups/disbanded")}
+              className="bg-red-500 text-white border  rounded-md p-2"
+            >
+            <UserRoundX />
+              Các nhóm đã giải tán 
+            </Button>
+          )}
+          {LeaderTeam && (
+           
             <Button
               onClick={() => navigate("/res-group/create")}
               className="bg-yellow-500 text-black border border-yellow-400 rounded-md p-2"
@@ -184,7 +198,7 @@ export default function ResGroupPage() {
           {/* ================= RIGHT ================= */}
         
           <div
-            className="w-full lg:w-[360px]"
+            className="w-full lg:w-[360px] flex justify-end"
             onClick={(e) => e.stopPropagation()}
           >
             <ActiveGroup
@@ -194,10 +208,15 @@ export default function ResGroupPage() {
                 setGroups(Array.isArray(data) ? data : []);
               }}
             />
-            {/* <DeleteGroup group={group} onSuccess={async()=>{
-              const data=await rescueApi.deleteGroup(teamId!);
-              setGroups(Array.isArray(data)?:data:[])
-            }}/> */}
+            {LeaderTeam&&(
+            <DeleteGroup
+  group={group}
+  onSuccess={async () => {
+    const data = await rescueApi.getGroupByTeam(teamId!);
+    setGroups(Array.isArray(data) ? data : []);
+  }}
+/>
+)}
             </div>
           </div>
         </div>

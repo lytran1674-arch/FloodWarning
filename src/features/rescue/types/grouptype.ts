@@ -80,3 +80,18 @@ import type { GROUPTYPE } from "./rescueType";
     notes:string
 
   }
+
+  export interface DisbandedGroup{
+    id:string
+    name:string
+    teamId:string
+    teamName:string
+    status:GroupStatus
+    hasBoat:boolean
+    hasMedical:boolean
+    hasSearchRescue:boolean
+    hasLogistics:boolean
+    notes:string
+    
+
+  }

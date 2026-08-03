@@ -8,7 +8,7 @@ export const useResCue = (teamId: string) => {
   const [detail, setDetail] = useState<ResTeam | undefined>(undefined);
   const [error, setError] = useState("");
   const [updatestatus,setUpdateStatus]=useState("");
-  const [xoaGroup,setXoaGroup]=useState("");
+
   const fetchResCue = useCallback(async () => {
     if (!teamId) {
       setResCue([]);
@@ -50,19 +50,7 @@ const updateStatusGroup = async (groupId: string) => {
   }
 };
 
-//*******DELETE GROUP **********/
-const deleteGroup=async(groupId:string)=>{
-  try{
-    setLoading(true);
-    const res=await rescueService.deleteGroup(groupId);
-    setXoaGroup(res);
-  }catch(error){
-  console.error(error);
-  setError("Không thể giải tán nhóm");
-}finally{
-  setLoading(false);
-}
-}
+
   // Đổi tên tham số để tránh trùng/che khuất teamId của hook,
   // cho phép gọi lấy chi tiết đội KHÁC (không nhất thiết trùng
   // teamId ban đầu) nếu cần
@@ -93,6 +81,6 @@ const deleteGroup=async(groupId:string)=>{
   // Export đầy đủ để nơi dùng hook có thể truy cập
   // detail/detailTeam/error, không chỉ rescue/loading
   return { rescue, loading, error, fetchResCue, detail, detailTeam
-    ,updateStatusGroup,updatestatus,deleteGroup,xoaGroup
+    ,updateStatusGroup,updatestatus
    }
 }

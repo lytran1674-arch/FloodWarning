@@ -1,5 +1,5 @@
 
-import type { DetailResGroup, PayloadUpdateResGroup } from "../types/grouptype";
+import type { DetailResGroup, DisbandedGroup, PayloadUpdateResGroup } from "../types/grouptype";
 import type { CreateTeamRequest,    ResCue, ResGroup, ResTeam } from "../types/rescueType";
 import { axiosClient } from "@/api/axiosClient";
 
@@ -182,5 +182,18 @@ async updateResGroup(groupId:string,payload:PayloadUpdateResGroup):Promise<strin
   return res.data;
 }
 
+,
+// xóa group
+async ResetStatusGroup(groupId:string,status:string):Promise<string>{
+  const res=await axiosClient.patch(`/res-groups/${groupId}/status`,
+    {status:status}
+    );
+  return res.data;
+}
+,// danh sách nhóm disbanbed 
+async ListGroupDisbanded():Promise<DisbandedGroup[]>{
+  const res=await axiosClient.get('/res-groups/disbanded');
+  return res.data.result?.content??[] 
+}
 
 };

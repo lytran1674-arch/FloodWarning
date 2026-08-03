@@ -1,5 +1,5 @@
 import { rescueApi } from "../api/rescureApi";
-import type { DetailResGroup } from "../types/grouptype";
+import type { DetailResGroup, DisbandedGroup } from "../types/grouptype";
 import type { CreateTeamRequest, ResCue, ResTeam } from "../types/rescueType";
 
 
@@ -41,10 +41,7 @@ export const rescueService = {
   //   return rescueApi.updateStatusGroup(groupId,status);
   // },
 
-  //teamleader xoa nhom cuu ho
-  async deleteGroup(groupId:string):Promise<string>{
-   return await rescueApi.deleteGroup(groupId);
-  },
+
   //group leader cập nhật trạng thái từ OFFLINE->AVAILABLE
   async updateStatusgroup(groupId:string):Promise<string>{
    return await rescueApi.updateStatusgroup(groupId);
@@ -55,5 +52,13 @@ export const rescueService = {
   },
 
   // Cập nhật thông tin nhóm 
-  
+  //xóa nhóm 
+  async ResetStatusGroup(groupId:string,status:string):Promise<string>{
+    return await rescueApi.ResetStatusGroup(groupId,status);
+  },
+
+  // danh sách nhóm disbanbed 
+  async ListGroupDisbanded():Promise<DisbandedGroup[]>{
+      return await rescueApi.ListGroupDisbanded();
+  }
 };

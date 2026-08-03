@@ -65,6 +65,7 @@ import { FormSoSPage } from "@/features/sosrequest-anonymous/pages/FormSoSPage"
 import { SentSosPage } from "@/features/sosrequest-anonymous/pages/SentSosPage"
 import { UpdateSosPageAnonymous } from "@/features/sosrequest-anonymous/pages/UpdateSosPageAnonymous"
 import  DetailResGroupPage  from "@/features/rescue/pages/DetailResGroupPage"
+import GroupDisbanded from "@/features/rescue/components/GroupDisbanded"
 
 
 
@@ -132,6 +133,7 @@ const AppRoutes = () => {
         <Route path="/detail-sos-request/:sosId" element={<SoSDetail/>}/>
 <Route path= "/call-workflow" element= {<CallWorkflowPage /> }/>
         <Route path="/detail-group/:groupId" element={<DetailResGroupPage/>}/>
+        <Route path="/res-groups/disbanded" element={<GroupDisbanded/>}/>
         </Route>
        
       </Routes>
