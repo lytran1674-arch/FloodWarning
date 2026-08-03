@@ -14,6 +14,7 @@ export const DeleteGroup = ({group,onSuccess}:Props) => {
     const isTeamLeader=user?.isTeamLeader==true;
     const {deleteGroup}=useGroup();
 
+
 const handleDelete = async (
   e: React.MouseEvent<HTMLButtonElement>
 ) => {
@@ -27,9 +28,10 @@ const handleDelete = async (
     console.error(error);
   }
 };
+const statusgroup = group.status === "AVAILABLE" || group.status === "OFFLINE";
   return (
     <>
-    {isTeamLeader&&(
+    {(isTeamLeader&& statusgroup)&&(
     <div>
         <button
     onClick={handleDelete}

@@ -1,7 +1,7 @@
 import { Button } from "antd";
 import { SearchBar } from "../../../components/ui/SearchBar";
-import { DeviceTable } from "../components/IotDeviceTable";
-import { useIotDevice, type FilterStatus } from "../hooks/useIotDevice";
+
+
 import type { Device } from "../types/deviceType";
 
 import {
@@ -12,8 +12,10 @@ import {
   Wifi,
   type LucideIcon,
 } from "lucide-react";
+import { useIotDevice, type FilterStatus } from "../hooks/useIotDevice";
+import { DeviceTable } from "../components/IotDeviceTable";
 
-export const IotDevices = () => {
+export const IoTDevices = () => {
   const {
     iotdevice,
     loading,
@@ -40,7 +42,7 @@ export const IotDevices = () => {
       <div className="mb-4 flex justify-start items-center gap-2">
           <MonitorDot className="text-black"/>
         <h1 className="text-xl font-semibold text-black">
-        Quản lý thiết bị IoT 
+        Quản lý thiết bị  
         </h1>
       </div>
 

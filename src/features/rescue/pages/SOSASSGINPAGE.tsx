@@ -96,8 +96,7 @@ const handleSubmit = async () => {
       navigate("/team-sos")
     }
   } else {
-    setSubmitError(
-      "Không thể phân công. Có thể quyền điều phối SOS này đã thay đổi — vui lòng quay lại danh sách và thử lại."
+    setSubmitError("Có lỗi xảy ra"
     )
   }
 }

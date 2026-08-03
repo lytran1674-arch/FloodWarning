@@ -1,4 +1,5 @@
 
+import { Eye } from "lucide-react";
 import { Table } from "../../../components/ui/Table";
 import { usePagination } from "../../../hooks/usePagination";
 import type { Device } from "../types/deviceType";
@@ -79,6 +80,7 @@ export const DeviceTable = ({
       title: "Ngưỡng cảnh báo",
       key: "nguong_canh_bao" as keyof Device,
       render: (item: Device) =>
+        
         item.nguong_canh_bao != null ? `${item.nguong_canh_bao} cm` : "--",
     },
     {
@@ -113,6 +115,18 @@ export const DeviceTable = ({
             className="px-3 py-1 rounded-lg text-xs bg-red-500 text-white hover:bg-red-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             Từ chối
+          </button>
+          
+           <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onReject?.(item);
+            }}
+            disabled={item.trang_thai === "ACTIVE"}
+            className="px-3 py-1 rounded-lg text-xs bg-red-500 text-white hover:bg-red-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+           Cập nhật 
           </button>
         </div>
       ),

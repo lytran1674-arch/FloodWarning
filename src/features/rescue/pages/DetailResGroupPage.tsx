@@ -11,6 +11,7 @@ import {
   Crown,
   Pen,
   Trash,
+  Plus,
 } from "lucide-react";
 import { Popconfirm } from "antd";
 import { IoRemove } from "react-icons/io5";
@@ -146,7 +147,9 @@ export default function GroupDetailPage() {
     setOpenMenuId(null);
     setShowEditModal(true);
   };
-
+  const handlePageAdd=async()=>{
+    navigate(`/res-groups/${groupId}/addmembers`)
+  }
   const handleQuaylai=async()=>{
     navigate(-1);
   }
@@ -237,7 +240,16 @@ export default function GroupDetailPage() {
           {isLeaderTeam && (
               <div className="flex justify-end items-center lg:gap-3">
               
-            
+            <div className="flex justify-start items-center gap-1 lg:p-2 border bg-yellow-500  rounded-md">
+              <Plus className="text-black"/>
+                  <button
+                    type="button"
+                    onClick={handlePageAdd}
+                    className=" text-xs lg:text-sm font-medium text-black "
+                  >
+                    Thêm thành viên
+                  </button>
+                  </div>
               <div className="flex justify-start items-center gap-1 lg:p-2 border bg-blue-600  rounded-md">
               <Pen className="text-white"/>
                   <button

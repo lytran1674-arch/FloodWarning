@@ -11,6 +11,15 @@ export const DeviceService={
     },
     async patchReject(id:string):Promise<Device>{
         return await DeviceApi.patchPreject(id);
-    }
+    },
+        // cập nhật thông tin thiết bị 
+        async updateIotDevice(deviceId:string,payload:string):Promise<Device>{
+         return await DeviceApi.updateIotDevice(deviceId,payload)
+        }
+        ,
+        //chi tiết thông tin về thiết bị iot
+        async DetailIotDevice(deviceId:string):Promise<Device>{
+           return await DeviceApi.DetailIotDevice(deviceId);
+        }
     
 }

@@ -98,10 +98,9 @@ const assignment = async (
       const res = await sosService.postassign(payload)
       console.log("Phân công thành công:", res)
       return res
-    } catch (err: any) {
-      toast.error(
-        err?.response?.data?.message || "Phân công cứu hộ thất bại"
-      )
+    } catch (err) {
+     console.error(err);
+     setError("Số lượng thành viên trong nhóm không đủ để thực hiện nhiệm vụ")
       return null
     } finally {
       setSubmitting(false)

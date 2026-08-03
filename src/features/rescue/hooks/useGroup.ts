@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { groupService } from "../../grouprescue/services/groupService";
 import { rescueService } from "../services/rescueService";
-import type { Group } from "../types/rescueType";
-import {type DisbandedGroup, type DetailResGroup } from "../types/grouptype";
+import { type ResCue, type Group } from "../types/rescueType";
+import {type DisbandedGroup, type DetailResGroup,type ListMembers, type AddMemberToGroup } from "../types/grouptype";
 
 export const useGroup = (teamId?: string) => {
   const [groups, setGroups] = useState<Group[]>([]);
@@ -11,7 +11,9 @@ export const useGroup = (teamId?: string) => {
   const [detailgroup, setDetailGroup] = useState<DetailResGroup | undefined>(undefined);
   const [detailLoading, setDetailLoading] = useState(false);
   const [listDisbanded,setListDisbanded]=useState<DisbandedGroup[]>([]);
+  const [add,setAdd]=useState<ListMembers[]>([]);
     const [xoaGroup,setXoaGroup]=useState("");
+    const [listMembers,setListMembers]=useState<ResCue[]>([]);
   const fetchGroups = useCallback(async () => {
     if (!teamId) {
       setLoading(false);
@@ -31,6 +33,7 @@ export const useGroup = (teamId?: string) => {
     }
   }, [teamId]);
 
+  /*********Xóa thành viên ra khỏi nhóm*****************************/
   const removeMemberGroup = useCallback(
     async (groupId: string, userId: string): Promise<boolean> => {
       try {
@@ -50,6 +53,21 @@ export const useGroup = (teamId?: string) => {
     },
     [fetchGroups]
   );
+//*******ADD MEMBERS **********/
+const AddMembersGroup=useCallback(async(groupId:string,payload: { userIds: string[] })=>{
+  try{
+    setLoading(true);
+    const res=await rescueService.addMember(groupId,payload);
+    setAdd(res);
+    return res;
+  }catch(err){
+    console.error(err);
+    setError("Số lượng thành viên thêm đã vượt quá giới hạn của nhóm!");
+      throw err;
+  }finally{
+    setLoading(false);
+  }
+},[])
 
 //*******DELETE GROUP **********/
 const deleteGroup=async(groupId:string,status:string)=>{
@@ -104,6 +122,7 @@ const deleteGroup=async(groupId:string,status:string)=>{
   useEffect(() => {
     fetchGroups();
     fetchListGroupDisbanded();
+
   }, [fetchGroups]);
 
   return {
@@ -118,6 +137,8 @@ const deleteGroup=async(groupId:string,status:string)=>{
     clearDetailGroup,
     listDisbanded,
     xoaGroup,
-    deleteGroup
+    deleteGroup,
+    add,
+    AddMembersGroup
   };
 };

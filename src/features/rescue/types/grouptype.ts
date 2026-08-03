@@ -95,3 +95,15 @@ import type { GROUPTYPE } from "./rescueType";
     
 
   }
+
+  export interface AddMemberToGroup{
+    userIds:string[];
+  }
+
+
+
+  export interface ListMembers{
+    userId:string
+    fullName:string
+    phone:string
+  }

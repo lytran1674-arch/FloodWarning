@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { sosassignmentService } from '../services/sosassignmentService';
 
+
 export const useSoSAssignment = () => {
   const [loading,setLoading]=useState(false);
   const [error,setError]=useState("");
@@ -20,5 +21,6 @@ export const useSoSAssignment = () => {
         setLoading(false)
     }
   }
-  return {loading,error,failed,FailedAssignment}
+
+  return {loading,error,failed,FailedAssignment,}
 }

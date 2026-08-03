@@ -1,5 +1,5 @@
 import { rescueApi } from "../api/rescureApi";
-import type { DetailResGroup, DisbandedGroup } from "../types/grouptype";
+import type { AddMemberToGroup, DetailResGroup, DisbandedGroup, ListMembers } from "../types/grouptype";
 import type { CreateTeamRequest, ResCue, ResTeam } from "../types/rescueType";
 
 
@@ -19,6 +19,7 @@ export const rescueService = {
 
     return team;
   },
+  //lấy danh sách thành viên chauw có group
   async getTeamMembersWithoutGroup(id:string):Promise<ResCue[]>{
     return await rescueApi.getTeamMembersWithoutGroup(id);
   },
@@ -60,5 +61,10 @@ export const rescueService = {
   // danh sách nhóm disbanbed 
   async ListGroupDisbanded():Promise<DisbandedGroup[]>{
       return await rescueApi.ListGroupDisbanded();
+  },
+  // Thêm thành viên  
+  async addMember(groupId:string,payload: { userIds: string[] }):Promise<ListMembers[]>{
+    return await rescueApi.addMember(groupId,payload);
   }
+  ,
 };

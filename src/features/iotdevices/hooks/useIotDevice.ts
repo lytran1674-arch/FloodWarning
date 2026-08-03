@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Device } from "../types/deviceType";
 import { DeviceService } from "../services/iotdeviceService";
 import {Modal} from "antd";
@@ -11,6 +11,9 @@ export const useIotDevice = () => {
   const [loading, setLoading] = useState(false);
   const [filter, setFilter]=useState<FilterStatus>("ALL");
   const [search,setSearch]=useState("");
+  const [updateIoT,setUpdateIoT]=useState<Device>();
+  const [error,setError]=useState("");
+  const [detailIot,setDetailIot]=useState<Device>();
 
   const fetchIotDevice = async () => {
     try {
@@ -24,6 +27,36 @@ export const useIotDevice = () => {
     }
   };
 
+ /*********Chi tiết thiết bị****************** */
+ const DetailIotDevice=async(deviceId:string)=>{
+  try{
+    setLoading(true);
+    const res=await DeviceService.DetailIotDevice(deviceId);
+    setDetailIot(res);
+    return res;
+
+  }catch(error){
+  console.error(error);
+  setError("Không thể hiển thị chi tiết");
+  }finally{
+  setLoading(false);
+  }
+ }
+  /*********Update IoT Device****************** */
+  const updateIoTDevice=useCallback(async(deviceId:string,payload:string)=>{
+    try{
+      setLoading(true);
+      const res= await DeviceService.updateIotDevice(deviceId,payload);
+      setUpdateIoT(res);
+      return res;
+    }catch(error){
+    console.error(error);
+    setError("Cập nhật không thành công");
+    throw error;
+    }finally{
+      setLoading(false);
+    }
+  },[])
    const handleApprove=async(id:string)=>{
    try{
      const userString = localStorage.getItem("user");
@@ -107,6 +140,11 @@ const displayData = search.trim() !== "" ? searchResult ?? [] : filteredData;
     setFilter,
     countByStatus,
     search,
-    setSearch
+    setSearch,
+    updateIoT,
+    updateIoTDevice,
+    detailIot,
+    DetailIotDevice,
+    error
   };
 }

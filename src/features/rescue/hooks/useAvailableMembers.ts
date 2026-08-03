@@ -6,7 +6,7 @@ export const useAvailableMembers = (teamId?: string) => {
   const [members, setMembers] = useState<ResCue[]>([]);
   const [groups, setGroups] = useState<ResGroup[]>([]);
   const [loading, setLoading] = useState(false);
-  
+  const [error,setError]=useState("");
   const fetchData = useCallback(async () => {
     if (!teamId) return;
 
@@ -20,7 +20,11 @@ export const useAvailableMembers = (teamId?: string) => {
 
       setMembers(memberData);
       setGroups(groupData);
-    } finally {
+    }catch(err) {
+    console.error(err);
+    setError("Không thể tải danh sách")
+    }
+    finally {
       setLoading(false);
     }
   }, [teamId]);

@@ -1,5 +1,5 @@
 
-import type { DetailResGroup, DisbandedGroup, PayloadUpdateResGroup } from "../types/grouptype";
+import type { AddMemberToGroup, DetailResGroup, DisbandedGroup, ListMembers, PayloadUpdateResGroup } from "../types/grouptype";
 import type { CreateTeamRequest,    ResCue, ResGroup, ResTeam } from "../types/rescueType";
 import { axiosClient } from "@/api/axiosClient";
 
@@ -194,6 +194,17 @@ async ResetStatusGroup(groupId:string,status:string):Promise<string>{
 async ListGroupDisbanded():Promise<DisbandedGroup[]>{
   const res=await axiosClient.get('/res-groups/disbanded');
   return res.data.result?.content??[] 
+},
+
+// Thêm thành viên  
+async addMember(groupId:string,payload: { userIds: string[] }):Promise<ListMembers[]>{
+  console.log("Payload gửi lên:", payload); // 👈 thêm dòng này
+  const res=await axiosClient.put(`/res-groups/${groupId}/members`,
+    payload
+  )
+  return res.data.result??[];
 }
+,
+
 
 };

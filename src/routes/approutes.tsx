@@ -6,7 +6,6 @@ import { WeatherDataPage } from "../features/weather-data/pages/WeatherDataPage"
 import { LoginPage } from "../features/auth/pages/LoginPage"
 
 
-import { IotDevices } from "../features/iotdevices/pages/IotDevices"
 import { FloodRisk } from "../features/floodriskdata/pages/FloodRisk"
 //import { Home } from "../features/citizen/pages/Home"
 import { RegisterPage } from "../features/auth/pages/RegisterPage"
@@ -67,6 +66,9 @@ import { UpdateSosPageAnonymous } from "@/features/sosrequest-anonymous/pages/Up
 import  DetailResGroupPage  from "@/features/rescue/pages/DetailResGroupPage"
 import GroupDisbanded from "@/features/rescue/components/GroupDisbanded"
 
+import { AddMembersPage } from "@/features/rescue/pages/AddMemberPage"
+import { IoTDevices } from "@/features/iotdevices/pages/IotDevices"
+
 
 
 
@@ -88,7 +90,7 @@ const AppRoutes = () => {
           <Route path="/weather-data/:area_id"/>
           <Route path="/home" element={<Area />} />
           <Route path="/weather-data" element={<WeatherDataPage/>}/>
-          <Route path="/iot-device" element={<IotDevices/>}/>
+          <Route path="/iot-device" element={<IoTDevices/>}/>
          <Route path="/flood-risk" element={<FloodRisk/>} />
          {/*CITIZEN */}
         <Route path="/dashboard" element={<Home/>}/> 
@@ -134,6 +136,7 @@ const AppRoutes = () => {
 <Route path= "/call-workflow" element= {<CallWorkflowPage /> }/>
         <Route path="/detail-group/:groupId" element={<DetailResGroupPage/>}/>
         <Route path="/res-groups/disbanded" element={<GroupDisbanded/>}/>
+        <Route path="/res-groups/:groupId/addmembers" element={<AddMembersPage/>}/>
         </Route>
        
       </Routes>

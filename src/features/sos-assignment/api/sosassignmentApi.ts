@@ -1,4 +1,5 @@
 import { axiosClient } from "@/api/axiosClient"
+import type { AssignSos, } from "@/features/sosrequest/types/sosType";
 
 const API_URL="/sos-assignment"
 
@@ -12,4 +13,14 @@ export const sosassignmentApi =  {
         )
         return response.data;
     },
+    
+    //Phân công giao nhiệm vụ khi số lượng thành viên trong nhóm ko đạt số lượng tối thiếu   
+    async assignWithMinimum(payload:AssignSos):Promise<string>{
+        const res=await axiosClient.post("API_URL",
+            payload
+        );
+        return res.data;
+    }
+    
+    
 }

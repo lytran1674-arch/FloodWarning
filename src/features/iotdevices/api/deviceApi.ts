@@ -23,6 +23,17 @@ export const DeviceApi={
     async getDataIotTongHop():Promise<IotData>{
         const response=await axiosClient.get(`${API_URL}/iot-aggregate`)
         return response.data;
+    },
+    // cập nhật thông tin thiết bị 
+    async updateIotDevice(deviceId:string,payload:string):Promise<Device>{
+        const res=await axiosClient.put(`/iot-device/update/${deviceId}`,payload)
+        return res.data.result;
+    }
+    ,
+    //chi tiết thông tin về thiết bị iot
+    async DetailIotDevice(deviceId:string):Promise<Device>{
+        const res=await axiosClient.get(`/iot-device/detail/${deviceId}`)
+        return res.data.result;
     }
   
 }
