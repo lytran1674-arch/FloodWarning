@@ -1,20 +1,53 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { FaArrowLeft, FaLock } from "react-icons/fa";
-import { MdSecurity } from "react-icons/md";
+
 import { ShieldCheckIcon } from "lucide-react";
+import NenForm from "@/assets/nenform.png";
 
 import { Input } from "../../../components/ui/Input";
 import { Button } from "../../../components/ui/Button";
+import { toast } from "react-toastify";
+import { authService } from "../services/authService";
+import { useNavigate } from "react-router-dom";
 
 export const FormQMK = () => {
   const [email, setEmail] = useState("");
+  const [loading,setLoading]=useState(false);
+  const [error,setError]=useState("")
+  const navigate = useNavigate();
+  const handleForgotPassword=async(
+    e:React.FormEvent<HTMLFormElement>)=>{
+      e.preventDefault();
+      setError("");
+      if(!email.trim()){
+        toast.warning("Vui lòng nhập email!");
+        return;
+      }
+      try{
+        setLoading(true);
+        await authService.forgotpassword(email);
+        navigate("/verify-otp", {
+  state: {
+    email,
+  }})
+        setEmail("");
+      }catch(err){
+        console.error(err);
+        setError("Email không đúng !");
+      }finally{
+        setLoading(false);
+      }
+    }
+  
 
   return (
     <div
+    style={{
+    backgroundImage: `url(${NenForm})`,
+  }}
       className="
         w-screen
     h-screen
-    bg-[url('/image/nenform.png')]
     bg-cover
     bg-center
     bg-no-repeat
@@ -28,12 +61,12 @@ export const FormQMK = () => {
           justify-center
           items-center
           
-          p-4
+          p-2
   
           text-center
         "
       >
-        <MdSecurity
+        {/* <MdSecurity
           className="
             text-5xl
             sm:text-6xl
@@ -41,7 +74,7 @@ export const FormQMK = () => {
             text-[#1D3178]
             shrink-0
           "
-        />
+        /> */}
 
         <p
           className="
@@ -81,7 +114,7 @@ export const FormQMK = () => {
             shadow-2xl
           "
         >
-          <form>
+          <form onSubmit={handleForgotPassword}>
             {/* Top */}
             <div className="flex flex-col justify-center items-center">
               <FaLock
@@ -137,23 +170,30 @@ export const FormQMK = () => {
                 onChange={setEmail}
                 value={email}
               />
+                {error && (
+  <p className="mt-2 text-sm text-red-500">
+    {error}
+  </p>
+)}
             </div>
 
             {/* Button */}
-            <Button
-              className="
-                bg-[#1C5FE5]
-                text-white
-                mt-4
-                w-full
-                rounded-lg
-                h-11
-                hover:bg-[#0C317B]
-                transition-all
-              "
-              children="Gửi mã xác nhận"
-            />
-
+          <Button
+  type="submit"
+  disabled={loading}
+  className="
+    bg-[#1C5FE5]
+    text-white
+    mt-4
+    w-full
+    rounded-lg
+    h-11
+    hover:bg-[#0C317B]
+    transition-all
+  "
+>
+  {loading ? "Đang gửi..." : "Gửi mã xác nhận"}
+</Button>
             {/* Back */}
             <div
               className="
@@ -219,3 +259,4 @@ export const FormQMK = () => {
     </div>
   );
 };
+

@@ -100,7 +100,9 @@ localStorage.removeItem("deviceId");
     }
   }
 
-  
+  const formQMK=()=>{
+    navigate("/forgot-password")
+  }
   const handleOnClick=()=>{
     navigate("/register")
   }
@@ -147,9 +149,13 @@ localStorage.removeItem("deviceId");
           </div>
 
           <div className="mb-3">
-            <label className="block text-sm font-medium text-[#EE0F0F] flex items-center justify-end cursor-pointer">
-              Quên mật khẩu?
-            </label>
+           <button
+  type="button"
+  className="block text-sm font-medium text-[#EE0F0F] flex justify-end cursor-pointer"
+  onClick={formQMK}
+>
+  Quên mật khẩu?
+</button>
           </div>
 
           <button

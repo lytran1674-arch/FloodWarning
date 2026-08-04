@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { Device } from "../types/deviceType";
+import type { Device, UpdateDevicePayload } from "../types/deviceType";
 import { DeviceService } from "../services/iotdeviceService";
 import {Modal} from "antd";
 import { toast } from "react-toastify";
@@ -43,7 +43,7 @@ export const useIotDevice = () => {
   }
  }
   /*********Update IoT Device****************** */
-  const updateIoTDevice=useCallback(async(deviceId:string,payload:string)=>{
+  const updateIoTDevice=useCallback(async(deviceId:string,payload:UpdateDevicePayload)=>{
     try{
       setLoading(true);
       const res= await DeviceService.updateIotDevice(deviceId,payload);

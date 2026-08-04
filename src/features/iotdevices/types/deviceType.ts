@@ -9,6 +9,7 @@ export interface Device {
   lat: number;
   lon: number;
   trang_thai: string;
+  deviceHeight:number
   createdAt: string;
   updatedAt: string;
 }
@@ -37,3 +38,10 @@ export interface DeviceCounts{
     rejected:number
 }
 
+export interface UpdateDevicePayload {
+  tenThietBi: string;
+  nguongCanhBao: number;
+  lat?: number;
+  lon?: number;
+  deviceHeight?: number;
+}

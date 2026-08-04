@@ -68,6 +68,11 @@ import GroupDisbanded from "@/features/rescue/components/GroupDisbanded"
 
 import { AddMembersPage } from "@/features/rescue/pages/AddMemberPage"
 import { IoTDevices } from "@/features/iotdevices/pages/IotDevices"
+import { FormQMK } from "@/features/auth/components/FormQMK"
+
+import { FormOTP } from "@/features/auth/components/FormOTP"
+import { FormĐLMK } from "@/features/auth/components/FormĐLMK"
+
 
 
 
@@ -81,6 +86,9 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage/>}/>
+         <Route path="/forgot-password" element={<FormQMK/>}/>
+         <Route path="/verify-otp" element={<FormOTP/>}/>
+         <Route path="/reset-password" element={<FormĐLMK/>}/>
         <Route path="/sos-request-anonymous" element={<FormSoSPage/>}/>
         <Route path="/sent-request-anonymous" element={<SentSosPage />} />
         <Route path="/success-anonymous" element={<SuccessPageAnonymous/>}/>
@@ -137,6 +145,8 @@ const AppRoutes = () => {
         <Route path="/detail-group/:groupId" element={<DetailResGroupPage/>}/>
         <Route path="/res-groups/disbanded" element={<GroupDisbanded/>}/>
         <Route path="/res-groups/:groupId/addmembers" element={<AddMembersPage/>}/>
+        {/* <Route path="/detail" element={<ModalDetail/>}/> */}
+       
         </Route>
        
       </Routes>

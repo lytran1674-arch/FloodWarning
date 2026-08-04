@@ -57,4 +57,13 @@ export const authService = {
 
     return response.data;
   },
+
+    // ================= FORGOT PASSWORD =================
+    async resetpassword(email: string,token:string,newPassword:string) {
+       const response =
+      await authAPI.resetpassword(email,token,newPassword);
+
+    return response.data;
+    },
+  
 };

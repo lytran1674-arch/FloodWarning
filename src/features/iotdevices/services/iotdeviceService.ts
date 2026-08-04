@@ -1,5 +1,5 @@
 import { DeviceApi } from "../api/deviceApi";
-import type {Device } from "../types/deviceType";
+import type {Device, UpdateDevicePayload } from "../types/deviceType";
 
 export const DeviceService={
 
@@ -13,7 +13,7 @@ export const DeviceService={
         return await DeviceApi.patchPreject(id);
     },
         // cập nhật thông tin thiết bị 
-        async updateIotDevice(deviceId:string,payload:string):Promise<Device>{
+        async updateIotDevice(deviceId:string,payload:UpdateDevicePayload):Promise<Device>{
          return await DeviceApi.updateIotDevice(deviceId,payload)
         }
         ,

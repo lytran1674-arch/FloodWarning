@@ -1,5 +1,5 @@
 
-import type { Device, IotData } from "../types/deviceType"
+import type { Device, IotData, UpdateDevicePayload } from "../types/deviceType"
 import { axiosClient } from "@/api/axiosClient"
 
  const API_URL="https://api-lulut.io.vn"
@@ -25,15 +25,15 @@ export const DeviceApi={
         return response.data;
     },
     // cập nhật thông tin thiết bị 
-    async updateIotDevice(deviceId:string,payload:string):Promise<Device>{
+    async updateIotDevice(deviceId:string,payload:UpdateDevicePayload):Promise<Device>{
         const res=await axiosClient.put(`/iot-device/update/${deviceId}`,payload)
         return res.data.result;
     }
     ,
     //chi tiết thông tin về thiết bị iot
     async DetailIotDevice(deviceId:string):Promise<Device>{
-        const res=await axiosClient.get(`/iot-device/detail/${deviceId}`)
+        const res=await axiosClient.post(`/iot-device/detail/${deviceId}`)
         return res.data.result;
     }
-  
+  ,
 }

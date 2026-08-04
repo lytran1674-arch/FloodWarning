@@ -31,8 +31,16 @@ export const authAPI = {
   // ================= FORGOT PASSWORD =================
   forgotPassword(email: string) {
     return publicApi.post(
-      "/forgotpwd",
+      "/auth/forgot-password",
       { email }
+    );
+  },
+
+  // ================= FORGOT PASSWORD =================
+  resetpassword(email: string,token:string,newPassword:string) {
+    return publicApi.post(
+      "/auth/forgot-password",
+      { email ,token,newPassword}
     );
   },
 
