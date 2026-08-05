@@ -6,7 +6,7 @@ interface InputProps {
   label?: string;
   type?: "text" | "password" | "email" | "number" | "date" | "checkbox";
   placeholder?: string;
-  value: string;
+  value?: string;
   onChange?: (value: string) => void;
   required?: boolean;
   disabled?: boolean;

@@ -13,7 +13,7 @@ export const useGroup = (teamId?: string) => {
   const [listDisbanded,setListDisbanded]=useState<DisbandedGroup[]>([]);
   const [add,setAdd]=useState<ListMembers[]>([]);
     const [xoaGroup,setXoaGroup]=useState("");
-    const [listMembers,setListMembers]=useState<ResCue[]>([]);
+  
   const fetchGroups = useCallback(async () => {
     if (!teamId) {
       setLoading(false);

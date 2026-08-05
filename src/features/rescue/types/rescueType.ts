@@ -1,3 +1,4 @@
+import type { Role } from "@/features/auth/types/authType"
 import type { GroupStatus } from "@/features/grouprescue/types/groupType"
 
 export type GROUPTYPE= "HOTLINE" | "OPERATIONAL"
@@ -142,8 +143,40 @@ export interface SosRequest {
   updated_at: string
 }
 
+export interface PayLoaAddMemberTeam{
+  hoten:string
+  email:string
+  sodt:string
+  gioitinh:boolean
+  ngaysinh:string
+  diachi:string
+  teamId:string
+}
+export interface InfoMemberTeam{
+  id:string
+  hoten:string
+  email:string
+  sodt:string
+  gioitinh:string
+  ngaysinh:string
+  diachi:string
+  role:Role
+  trangthai:string
+  teamId:string
+  teamName:string
+  areaId:string
+}
 
+export interface PayLoadAddProvinceOperator{
+  hoten:string
+  email:string
+  sodt:string 
+  gioitinh:boolean
+  ngaysinh:string
+  diachi:string
+  areaId:string
 
+}
 // ── SOS display helpers ───────────────────────────────────────────────────────
 export const SOS_STATUS_LABEL: Record<SosStatus, string> = {
   pending:     "Chờ xử lý",

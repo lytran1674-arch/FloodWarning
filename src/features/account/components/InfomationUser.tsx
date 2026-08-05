@@ -1,4 +1,4 @@
-import { Pen, Shield, UserCircle2, CheckCircle2 } from "lucide-react"
+import { Pen, Shield, UserCircle2, CheckCircle2, Lock } from "lucide-react"
 import type { Account } from "../type/accountType";
 import { UseAccount } from "../hooks/useAccount";
 import { AccountApi } from "../api/accountApi";
@@ -7,6 +7,9 @@ import { useState } from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { toast } from "react-toastify";
+import { LockAccount } from "@/features/auth/components/LockAccount";
+import { MdPassword } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   data: Account;
@@ -34,7 +37,7 @@ export const InfomationUser = ({ data }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<Account>(data);
   const [isSaving, setIsSaving] = useState(false);
-
+  const navigate=useNavigate()
   const admin = user?.role === "ADMIN";
   const rescue = user?.role === "RESCUER";
   const province_operator = user?.role === "PROVINCE_OPERATOR";
@@ -79,6 +82,7 @@ export const InfomationUser = ({ data }: Props) => {
       setIsEditing(true);
     }
   };
+  
 
   return (
     <div className="p-3 lg:p-6">
@@ -92,10 +96,11 @@ export const InfomationUser = ({ data }: Props) => {
             Quản lý và cập nhật thông tin nhận dạng người dùng hệ thống.
           </p>
         </div>
-
+        <div className="flex justify-end items-center gap-2">
         <button
           type="button"
-          onClick={() => setIsEditing(true)}
+            onClick={() => setIsEditing(true)}
+         
           disabled={isEditing}
           className="flex shrink-0 justify-center gap-2 items-center
             bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg
@@ -106,6 +111,21 @@ export const InfomationUser = ({ data }: Props) => {
           <Pen className="h-4 w-4" />
           <span className="hidden sm:inline">Chỉnh sửa thông tin</span>
         </button>
+       <LockAccount/>
+        <button
+          type="button"
+         
+       onClick={() => navigate("/change-password")}
+          className="flex shrink-0 justify-center gap-2 items-center
+            bg-red-700  text-white font-medium rounded-lg
+            px-3 py-2 lg:px-5 lg:py-2.5
+            text-xs lg:text-sm shadow-sm
+            disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <MdPassword className="h-4 w-4" />
+          <span className="hidden sm:inline">Đổi mật khẩu</span>
+        </button>
+          </div>
       </div>
 
       {/* CONTENT */}

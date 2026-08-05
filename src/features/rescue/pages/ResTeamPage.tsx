@@ -90,6 +90,7 @@ export const ResTeamPage = () => {
       `/res-teams/${teamId}/groups`
     );
   };
+ 
 
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-6">
@@ -107,13 +108,16 @@ export const ResTeamPage = () => {
 
           {/* Chỉ ADMIN được thêm đội */}
           {role === "ADMIN" && (
+          
             <Button
               onClick={handleCreateTeam}
               className="text-black bg-yellow-600 lg:text-xl md:text-xl text-sm border border-yellow-400 h-10 p-4 rounded-md"
             >
               <Plus />
-              Thêm đội cứu hộ
+             Đội cứu hộ
             </Button>
+           
+    
           )}
         </div>
 

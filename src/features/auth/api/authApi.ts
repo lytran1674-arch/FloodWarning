@@ -39,7 +39,7 @@ export const authAPI = {
   // ================= FORGOT PASSWORD =================
   resetpassword(email: string,token:string,newPassword:string) {
     return publicApi.post(
-      "/auth/forgot-password",
+      "/auth/reset-password",
       { email ,token,newPassword}
     );
   },
@@ -61,4 +61,36 @@ export const authAPI = {
     );
    
   },
+
+  // ================= KHÓA TÀI KHAONR =================
+   lockAccount() {
+    return axiosClient.patch("/user/me/lock");
+  },
+
+   // ================= GỬI MÃ MỞ KHÓA =================
+  sendUnlockCode(email: string) {
+    return publicApi.post(
+      "/auth/send-unlock-code",
+      { email }
+    );
+  },
+
+
+
+  // ================= MỞ KHÓA TÀI KHOẢN =================
+  unlockAccount(email: string, otp: string) {
+    return publicApi.post(
+      "/auth/unlock-account",
+      { email, otp }
+    );
+  },
+
+   // ================= ĐỔI MẬT KHẨU =================
+  changepassword(oldPassword: string, newPassword: string) {
+    return axiosClient.put(
+      "/user/change-password",
+      { oldPassword, newPassword }
+    );
+  },
+  
 };

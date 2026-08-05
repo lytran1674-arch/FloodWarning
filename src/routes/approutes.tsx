@@ -1,4 +1,4 @@
-import {  Routes, Route } from "react-router-dom"
+import {  Routes, Route, Router } from "react-router-dom"
 import { MainLayout } from "../layouts/MainLayout"
 import { Area } from "../features/areas/pages/Area"
 
@@ -72,14 +72,12 @@ import { FormQMK } from "@/features/auth/components/FormQMK"
 
 import { FormOTP } from "@/features/auth/components/FormOTP"
 import { FormĐLMK } from "@/features/auth/components/FormĐLMK"
-
-
-
-
-
-
-
-
+import FormSuccess from "@/features/auth/components/FormSucces"
+import { AddMemberTeam } from "@/features/rescue/components/AddMemberTeam"
+import { AddProvinceOperator } from "@/features/province_operator/pages/AddProvinceOperator"
+import { UnlockAccount } from "@/features/auth/components/UnlockAccount"
+import { SendUnlockAccount } from "@/features/auth/components/SendUnlockAccount"
+import ChangePassword from "@/features/auth/components/ChangePassword"
 
 const AppRoutes = () => {
   return (
@@ -89,11 +87,16 @@ const AppRoutes = () => {
          <Route path="/forgot-password" element={<FormQMK/>}/>
          <Route path="/verify-otp" element={<FormOTP/>}/>
          <Route path="/reset-password" element={<FormĐLMK/>}/>
+         <Route path="/reset-password-success" element={<FormSuccess/>}/>
+         <Route path="/unlock-account" element={<UnlockAccount/>}/>
+         <Route path="/send-unlock-code" element={<SendUnlockAccount/>}/>
         <Route path="/sos-request-anonymous" element={<FormSoSPage/>}/>
         <Route path="/sent-request-anonymous" element={<SentSosPage />} />
         <Route path="/success-anonymous" element={<SuccessPageAnonymous/>}/>
         <Route path="/update-sos-anonymous/:id" element={<UpdateSosPageAnonymous />} />
-        <Route element={<MainLayout />}>          
+        
+        <Route element={<MainLayout />}> 
+        <Route path="/change-password" element={<ChangePassword/>}/>         
           <Route path="/areas-management" element={<Area />} />
           <Route path="/weather-data/:area_id"/>
           <Route path="/home" element={<Area />} />
@@ -145,6 +148,8 @@ const AppRoutes = () => {
         <Route path="/detail-group/:groupId" element={<DetailResGroupPage/>}/>
         <Route path="/res-groups/disbanded" element={<GroupDisbanded/>}/>
         <Route path="/res-groups/:groupId/addmembers" element={<AddMembersPage/>}/>
+        <Route path="/res-team/:teamId/add-member" element={<AddMemberTeam/>}/>
+        <Route path="/province_operator/add-member" element={<AddProvinceOperator/>}/>
         {/* <Route path="/detail" element={<ModalDetail/>}/> */}
        
         </Route>

@@ -77,13 +77,30 @@ export default function ResGroupPage() {
     navigate(`/team/${teamId}/available-members`);
   };
   
+ const handleCreateMemberTeam=()=>{
+  navigate(`/res-team/${teamId}/add-member`)
+  
 
+  }
   return (
     <div className="p-6">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Danh sách nhóm cứu hộ</h1>
 
         <div className="flex gap-2">
+            <Button
+              onClick={handleCreateMemberTeam}
+              className="text-black bg-yellow-600 lg:text-xl md:text-xl text-sm border border-yellow-400 h-10 p-4 rounded-md"
+            >
+              <Plus />
+              Thành viên
+            </Button>
+             <Button
+              onClick={handleCreateMemberTeam}
+              className="text-black bg-pink-500 lg:text-xl md:text-xl text-sm border border-pink-500 h-10 p-4 rounded-md"
+            >
+             Danh sách thành viên
+            </Button>
           <Button
             className="border border-blue-500 text-blue-600 rounded-md p-2"
             onClick={handleOnClick}

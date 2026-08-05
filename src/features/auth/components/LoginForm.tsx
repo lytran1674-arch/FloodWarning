@@ -15,6 +15,7 @@ export const LoginForm: React.FC = () => {
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError]       = useState("")
+  const [isLocked, setIsLocked] = useState(false)   // NEW: tài khoản bị khóa?
 
   const dispatch  = useDispatch<AppDispatch>()
   const navigate  = useNavigate()
@@ -47,6 +48,7 @@ export const LoginForm: React.FC = () => {
     try {
       setIsLoading(true)
       setError("")
+      setIsLocked(false)
 
       const res = await authAPI.login({
         loginInfo: email,
@@ -94,7 +96,15 @@ localStorage.removeItem("deviceId");
       }
 
     } catch (err: any) {
-      setError(err.response?.data?.message ?? "Email hoặc mật khẩu không đúng!")
+      const message: string = err.response?.data?.message ?? "Email hoặc mật khẩu không đúng!"
+
+      // TODO: xác nhận lại điều kiện này khớp đúng response thật từ backend
+      // khi tài khoản bị khóa (hiện đang match theo từ khóa "khóa" trong message).
+      if (message.includes("khóa")) {
+        setIsLocked(true)
+      }
+
+      setError(message)
     } finally {
       setIsLoading(false)
     }
@@ -106,6 +116,11 @@ localStorage.removeItem("deviceId");
   const handleOnClick=()=>{
     navigate("/register")
   }
+
+  const handleUnlockClick = () => {
+    navigate("/unlock-account", { state: { email } })
+  }
+
   return (
     <div className="flex items-center justify-center overflow-hidden p-0 m-10 sm:w-50 ">
       <div className="overflow-hidden bg-white border border-blue-500 rounded-lg w-full max-w-md p-5 shadow-lg">
@@ -122,7 +137,17 @@ localStorage.removeItem("deviceId");
 
         {error && (
           <div className="mb-3 px-3 py-2 bg-red-50 border border-red-300 rounded-lg text-red-600 text-sm text-center">
-            {error}
+            <p>{error}</p>
+
+            {isLocked && (
+              <button
+                type="button"
+                onClick={handleUnlockClick}
+                className="mt-2 text-blue-600 font-semibold underline hover:text-blue-800"
+              >
+                Mở lại tài khoản
+              </button>
+            )}
           </div>
         )}
 

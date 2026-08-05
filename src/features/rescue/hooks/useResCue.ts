@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react"
 import { rescueService } from "../services/rescueService";
-import { type ResTeam, type ResCue } from "../types/rescueType";
+import { type ResTeam, type ResCue, type InfoMemberTeam, type PayLoaAddMemberTeam } from "../types/rescueType";
 
 export const useResCue = (teamId: string) => {
   const [rescue, setResCue] = useState<ResCue[]>([]);
@@ -8,6 +8,7 @@ export const useResCue = (teamId: string) => {
   const [detail, setDetail] = useState<ResTeam | undefined>(undefined);
   const [error, setError] = useState("");
   const [updatestatus,setUpdateStatus]=useState("");
+  const [add,setAdd]=useState<InfoMemberTeam>();
 
   const fetchResCue = useCallback(async () => {
     if (!teamId) {
@@ -49,7 +50,21 @@ const updateStatusGroup = async (groupId: string) => {
     setLoading(false);
   }
 };
-
+//*******ADD MEMBER TEAM**********/
+const addMemberTeam=useCallback(async(payload:PayLoaAddMemberTeam)=>{
+  try{
+    setLoading(true);
+    const res=await rescueService.AddMemberTeam(payload);
+    setAdd(res);
+    return res;
+  }catch(err){
+    console.error(err);
+    setError("Không thể thêm thành viên vào đội!");
+    throw err;
+  }finally{
+    setLoading(false);
+  }
+},[]);
 
   // Đổi tên tham số để tránh trùng/che khuất teamId của hook,
   // cho phép gọi lấy chi tiết đội KHÁC (không nhất thiết trùng
@@ -81,6 +96,6 @@ const updateStatusGroup = async (groupId: string) => {
   // Export đầy đủ để nơi dùng hook có thể truy cập
   // detail/detailTeam/error, không chỉ rescue/loading
   return { rescue, loading, error, fetchResCue, detail, detailTeam
-    ,updateStatusGroup,updatestatus
+    ,updateStatusGroup,updatestatus,add, addMemberTeam
    }
 }

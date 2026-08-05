@@ -19,14 +19,15 @@ const location = useLocation();
 const navigate = useNavigate();
 
 const email = location.state?.email;
-const otp = location.state?.otp;
+const token = location.state?.token;
+console.log("email:", email, "otp:", token, "state:", location.state);
  
   const handleSubmit = async (
   e: React.FormEvent<HTMLFormElement>
 ) => {
   e.preventDefault();
 
-  if (!email || !otp) {
+  if (!email || !token) {
     toast.error("Thông tin xác thực không hợp lệ.");
     navigate("/forgot-password");
     return;
@@ -42,10 +43,7 @@ const otp = location.state?.otp;
     return;
   }
 
-  if (newPassword.length < 8) {
-    setError("Mật khẩu phải có ít nhất 8 ký tự.");
-    return;
-  }
+
 
   if (newPassword !== confirmPW) {
     setError("Mật khẩu xác nhận không khớp.");
@@ -58,16 +56,14 @@ const otp = location.state?.otp;
 
     await authService.resetpassword(
       email,
-      otp,
+      token,
       newPassword
     );
 
     toast.success("Đổi mật khẩu thành công!");
 
-    // Chuyển sang trang hoàn tất hoặc đăng nhập
-    navigate("/login");
-    // hoặc:
-    // navigate("/reset-password-success");
+
+    navigate("/reset-password-success");
 
   } catch (err: any) {
     console.error(err);

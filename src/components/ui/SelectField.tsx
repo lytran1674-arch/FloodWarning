@@ -3,7 +3,7 @@ import type { Option } from "../../features/auth/types/authType";
 
 interface Props {
   id: string;
-  label: string;
+  label?: string;
   value: string;
   onChange: (value: string) => void;
   options: Option[];
@@ -33,6 +33,7 @@ export const SelectField: React.FC<Props> = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
+        className="border rounded-md ml-2"
       >
         <option value="">{placeholder}</option>
 

@@ -1,6 +1,6 @@
 import { rescueApi } from "../api/rescureApi";
 import type { AddMemberToGroup, DetailResGroup, DisbandedGroup, ListMembers } from "../types/grouptype";
-import type { CreateTeamRequest, ResCue, ResTeam } from "../types/rescueType";
+import type { CreateTeamRequest, InfoMemberTeam, PayLoaAddMemberTeam, ResCue, ResTeam } from "../types/rescueType";
 
 
 export const rescueService = {
@@ -67,4 +67,10 @@ export const rescueService = {
     return await rescueApi.addMember(groupId,payload);
   }
   ,
+
+  //thêm thành viên vào đội
+  async AddMemberTeam(payload:PayLoaAddMemberTeam):Promise<InfoMemberTeam>{
+    return await rescueApi.AddMemberTeam(payload);
+    
+  }
 };

@@ -1,6 +1,7 @@
 
-import type { AddMemberToGroup, DetailResGroup, DisbandedGroup, ListMembers, PayloadUpdateResGroup } from "../types/grouptype";
-import type { CreateTeamRequest,    ResCue, ResGroup, ResTeam } from "../types/rescueType";
+
+import type { DetailResGroup, DisbandedGroup, ListMembers, PayloadUpdateResGroup } from "../types/grouptype";
+import type { CreateTeamRequest,    InfoMemberTeam,    PayLoaAddMemberTeam,    PayLoadAddProvinceOperator,    ResCue, ResGroup, ResTeam } from "../types/rescueType";
 import { axiosClient } from "@/api/axiosClient";
 
 
@@ -206,5 +207,11 @@ async addMember(groupId:string,payload: { userIds: string[] }):Promise<ListMembe
 }
 ,
 
+//thêm thành viên vào đội
+async AddMemberTeam(payload:PayLoaAddMemberTeam):Promise<InfoMemberTeam>{
+  const res=await axiosClient.post("/res-team/rescuer",payload);
+  return res.data.result;
+}
+,
 
 };

@@ -66,4 +66,29 @@ export const authService = {
     return response.data;
     },
   
+    // ================= KHÓA TÀI KHOẢN =================
+    async lockAccount(){
+      const response=await authAPI.lockAccount();
+      return response.data.result;
+    },
+      // ================= GỬI MÃ MỞ KHÓA =================
+    async sendUnlockCode(email: string) {
+      const response = await authAPI.sendUnlockCode(email);
+      return response.data;
+    },
+
+    // ================= MỞ KHÓA TÀI KHOẢN =================
+    async unlockAccount(email: string, otp: string) {
+      const response = await authAPI.unlockAccount(email, otp);
+      return response.data;
+    },
+
+  
+     // ================= ĐỔI MẬT KHẨU =================
+    async changepassword(oldPassword: string, newPassword: string) {
+     const response=await authAPI.changepassword(oldPassword,newPassword)
+     return response.data
+    },
+
+    
 };
