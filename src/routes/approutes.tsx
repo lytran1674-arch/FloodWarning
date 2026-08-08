@@ -78,6 +78,7 @@ import { AddProvinceOperator } from "@/features/province_operator/pages/AddProvi
 import { UnlockAccount } from "@/features/auth/components/UnlockAccount"
 import { SendUnlockAccount } from "@/features/auth/components/SendUnlockAccount"
 import ChangePassword from "@/features/auth/components/ChangePassword"
+import { ThongKePage } from "@/features/thongke/page/ThongKePage"
 
 const AppRoutes = () => {
   return (
@@ -151,6 +152,7 @@ const AppRoutes = () => {
         <Route path="/res-team/:teamId/add-member" element={<AddMemberTeam/>}/>
         <Route path="/province_operator/add-member" element={<AddProvinceOperator/>}/>
         {/* <Route path="/detail" element={<ModalDetail/>}/> */}
+        <Route path="/thongke" element={<ThongKePage/>}/>
        
         </Route>
        
