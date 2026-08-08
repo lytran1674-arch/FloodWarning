@@ -6,8 +6,7 @@ import { useWeatherData } from '../../weather-data/hooks/useWeatherData'
 import { useEffect, useMemo, useState } from 'react'
 import { useAreaOptions } from '../../areas/hooks/useAreaOption'
 import { Cloud, CloudRainWind, Droplet, Gauge, Thermometer, Timer } from 'lucide-react'
-import { FaArrowRight } from 'react-icons/fa'
-import { Button } from '../../../components/ui/Button'
+
 import GeoMap from '@/features/map/components/GeoMap'
 import { useUserProvince } from '@/features/map/hooks/useUserProvince'
 import { useProvinceMap } from '@/features/map/hooks/useProvinceMap'
@@ -100,7 +99,7 @@ export const FloodRisk = () => {
         </h1>
       </div>
 
-      <div className='flex justify-start gap-3 lg:ml-2 sm:m-2 m-1'>
+      <div className='flex justify-start gap-10 lg:ml-10 sm:m-2 m-1'>
         {/* CỘT TRÁI */}
         <div className='flex-shrink-0'>
           <div className='border border-[#E5E7EB] p-1 rounded-md'>
@@ -203,7 +202,7 @@ export const FloodRisk = () => {
         </div>
 
         {/* CỘT PHẢI */}
-        <div className='border border-[#E5E7EB] lg:p-2 rounded-md p-1 flex-shrink-0'>
+        {/* <div className='border border-[#E5E7EB] lg:p-2 rounded-md p-1 flex-shrink-0'>
           <p className='font-bold lg:text-[16px] sm:text-[10px] text-black text-[7px]'>
             MỨC ĐỘ NGUY CƠ THEO KHU VỰC
           </p>
@@ -219,7 +218,7 @@ export const FloodRisk = () => {
             Xem tất cả khu vực
             <FaArrowRight />
           </Button>
-        </div>
+        </div> */}
       </div>
 
       {/* LỊCH SỬ DỰ ĐOÁN */}
