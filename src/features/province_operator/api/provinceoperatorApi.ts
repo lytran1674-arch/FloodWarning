@@ -10,7 +10,7 @@ import type {
   //RejectPayload,
   RescueTeamItem,
 } from "../types/provinceType";
-import type { PayLoadAddProvinceOperator } from "@/features/rescue/types/rescueType";
+import type {  PayLoadAddProvinceOperator, UpdateResCue } from "@/features/rescue/types/rescueType";
 
 const API_URL = "/province-operator";
 
@@ -90,5 +90,12 @@ async deleteProvinceOperator(payload: { ids: string[] }): Promise<string> {
   });
 
   return res.data;
+},
+
+// cập nhật thông tin điều phối cấp tỉnh
+async updateProvinceOperator(data:UpdateResCue):Promise<ProvinceOperatorDetail>{
+  const res=await axiosClient.put(`${API_URL}`,data);
+  return res.data.result;
+
 }
 };

@@ -1,7 +1,7 @@
 
 
 import type { DetailResGroup, DisbandedGroup, ListMembers, PayloadUpdateResGroup } from "../types/grouptype";
-import type { CreateTeamRequest,    InfoMemberTeam,    PayLoaAddMemberTeam,    PayLoadAddProvinceOperator,    ResCue, ResGroup, ResTeam } from "../types/rescueType";
+import type { AvailableMember, CreateTeamRequest,    InfoMemberTeam,    PayLoaAddMemberTeam,    PayLoadAddProvinceOperator,    ResCue, ResGroup, ResTeam, UpdateResCue } from "../types/rescueType";
 import { axiosClient } from "@/api/axiosClient";
 
 
@@ -213,5 +213,18 @@ async AddMemberTeam(payload:PayLoaAddMemberTeam):Promise<InfoMemberTeam>{
   return res.data.result;
 }
 ,
+//cập nhật thông tin thành viên cứu hộ trong đội
+async updateResCue(userId:string,data:UpdateResCue):Promise<InfoMemberTeam>{
+  const res=await axiosClient.put(`/res-team/rescuers/${userId}`,data);
+  return res.data.result;
+}
 
+,
+// tìm kiếm thành viên lực lượng cứu hộ theo keyword,số điện thoại , họ tên ,email
+async SearchRescue(keyword:string):Promise<AvailableMember[]>{
+  const res=await axiosClient.get("/res-team/rescuers/search",
+    {params:keyword}
+  );
+  return res.data.result??[];
+}
 };

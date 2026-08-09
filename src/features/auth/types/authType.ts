@@ -30,6 +30,7 @@ export interface User{
 export interface LoginPayLoad{
     loginInfo: string 
     password: string
+      sodt?: string  
 }
 
 export interface LoginResponse{

@@ -9,41 +9,49 @@ import type { AppDispatch } from '../../../app/store'
 import { flushPendingFcmToken } from '@/utils/firebaseNotification'
 import { unlockAudioContext } from '../utils/audioUnlock'
 
-
 export const LoginForm: React.FC = () => {
-  const [email, setEmail]       = useState("")
+  // Gộp email và số điện thoại thành một ô nhập duy nhất
+  const [account, setAccount] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError]       = useState("")
-  const [isLocked, setIsLocked] = useState(false)   // NEW: tài khoản bị khóa?
+  const [isLocked, setIsLocked] = useState(false)
 
   const dispatch  = useDispatch<AppDispatch>()
   const navigate  = useNavigate()
 
   const primeAlarmAudio = () => {
-  try {
-    const audio = new Audio("/sounds/alarm.mp3");
-    audio.volume = 0;
-    audio.play()
-      .then(() => {
-        audio.pause();
-        audio.currentTime = 0;
-      })
-      .catch(() => {
-        // một số trình duyệt vẫn chặn — không sao, chỉ là không mở khoá được lần này
-      });
-  } catch {
-    // ignore
-  }
-};
+    try {
+      const audio = new Audio("/sounds/alarm.mp3");
+      audio.volume = 0;
+      audio.play()
+        .then(() => {
+          audio.pause();
+          audio.currentTime = 0;
+        })
+        .catch(() => {
+          // một số trình duyệt vẫn chặn — không sao, chỉ là không mở khoá được lần này
+        });
+    } catch {
+      // ignore
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
- const unlocked = unlockAudioContext();
-    if (!email || !password) {
-      setError("Vui lòng nhập đầy đủ email và mật khẩu!")
+    const unlocked = unlockAudioContext();
+
+    const value = account.trim()
+
+    if (!value || !password) {
+      setError("Vui lòng nhập đầy đủ email/số điện thoại và mật khẩu!")
       return
     }
+
+    // Nhận diện: có "@" thì coi là email, ngược lại coi là số điện thoại
+    const isEmailFormat = /\S+@\S+\.\S+/.test(value)
+    const emailValue = isEmailFormat ? value : ""
+    const sodtValue   = isEmailFormat ? "" : value
 
     try {
       setIsLoading(true)
@@ -51,55 +59,47 @@ export const LoginForm: React.FC = () => {
       setIsLocked(false)
 
       const res = await authAPI.login({
-        loginInfo: email,
+        loginInfo: value,
+        sodt: sodtValue,
         password,
       })
 
-      const { accessToken, role, authenticated, hoten, id, areaId, teamId, teamName, isTeamLeader, isGroupLeader,isTeamDeputy, sodt,groupType, refreshToken } = res.data.result
+      const { accessToken, role, authenticated, hoten, id, areaId, teamId, teamName, isTeamLeader, isGroupLeader, isTeamDeputy, sodt, groupType, refreshToken } = res.data.result
       console.log("LOGIN RESULT:", res.data.result);
-
 
       if (!authenticated) {
         setError("Đăng nhập thất bại!")
         return
       }
 
-      // Lưu accessToken vào Redux
       dispatch(setAudioUnlocked(unlocked));
-      dispatch(setCredentials({ user: { role, hoten, id, areaId, teamId, teamName, isTeamLeader, isGroupLeader,isTeamDeputy ,sodt, groupType },refreshToken, accessToken }))
+      dispatch(setCredentials({ user: { role, hoten, id, areaId, teamId, teamName, isTeamLeader, isGroupLeader, isTeamDeputy, sodt, groupType }, refreshToken, accessToken }))
       await flushPendingFcmToken(accessToken, id)
-      // Lưu userId riêng vào localStorage — dùng để fcmService biết token hiện tại thuộc về ai
       localStorage.setItem("userId", id)
       localStorage.removeItem("sos_anonymous_sodt");
-localStorage.removeItem("deviceId");
+      localStorage.removeItem("deviceId");
 
-      // Gửi lại FCM token đang chờ (nếu trước đó user đã cho phép thông báo lúc chưa đăng nhập),
-      // hoặc cập nhật lại chủ sở hữu token nếu thiết bị này vừa được dùng bởi user khác trước đó
       flushPendingFcmToken(accessToken, id).catch((err) => {
         console.error("Lỗi khi đồng bộ FCM token sau đăng nhập:", err)
       })
 
-      // Role trả về chữ HOA theo API
       switch (role) {
         case "ADMIN":   navigate("/evaluation"); break
-         case "RESCUER":
-    if (groupType === "HOTLINE") {
-      navigate("/hotline");
-    } else {
-      navigate("/homerescue");
-    }
-    break;
+        case "RESCUER":
+          if (groupType === "HOTLINE") {
+            navigate("/hotline");
+          } else {
+            navigate("/homerescue");
+          }
+          break;
         case "CITIZEN": navigate("/dashboard");             break
         case "PROVINCE_OPERATOR": navigate("/homeprovince"); break
         default:        navigate("/")
-
       }
 
     } catch (err: any) {
-      const message: string = err.response?.data?.message ?? "Email hoặc mật khẩu không đúng!"
+      const message: string = err.response?.data?.message ?? "Email/Số điện thoại hoặc mật khẩu không đúng!"
 
-      // TODO: xác nhận lại điều kiện này khớp đúng response thật từ backend
-      // khi tài khoản bị khóa (hiện đang match theo từ khóa "khóa" trong message).
       if (message.includes("khóa")) {
         setIsLocked(true)
       }
@@ -110,15 +110,15 @@ localStorage.removeItem("deviceId");
     }
   }
 
-  const formQMK=()=>{
+  const formQMK = () => {
     navigate("/forgot-password")
   }
-  const handleOnClick=()=>{
+  const handleOnClick = () => {
     navigate("/register")
   }
 
   const handleUnlockClick = () => {
-    navigate("/unlock-account", { state: { email } })
+    navigate("/unlock-account", { state: { account } })
   }
 
   return (
@@ -154,11 +154,11 @@ localStorage.removeItem("deviceId");
         <form onSubmit={handleSubmit}>
           <div className="mb-2">
             <Input
-              label="Email"
-              type="email"
-              placeholder="abc@gmail.com"
-              value={email}
-              onChange={setEmail}
+              label="Email / Số điện thoại"
+              type="text"
+              placeholder="abc@gmail.com hoặc 09xxxxxxxx"
+              value={account}
+              onChange={setAccount}
               required
             />
           </div>
@@ -174,17 +174,17 @@ localStorage.removeItem("deviceId");
           </div>
 
           <div className="mb-3">
-           <button
-  type="button"
-  className="block text-sm font-medium text-[#EE0F0F] flex justify-end cursor-pointer"
-  onClick={formQMK}
->
-  Quên mật khẩu?
-</button>
+            <button
+              type="button"
+              className="block text-sm font-medium text-[#EE0F0F] flex justify-end cursor-pointer"
+              onClick={formQMK}
+            >
+              Quên mật khẩu?
+            </button>
           </div>
 
           <button
-          onClick={primeAlarmAudio}
+            onClick={primeAlarmAudio}
             type="submit"
             disabled={isLoading}
             className="w-full text-xl bg-[#FFD66D] text-black p-2 rounded-3xl hover:bg-[#EF960F] transition-colors font-bold disabled:bg-gray-400 disabled:cursor-not-allowed"

@@ -18,3 +18,13 @@ export interface Account{
     province:string
 
 }
+
+export interface UpdateAccount{
+    hoten:string
+    gioitinh:boolean
+    ngaysinh:string
+    diachi:string
+    ghichu:string
+    areaId?:string
+
+}

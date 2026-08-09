@@ -126,6 +126,8 @@ export interface ProvinceOperatorDetail {
   id: string;
  hoten: string;
   sodt: string;
+  gioitinh:boolean
+  ngaysinh:string
   email: string;
   areaId: string;
   tenKhuVucPhuTrach: string;

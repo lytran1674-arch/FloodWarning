@@ -42,7 +42,7 @@ export default function ResGroupPage() {
 
   const user = useAppSelector((state) => state.auth.user);
 
-
+  const admin=user?.role==="ADMIN"
   const LeaderTeam = user?.isTeamLeader === true;
 
   // teamId từ URL (Admin)
@@ -88,6 +88,7 @@ export default function ResGroupPage() {
         <h1 className="text-2xl font-bold">Danh sách nhóm cứu hộ</h1>
 
         <div className="flex gap-2">
+          {admin&&(
             <Button
               onClick={handleCreateMemberTeam}
               className="text-black bg-yellow-600 lg:text-xl md:text-xl text-sm border border-yellow-400 h-10 p-4 rounded-md"
@@ -95,12 +96,8 @@ export default function ResGroupPage() {
               <Plus />
               Thành viên
             </Button>
-             <Button
-              onClick={handleCreateMemberTeam}
-              className="text-black bg-pink-500 lg:text-xl md:text-xl text-sm border border-pink-500 h-10 p-4 rounded-md"
-            >
-             Danh sách thành viên
-            </Button>
+            )}
+             
           <Button
             className="border border-blue-500 text-blue-600 rounded-md p-2"
             onClick={handleOnClick}
@@ -127,7 +124,7 @@ export default function ResGroupPage() {
               className="bg-yellow-500 text-black border border-yellow-400 rounded-md p-2"
             >
               <Plus />
-              Thêm nhóm cứu hộ
+            Nhóm cứu hộ
             </Button>
           )}
         </div>

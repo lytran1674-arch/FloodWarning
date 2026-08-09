@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Select, Popconfirm } from "antd";
-import { UserPlus, Trash2, ArrowLeft } from "lucide-react";
+import { UserPlus, Trash2, ArrowLeft, Pen } from "lucide-react";
 import { toast } from "react-toastify";
 
 import { rescueApi } from "../api/rescureApi";
@@ -13,7 +13,7 @@ export default function MemberWithoutGroupPage() {
     const leaderTeam=user?.isTeamLeader===true
 
   const { teamId } = useParams();
-
+  const admin=user?.role==="ADMIN"
   const navigate = useNavigate();
 
   const { members, groups, loading, refresh } =
@@ -119,6 +119,14 @@ export default function MemberWithoutGroupPage() {
               </p>
 
             </div>
+            {admin&&(
+              <Button className="border bg-blue-700 text-white font-medium"
+              onClick={()=>navigate(`/res-team/rescuers/${userId}`)}>
+                  <Pen/>
+                  Cập nhật
+                </Button>
+)}
+                
                {leaderTeam&&(
             <div className="flex gap-3 items-center">
 
@@ -169,7 +177,7 @@ export default function MemberWithoutGroupPage() {
                   Xóa khỏi đội
                 </Button>
               </Popconfirm>
-
+              
             </div>
                     )}
           </div>

@@ -2,7 +2,7 @@
 // API user/me
 
 import { axiosClient } from "@/api/axiosClient"
-import type { Account } from "../type/accountType"
+import type { Account, UpdateAccount } from "../type/accountType"
 
 const API_URL="/user/me"
 export const AccountApi={
@@ -14,7 +14,7 @@ export const AccountApi={
     }
     ,
     //cập nhật thông tin người dùng
-     async updateAccount(data: Account): Promise<Account> {
+     async updateAccount(data: UpdateAccount): Promise<Account> {
     const res=  await axiosClient.put(API_URL, data);
     return res.data.result;
   },

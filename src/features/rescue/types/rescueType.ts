@@ -105,6 +105,7 @@ export interface GroupMember {
   fullName: string
   phone: string
   isLeader: boolean
+  email?:string
 }
 
 /** Trả về từ GET /res-groups/team/{teamId}/available-members */
@@ -112,6 +113,9 @@ export interface AvailableMember {
   userId: string
   fullName: string
   phone: string
+  email?:string
+  isLeader?:string
+
 }
 
 /** Trả về từ GET /res-team/leader/{areaId} */
@@ -176,6 +180,17 @@ export interface PayLoadAddProvinceOperator{
   diachi:string
   areaId:string
 
+}
+
+export interface UpdateResCue{
+  id?:string 
+  hoten:string
+  gioitinh:string
+  ngaysinh:string
+  sodt:string
+  email:string
+  ghichu:string
+  areaId?:string
 }
 // ── SOS display helpers ───────────────────────────────────────────────────────
 export const SOS_STATUS_LABEL: Record<SosStatus, string> = {

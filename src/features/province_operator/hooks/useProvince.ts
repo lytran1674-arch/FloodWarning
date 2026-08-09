@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { provinceoperatorApi } from "../api/provinceoperatorApi";
-import { type RequestSupportMyTeam, type ProvinceOperator, type ProvinceOperatorItem } from "../types/provinceType";
+import { type RequestSupportMyTeam, type ProvinceOperator, type ProvinceOperatorItem, type ProvinceOperatorDetail } from "../types/provinceType";
 import { provinceService } from "../services/provinceService";
-import type { PayLoadAddProvinceOperator } from "@/features/rescue/types/rescueType";
+import type { PayLoadAddProvinceOperator, UpdateResCue } from "@/features/rescue/types/rescueType";
 
 export const useProvince = () => {
   const [operators, setOperators] = useState<ProvinceOperatorItem[]>([]);
@@ -13,6 +13,7 @@ export const useProvince = () => {
  const [requestsupport, setrequestsupport] =
   useState<RequestSupportMyTeam[]>([]);
   const [deleteMessage, setDeleteMessage] = useState<string>();
+  const [update,setUpdate]=useState<ProvinceOperatorDetail>();
 
 /************THÊM ĐIỀU PHỐI CẤP TỈNH*******************/
 const addProvinceOperator=useCallback(async(payload:PayLoadAddProvinceOperator)=>{
@@ -49,8 +50,21 @@ const deleteProvinceOperator = useCallback(
   },
   []
 );
+/************CẬP NHẬT THÔNG TIN ĐIỀU PHỐI CẤP TỈNH*******************/
+const updateProvinceOperator=useCallback(async(data:UpdateResCue)=>{
+  try{
+    setLoading(true);
+    const res=await provinceService.updateProvinceOperator(data);
+    return res;
 
-
+  }catch(err:any){
+     const message: string = err.response?.data?.message ?? "Cập nhật thất bại, vui lòng thử lại!"
+     setError(message);
+     throw err;
+  }finally{
+    setLoading(false)
+  }
+},[])
 
   const getProvinceOperators = async () => {
     try {
@@ -88,6 +102,7 @@ const getListRequestSupportMyTeam=async()=>{
   useEffect(() => {
  getProvinceOperators();
     getListRequestSupportMyTeam();
+    
   }, []);
 
   return {
@@ -102,7 +117,8 @@ const getListRequestSupportMyTeam=async()=>{
     add,
     addProvinceOperator,
     deleteMessage,
-    deleteProvinceOperator
-
+    deleteProvinceOperator,
+    update,
+    updateProvinceOperator
   };
 };
