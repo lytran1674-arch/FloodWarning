@@ -18,7 +18,7 @@ export interface AiFloodPredictions{
     totalAreas:number
     lowRiskAreas:number
     mediumRiskAreas:number
-    highRishAreas:number
+    highRiskAreas:number
     jobDate:string
     jobType:JobType
     topHighRiskAreas:TopHighRiskAreasItem[];
@@ -35,4 +35,17 @@ export interface AIIoT{
     mediumRiskAreas:number
     highRiskAreas:number
     topHighAreas:TopHighRiskAreasItem[]
+}
+
+export interface SumRequestSoS{
+    totalSos:number
+    completedSos:number
+    processingSos:number
+    cancelledSos:number
+    chart:ChartItem[];
+}
+
+export interface ChartItem{
+    date:string 
+    totalSos:number
 }

@@ -1,5 +1,5 @@
 import { axiosClient } from "@/api/axiosClient";
-import type { AiFloodPredictions, AIIoT, Overview } from "../type/thongkeType";
+import type { AiFloodPredictions, AIIoT, Overview, SumRequestSoS } from "../type/thongkeType";
 import type { JobType } from "@/features/floodriskdata/types/floodriskType";
 
 const API_URL="/statistics"
@@ -30,6 +30,14 @@ export const ThongKeApi={
     //Lấy snapshot nguy cơ lũ hiện tại từ dữ liệu tổng hợp AI + IoT.
     async getAiIotFloodRisk():Promise<AIIoT>{
         const res=await axiosClient.get(`${API_URL}/ai-iot`);
+        return res.data.result;
+    },
+
+   //  hiển thị gồm tổng số yêu cầu cứu hộ, số yêu cầu đã hoàn thành, số yêu cầu đang xử lý và số yêu cầu đã hủy.
+    async getSumRequestSoS(from:string,to:string):Promise<SumRequestSoS>{
+        const res=await axiosClient.get(`${API_URL}/sos`,{
+            params:{from,to}
+        })
         return res.data.result;
     }
 }
