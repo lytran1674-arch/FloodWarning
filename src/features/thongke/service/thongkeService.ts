@@ -28,7 +28,7 @@ export const ThongKeService={
     },
       //  hiển thị gồm tổng số yêu cầu cứu hộ, số yêu cầu đã hoàn thành, số yêu cầu đang xử lý và số yêu cầu đã hủy.
     async getSumRequestSoS(from:string,to:string):Promise<SumRequestSoS>{
-         return await ThongKeService.getSumRequestSoS(from,to)
+         return await ThongKeApi.getSumRequestSoS(from,to)
         }
 
 }
