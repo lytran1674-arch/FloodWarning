@@ -1,4 +1,4 @@
-import { BellIcon, Calendar, Files, FileText, GlassWater, GlassWaterIcon, Home, MapPin, PieChart, Send, SigmaIcon, Snowflake, StarHalf, User, WavesArrowUp } from "lucide-react"
+import { BellIcon, Calendar, Files, FileText, GlassWater, GlassWaterIcon, HeartPlus, Home, MapPin, PhoneCall, PieChart, Send, Shield, SigmaIcon, Snowflake, StarHalf, User, WavesArrowUp } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import MenuRescuer from "../assets/menurescuer.png"
 import type { CSSProperties } from "react"
@@ -16,10 +16,13 @@ export const adminMenu: MenuItem[] = [
   
   { text: "Thống kê",                       icon: PieChart,  path: "/thongke"            },
   { text: "Quản lý lực lượng cứu hộ",       icon: Files,     path: "/rescue-management"},
-  { text: "Quản lý điều hành cứu hộ cấp tỉnh",       icon: Files,     path: "/province_operator-management"},
+  { text: "Quản lý điều hành cứu hộ cấp tỉnh",       icon: Shield,     path: "/province_operator-management"},
     { text: "Quản lý khu vực",                icon: MapPin,    path: "/areas-management"        },
       {text:"Quản lý thiết bị", icon:WavesArrowUp,path:"/iot-device" },
   { text: "Quản lý dữ liệu thời tiết",      icon: Calendar,  path: "/weather-data"      },
+   {
+    text:"Dữ liệu mực nước" ,icon: GlassWater, path:"/water-data"
+  },
   // { text: "Quản lý người dùng",             icon: Users,     path: "/users-management"        },
 
   { text: "Quản lý dữ liệu nguy cơ lũ lụt",         icon: Snowflake, path: "/flood-risk" },
@@ -31,21 +34,24 @@ export const adminMenu: MenuItem[] = [
 
 export const rescuerMenu: MenuItem[] = [
   {text: "RESCUER     Lực Lượng Cứu Hộ", icon: IconRescuer,path:"/homerescue" },
-  { text: "Trang chủ",              icon: PieChart, path: "/homerescue"       },
+  // { text: "Trang chủ",              icon: PieChart, path: "/homerescue"       },
   { text: "Danh sách yêu cầu",      icon: Files,    path: "/team-sos" },
   {
-    text:"Yêu cầu hỗ trợ" ,icon:Files, path:"/support-request"
+    text:"Yêu cầu hỗ trợ" ,icon:HeartPlus, path:"/support-request"
   },
-   { text: "Yêu cầu hỗ trợ đã gửi",      icon: Files,    path: "/sent-requestsupport" }
+   { text: "Yêu cầu hỗ trợ đã gửi",      icon: Send,    path: "/sent-requestsupport" }
  
-  ,{text:"Quản lý nhóm cứu hộ" ,icon:FileText, path:"/group-management"},
-  
-   {text:"Quản lý dữ liệu mực nước tổng hợp",icon:GlassWaterIcon, path:"/summary-water"},
-  {text:"Quản lý dữ liệu đánh giá", icon:StarHalf,path:"/evaluation"},
+  ,{text:"Nhóm cứu hộ" ,icon:FileText, path:"/group-management"},
+   {
+    text:"Dữ liệu mực nước" ,icon: GlassWater, path:"/water-data"
+  },
+  {text:"Dữ liệu dự đoán lũ lụt", icon:Snowflake, path:"/predict"},
+   {text:"Dữ liệu mực nước tổng hợp",icon:GlassWaterIcon, path:"/summary-water"},
+  {text:"Dữ liệu đánh giá", icon:StarHalf,path:"/evaluation"},
   
    {text:"Thông tin đội cứu hội", icon:FileText ,path:"/information-team"},
     { text: "Tài khoản ",      icon: User,    path: "/account" },
-    { text: "HotLine ",      icon: User,    path: "/hotline",allowedSubRoles:["HOTLINE"] }
+    { text: "HotLine ",      icon: PhoneCall,    path: "/hotline",allowedSubRoles:["HOTLINE"] }
 ]
 
 export const userMenu: MenuItem[] = [
@@ -53,9 +59,7 @@ export const userMenu: MenuItem[] = [
   { text: "Gửi cứu hộ", icon: FileText, path: "/request-sos" },
   {text:"Yêu cầu đã gửi", icon:Send, path:"/sent-request"},
  // { text: "Dữ liệu dự đoán nguy cơ lũ lụt", icon:FileQuestion , path: "/prediction" },
-  {
-    text:"Dữ liệu mực nước" ,icon: GlassWater, path:"/water-data"
-  },
+ 
   {
     text:"Dữ liệu tổng hợp" ,icon:SigmaIcon, path:"/summarywater"
   },
@@ -66,13 +70,17 @@ export const userMenu: MenuItem[] = [
 
 export const province_operatorMenu: MenuItem[] = [
   {text: "RESCUER     Lực Lượng Cứu Hộ", icon: IconRescuer,path:"/homeprovince" },
-  { text: "Trang chủ",              icon: PieChart, path: "/homeprovince"       },
-  { text: "Danh sách hỗ trợ cứu hộ",      icon: Files,    path: "/request-support" },
-  { text: "Yêu cầu đã nhận",      icon: Files,    path: "/received-requests" },
-  {text:"Quản lý đội cứu hội", icon:FileText ,path:"/team-management"}
-  ,{text:"Quản lý nhóm cứu hộ" ,icon:FileText, path:"/group-management"},
-   {text:"Quản lý dữ liệu mực nước tổng hợp",icon:GlassWaterIcon, path:"/summary-water"},
-  {text:"Quản lý dữ liệu đánh giá", icon:StarHalf,path:"/evaluation"},
+  // { text: "Trang chủ",              icon: PieChart, path: "/homeprovince"       },
+  { text: "Danh sách hỗ trợ cứu hộ",      icon: HeartPlus,    path: "/request-support" },
+  // { text: "Yêu cầu đã nhận",      icon: Files,    path: "/received-requests" },
+  {text:"Đội cứu hội", icon:FileText ,path:"/rescue-management"}
+  ,
+  {text:"Dữ liệu dự đoán lũ lụt", icon:Snowflake, path:"/predict"},
+   {
+    text:"Dữ liệu mực nước" ,icon: GlassWater, path:"/water-data"
+  },
+   {text:"Dữ liệu mực nước tổng hợp",icon:GlassWaterIcon, path:"/summary-water"},
+  {text:"Dữ liệu đánh giá", icon:StarHalf,path:"/evaluation"},
     { text: "Tài khoản ",      icon: User,    path: "/account" },
 ]
 

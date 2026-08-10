@@ -24,6 +24,7 @@ export interface ResCue{
   userId:string
   fullName:string 
   phone:string
+  email:string
   isLeader?:boolean
 }
 
@@ -113,7 +114,7 @@ export interface AvailableMember {
   userId: string
   fullName: string
   phone: string
-  email?:string
+  email:string
   isLeader?:string
 
 }
@@ -191,6 +192,21 @@ export interface UpdateResCue{
   email:string
   ghichu:string
   areaId?:string
+}
+
+export interface DetailMember{
+  id:string
+  hoten:string
+  gioitinh:boolean
+  ngaysinh:string
+  sodt:string
+  diachi:string
+  email:string
+  ghichu:string
+  role:string
+  tenDoiTrucThuoc:string
+  tenNhomPhuTrach:string
+  trangThaiHoatDong:string
 }
 // ── SOS display helpers ───────────────────────────────────────────────────────
 export const SOS_STATUS_LABEL: Record<SosStatus, string> = {

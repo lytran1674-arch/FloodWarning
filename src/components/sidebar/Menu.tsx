@@ -43,10 +43,10 @@ export const Menu = ({
         ${bgColor}
         fixed left-0 top-0 z-[2000]
         h-screen
-        sm:mt-[58px] lg:mt-[64px]
+        sm:mt-[58px] lg:mt-[67px]
         sm:w-[180px] lg:w-[240px] w-[150px]
         md:mt-[61px]
-        p-0 lg:p-3
+        p-[2px]
         border
         mt-[61px]
         transition-transform duration-300

@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react"
 import { rescueService } from "../services/rescueService";
-import { type ResTeam, type ResCue, type InfoMemberTeam, type PayLoaAddMemberTeam, type UpdateResCue, type AvailableMember } from "../types/rescueType";
+import { type ResTeam, type ResCue, type InfoMemberTeam, type PayLoaAddMemberTeam, type UpdateResCue, type AvailableMember,type DetailMember } from "../types/rescueType";
 
 export const useResCue = (teamId: string) => {
   const [rescue, setResCue] = useState<ResCue[]>([]);
@@ -11,6 +11,7 @@ export const useResCue = (teamId: string) => {
   const [add,setAdd]=useState<InfoMemberTeam>();  
   const [update,setUpdate]=useState<InfoMemberTeam>()
   const [search,setSearch]=useState<AvailableMember[]>([]);
+  const [detailMember,setDetailMember]=useState<DetailMember>();
 
   const fetchResCue = useCallback(async () => {
     if (!teamId) {
@@ -88,22 +89,51 @@ const updateResCue = async (userId: string,data:UpdateResCue) => {
   }
 };
 
-//*******SEARCH MEMBER TEAM**********/
-const searchRescue=useCallback(async(keyword:string)=>{
-try{
-  setLoading(true);
-  const res=await rescueService.SearchRescue(keyword);
-  setSearch(res);
-  return res;
-  }catch(err:any){
-    console.error(err);
-   const message: string = err.response?.data?.message;
-   setError(message);
-   throw err;
-  }finally{
+//*******DETAIL MEMBER TEAM**********/
+const detailMemberTeam = useCallback(async (id:string) => {
+  try {
+    setLoading(true);
+    setError("");
+
+    const res = await rescueService.detailMember(id);
+
+    setDetailMember(res);
+
+    return res;
+  } catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message);
+    throw err;
+  } finally {
     setLoading(false);
   }
-},[])
+},[]);
+
+//*******SEARCH MEMBER TEAM**********/
+const searchRescue = useCallback(async (keyword: string) => {
+  try {
+    setLoading(true);
+    setError("");
+
+    const res = await rescueService.SearchRescue(keyword);
+
+    setSearch(res);
+
+    return res;
+  } catch (err: any) {
+    console.error(err);
+
+    const message =
+      err.response?.data?.message ||
+      "Không thể tìm kiếm thành viên.";
+
+    setError(message);
+
+    throw err;
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
   // Đổi tên tham số để tránh trùng/che khuất teamId của hook,
   // cho phép gọi lấy chi tiết đội KHÁC (không nhất thiết trùng
@@ -136,6 +166,6 @@ try{
   // detail/detailTeam/error, không chỉ rescue/loading
   return { rescue, loading, error, fetchResCue, detail, detailTeam
     ,updateStatusGroup,updatestatus,add, addMemberTeam,update,updateResCue,
-    search, searchRescue
+    search, searchRescue,detailMember,detailMemberTeam
    }
 }

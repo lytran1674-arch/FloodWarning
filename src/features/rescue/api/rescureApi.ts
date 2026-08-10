@@ -1,7 +1,7 @@
 
 
 import type { DetailResGroup, DisbandedGroup, ListMembers, PayloadUpdateResGroup } from "../types/grouptype";
-import type { AvailableMember, CreateTeamRequest,    InfoMemberTeam,    PayLoaAddMemberTeam,    PayLoadAddProvinceOperator,    ResCue, ResGroup, ResTeam, UpdateResCue } from "../types/rescueType";
+import type { AvailableMember, CreateTeamRequest,    DetailMember,    InfoMemberTeam,    PayLoaAddMemberTeam,    PayLoadAddProvinceOperator,    ResCue, ResGroup, ResTeam, UpdateResCue } from "../types/rescueType";
 import { axiosClient } from "@/api/axiosClient";
 
 
@@ -223,8 +223,14 @@ async updateResCue(userId:string,data:UpdateResCue):Promise<InfoMemberTeam>{
 // tìm kiếm thành viên lực lượng cứu hộ theo keyword,số điện thoại , họ tên ,email
 async SearchRescue(keyword:string):Promise<AvailableMember[]>{
   const res=await axiosClient.get("/res-team/rescuers/search",
-    {params:keyword}
+    {params:{keyword}}
   );
   return res.data.result??[];
+},
+
+// chi tiết thành viên 
+async detailMember(id:string):Promise<DetailMember>{
+  const res=await axiosClient.get(`/res-team/detail-member/${id}`)
+  return res.data.result
 }
 };

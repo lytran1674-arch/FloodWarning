@@ -2,11 +2,17 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-import { CheckCircle2, Clock, Flag, XCircle, AlertTriangle } from "lucide-react";
-
+import {
+  CheckCircle2,
+  Clock,
+  Flag,
+  XCircle,
+  AlertTriangle,
+  ChevronRight,
+  Inbox,
+  Loader2,
+} from "lucide-react";
 import { useSupportRequestList } from "../hooks/useSupportRequestList";
-
 import type {
   Status,
   SupportRequestDetail,
@@ -15,16 +21,6 @@ import type {
 
 // ======================================================
 // STATUS TABS
-// ⚠️ "TEAM_REJECTED" chỉ tồn tại ở cấp ITEM CON (SupportRequestDetail),
-// KHÔNG tồn tại trong enum SupportRequestStatus ở backend cho cấp
-// SOS CHA. Nếu gọi API bằng status="TEAM_REJECTED" sẽ bị lỗi 400:
-// "Failed to convert value of type 'String' to required type
-// 'SupportRequestStatus'... for value [TEAM_REJECTED]"
-//
-// => Tab này KHÔNG được gọi API trực tiếp bằng giá trị này.
-// Xử lý: khi tab active là TEAM_REJECTED, ta gọi API bằng "APPROVED"
-// (vì SOS cha vẫn ở trạng thái APPROVED khi có 1 item bị đội từ chối),
-// sau đó lọc lại ở client theo item con có status TEAM_REJECTED.
 // ======================================================
 
 const STATUS_TABS: {
@@ -32,51 +28,38 @@ const STATUS_TABS: {
   label: string;
   icon: React.ElementType;
 }[] = [
-  {
-    value: "PENDING",
-    label: "Chờ duyệt",
-    icon: Clock,
-  },
-
-  {
-    value: "APPROVED",
-    label: "Đã duyệt",
-    icon: CheckCircle2,
-  },
-
-  {
-    value: "TEAM_REJECTED",
-    label: "Đội từ chối",
-    icon: AlertTriangle,
-  },
-
-  {
-    value: "REJECTED",
-    label: "Đã từ chối",
-    icon: XCircle,
-  },
-
-  {
-    value: "COMPLETED",
-    label: "Hoàn tất",
-    icon: Flag,
-  },
+  { value: "PENDING", label: "Chờ duyệt", icon: Clock },
+  { value: "APPROVED", label: "Đã duyệt", icon: CheckCircle2 },
+  { value: "TEAM_REJECTED", label: "Đội từ chối", icon: AlertTriangle },
+  { value: "REJECTED", label: "Đã từ chối", icon: XCircle },
+  { value: "COMPLETED", label: "Hoàn tất", icon: Flag },
 ];
 
 // ======================================================
 // STATUS BADGE
 // ======================================================
 
-const STATUS_BADGE: Record<Status, string> = {
-  PENDING: "bg-yellow-100 text-yellow-700",
-
-  APPROVED: "bg-blue-100 text-blue-700",
-
-  REJECTED: "bg-red-100 text-red-700",
-
-  TEAM_REJECTED: "bg-orange-100 text-orange-700",
-
-  COMPLETED: "bg-green-100 text-green-700",
+const STATUS_BADGE: Record<Status, { label: string; className: string }> = {
+  PENDING: {
+    label: "Chờ duyệt",
+    className: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  APPROVED: {
+    label: "Đã duyệt",
+    className: "bg-blue-50 text-blue-700 border-blue-200",
+  },
+  REJECTED: {
+    label: "Đã từ chối",
+    className: "bg-red-50 text-red-700 border-red-200",
+  },
+  TEAM_REJECTED: {
+    label: "Đội từ chối",
+    className: "bg-orange-50 text-orange-700 border-orange-200",
+  },
+  COMPLETED: {
+    label: "Hoàn tất",
+    className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  },
 };
 
 // ======================================================
@@ -91,95 +74,53 @@ const SUPPORT_TYPE_LABEL: Record<string, string> = {
 };
 
 export function SupportRequestListPage() {
-  // ======================================================
-  // NAVIGATE
-  // ======================================================
-
   const navigate = useNavigate();
-
-  // ======================================================
-  // STATE
-  // ======================================================
-
   const [activeStatus, setActiveStatus] = useState<Status>("PENDING");
 
-  // Cờ đánh dấu đang ở tab "Đội từ chối" — tab đặc biệt, không
-  // gọi API trực tiếp bằng giá trị này.
   const isTeamRejectedTab = activeStatus === "TEAM_REJECTED";
-
-  // Status THẬT SỰ gửi lên API. Nếu đang ở tab TEAM_REJECTED,
-  // ta gọi bằng "APPROVED" rồi lọc lại ở client bên dưới.
   const queryStatus: Status = isTeamRejectedTab ? "APPROVED" : activeStatus;
-
-  // ======================================================
-  // FETCH DATA
-  // ======================================================
 
   const { items, loading, error, totalElements } =
     useSupportRequestList(queryStatus);
 
-  // Lọc lại ở client: chỉ giữ những SOS có ít nhất 1 item con
-  // đang ở trạng thái TEAM_REJECTED
   const displayedItems = isTeamRejectedTab
     ? items.filter((sosGroup) =>
         sosGroup.items.some((item) => item.status === "TEAM_REJECTED")
       )
     : items;
 
-  // ======================================================
-  // REVIEWABLE
-  // Đơn ở trạng thái PENDING, REJECTED, hoặc TEAM_REJECTED
-  // (đội đã từ chối, đơn quay lại cho tỉnh xử lý) đều cần
-  // PROVINCE_OPERATOR xem lại và điều phối.
-  // ======================================================
-
   const canReview = (status: Status) =>
-    status === "PENDING" || status === "TEAM_REJECTED" 
-    
+    status === "PENDING" || status === "TEAM_REJECTED";
 
-  // ======================================================
-  // NAVIGATE REVIEW
-  // ⚠️ FIX BUG: supportRequestId PHẢI là sosGroup.id (id phiếu cha),
-  // KHÔNG được dùng sosGroup.sosId. Trước đây gán nhầm sosId khiến
-  // API /support-request/{id}/candidate-teams ở trang review nhận
-  // sai id và trả về 400 Bad Request.
-  // ======================================================
-
- const goToReview = (
+  const goToReview = (
     sosGroup: SupportRequestItem,
     subItems: SupportRequestDetail[]
   ) => {
     navigate(`/support-request/${sosGroup.sosId}/review`, {
       state: {
         sosId: sosGroup.sosId,
-
-        // id cha của support request — KHÔNG phải sosId
         supportRequestId: sosGroup.id,
-
-        // QUAN TRỌNG:
-        // truyền TOÀN BỘ items, backend cần đủ danh sách
-        // để xử lý duyệt/từ chối theo từng item
         items: subItems,
-
-        // Ai đang là Dispatcher của request này — để trang review
-        // chỉ cho đúng người này Approve/Reject
         dispatcherUserId: sosGroup.dispatcherUserId,
         dispatcherUserName: sosGroup.dispatcherUserName,
       },
     });
   };
 
-  // ======================================================
-  // UI
-  // ======================================================
-
   return (
-    <div className="mx-auto max-w-4xl p-6">
-      {/* TITLE */}
-      <h1 className="mb-4 text-xl font-bold">Danh sách yêu cầu hỗ trợ</h1>
+    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-xl font-semibold text-gray-900">
+          Danh sách yêu cầu hỗ trợ
+        </h1>
+        <p className="mt-1 text-sm text-gray-500">
+          Quản lý và điều phối yêu cầu cứu hộ theo trạng thái
+        </p>
+      </div>
 
-      {/* TABS */}
-      <div className="mb-6 flex gap-2 overflow-x-auto pb-1">
+      {/* Tabs */}
+      <div className="mb-6 flex gap-2 overflow-x-auto border-b border-gray-200 pb-px">
         {STATUS_TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = tab.value === activeStatus;
@@ -189,162 +130,180 @@ export function SupportRequestListPage() {
               key={tab.value}
               onClick={() => setActiveStatus(tab.value)}
               className={`
-                flex items-center gap-1.5
-                whitespace-nowrap rounded-lg border
-                px-3 py-1.5 text-sm transition-colors
-
+                relative flex items-center gap-1.5 whitespace-nowrap
+                px-3 py-2.5 text-sm font-medium transition-colors
                 ${
                   isActive
-                    ? "border-blue-600 bg-blue-600 text-white"
-                    : "border-gray-300 bg-white text-gray-600 hover:border-gray-400"
+                    ? "text-blue-600"
+                    : "text-gray-500 hover:text-gray-800"
                 }
               `}
             >
               <Icon className="h-3.5 w-3.5" />
               {tab.label}
+              {isActive && (
+                <span className="absolute inset-x-0 -bottom-px h-0.5 bg-blue-600" />
+              )}
             </button>
           );
         })}
       </div>
 
-      {/* LOADING */}
+      {/* Loading */}
       {loading && (
-        <p className="text-sm text-gray-400">Đang tải danh sách...</p>
+        <div className="flex items-center justify-center gap-2 py-16 text-sm text-gray-400">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Đang tải danh sách...
+        </div>
       )}
 
-      {/* ERROR */}
+      {/* Error */}
       {error && (
-        <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
-        </p>
+        </div>
       )}
 
-      {/* EMPTY */}
+      {/* Empty */}
       {!loading && !error && displayedItems.length === 0 && (
-        <p className="text-sm text-gray-400">
-          Không có đơn nào ở trạng thái này
-        </p>
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <Inbox className="h-10 w-10 text-gray-300" />
+          <p className="mt-3 text-sm font-medium text-gray-600">
+            Không có đơn nào
+          </p>
+          <p className="mt-1 text-sm text-gray-400">
+            Không có yêu cầu hỗ trợ ở trạng thái này
+          </p>
+        </div>
       )}
 
-      {/* LIST */}
+      {/* List */}
       {!loading && displayedItems.length > 0 && (
-        <>
-          <p className="mb-2 text-xs text-gray-400">
-            Tổng số:{" "}
+        <div className="space-y-3">
+          <p className="text-xs text-gray-400">
             {isTeamRejectedTab ? displayedItems.length : totalElements} SOS
           </p>
 
-          <div className="space-y-4">
-            {displayedItems.map((sosGroup) => {
-              // có item review được không
-              const hasReviewable = sosGroup.items.some((item) =>
-                canReview(item.status)
-              );
+          {displayedItems.map((sosGroup) => {
+            const hasReviewable = sosGroup.items.some((item) =>
+              canReview(item.status)
+            );
 
-              // tổng số nhóm cần
-              const totalRequiredGroups = sosGroup.items.reduce(
-                (sum, item) => sum + (item.requiredGroupCount ?? 0),
-                0
-              );
+            const totalRequiredGroups = sosGroup.items.reduce(
+              (sum, item) => sum + (item.requiredGroupCount ?? 0),
+              0
+            );
 
-              // tổng số nhóm đã gán
-              const totalAssignedGroups = sosGroup.items.reduce(
-                (sum, item) => sum + (item.assignedGroupCount ?? 0),
-                0
-              );
+            const totalAssignedGroups = sosGroup.items.reduce(
+              (sum, item) => sum + (item.assignedGroupCount ?? 0),
+              0
+            );
 
-              return (
-                <div
-                  key={sosGroup.id}
-                  onClick={() => {
-                    if (hasReviewable) {
-                      // KHÔNG filter item — backend cần toàn bộ items
-                      goToReview(sosGroup, sosGroup.items);
-                    }
-                  }}
-                  className={`
-                    rounded-xl border border-gray-200
-                    bg-white p-4 transition-colors
+            const parentBadge = STATUS_BADGE[sosGroup.status];
 
-                    ${hasReviewable ? "cursor-pointer hover:border-blue-400" : ""}
-                  `}
-                >
-                  {/* HEADER */}
-                  <div className="mb-3 flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-gray-400">
-                        SOS: <span className="font-mono">{sosGroup.sosId}</span>
-                      </p>
-
-                      <p className="mt-1 text-xs text-gray-500">
-                        Tổng cần{" "}
-                        <span className="font-semibold">
-                          {totalRequiredGroups}
-                        </span>{" "}
-                        nhóm
-                        {totalAssignedGroups > 0 && (
-                          <> — đã gán {totalAssignedGroups}</>
-                        )}
-                      </p>
-                    </div>
-
-                    <span
-                      className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-medium ${
-                        STATUS_BADGE[sosGroup.status]
-                      }`}
-                    >
-                      {sosGroup.status}
-                    </span>
+            return (
+              <div
+                key={sosGroup.id}
+                onClick={() => {
+                  if (hasReviewable) {
+                    goToReview(sosGroup, sosGroup.items);
+                  }
+                }}
+                className={`
+                  rounded-xl border border-gray-200 bg-white p-4
+                  transition-colors
+                  ${
+                    hasReviewable
+                      ? "cursor-pointer hover:border-blue-300 hover:bg-blue-50/30"
+                      : ""
+                  }
+                `}
+              >
+                {/* Header */}
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-mono text-sm font-medium text-gray-900">
+                      {sosGroup.id}
+                    </p>
+                    <p className="mt-0.5 text-xs text-gray-500">
+                      Cần {totalRequiredGroups} nhóm
+                      {totalAssignedGroups > 0 && (
+                        <span className="text-emerald-600">
+                          {" "}
+                          · đã gán {totalAssignedGroups}
+                        </span>
+                      )}
+                    </p>
                   </div>
 
-                  {/* SUPPORT TYPES */}
-                  <div className="space-y-2">
-                    {sosGroup.items.map((subItem) => (
-                      <div key={subItem.id} className="rounded-lg border p-3">
+                  <span
+                    className={`shrink-0 rounded-md border px-2 py-0.5 text-xs font-medium ${parentBadge.className}`}
+                  >
+                    {parentBadge.label}
+                  </span>
+                </div>
+
+                {/* Sub items */}
+                <div className="space-y-2">
+                  {sosGroup.items.map((subItem) => {
+                    const badge = STATUS_BADGE[subItem.status];
+
+                    return (
+                      <div
+                        key={subItem.id}
+                        className="rounded-lg border border-gray-100 bg-gray-50/80 px-3 py-2.5"
+                      >
                         <div className="flex items-center justify-between gap-3">
                           <div>
-                            <p className="text-sm font-semibold">
-                              {SUPPORT_TYPE_LABEL[subItem.supportType]}
+                            <p className="text-sm font-medium text-gray-800">
+                              {SUPPORT_TYPE_LABEL[subItem.supportType] ??
+                                subItem.supportType}
                             </p>
-
-                            <p className="mt-1 text-xs text-gray-500">
+                            <p className="mt-0.5 text-xs text-gray-500">
                               Cần {subItem.requiredGroupCount} nhóm
+                              {subItem.assignedGroupCount != null &&
+                                subItem.assignedGroupCount > 0 && (
+                                  <span className="text-emerald-600">
+                                    {" "}
+                                    · đã gán {subItem.assignedGroupCount}
+                                  </span>
+                                )}
                             </p>
                           </div>
 
                           <span
-                            className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-medium ${
-                              STATUS_BADGE[subItem.status]
-                            }`}
+                            className={`shrink-0 rounded-md border px-2 py-0.5 text-[11px] font-medium ${badge.className}`}
                           >
-                            {subItem.status}
+                            {badge.label}
                           </span>
                         </div>
 
-                        {/* TEAM REJECT — hiển thị lý do đội từ chối */}
+                        {/* Lý do đội từ chối */}
                         {subItem.status === "TEAM_REJECTED" &&
                           subItem.teamResponse && (
-                            <p className="mt-2 rounded bg-orange-50 px-2 py-1.5 text-xs text-orange-700">
-                              Team từ chối: {subItem.teamResponse}
+                            <p className="mt-2 rounded-md bg-orange-50 px-2.5 py-1.5 text-xs text-orange-700">
+                              <span className="font-medium">Lý do:</span>{" "}
+                              {subItem.teamResponse}
                             </p>
                           )}
                       </div>
-                    ))}
-                  </div>
-
-                  {/* ACTION */}
-                  {hasReviewable && (
-                    <div className="mt-3 text-right">
-                      <span className="text-xs font-medium text-blue-600">
-                        Bấm để xem chi tiết & điều phối →
-                      </span>
-                    </div>
-                  )}
+                    );
+                  })}
                 </div>
-              );
-            })}
-          </div>
-        </>
+
+                {/* Action */}
+                {hasReviewable && (
+                  <div className="mt-3 flex items-center justify-end border-t border-gray-100 pt-2.5">
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-blue-600">
+                      Xem chi tiết & điều phối
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );

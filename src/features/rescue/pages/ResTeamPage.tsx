@@ -5,6 +5,7 @@ import type { ResTeam } from "../types/rescueType";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../../components/ui/Button";
 import { Plus } from "lucide-react";
+import { useAppSelector } from "@/hooks/redux.hooks";
 
 export const ResTeamPage = () => {
   const { areas } = useArea();
@@ -15,12 +16,11 @@ export const ResTeamPage = () => {
 
   const navigate = useNavigate();
 
-  const user = JSON.parse(
-    localStorage.getItem("user") || "{}"
-  );
+const user=useAppSelector((state)=>state.auth.user)
 
-  const role = user.role;
-  const userTeamId = user.teamId;
+  const role = user?.role;
+  const userTeamId = user?.teamId;
+  const provinceoperator=user?.role==="PROVINCE_OPERATOR"
 
   useEffect(() => {
     if (areas.length > 0 && !selectedArea) {
@@ -56,7 +56,7 @@ export const ResTeamPage = () => {
           : [];
 
         // ADMIN thấy tất cả đội
-        if (role === "ADMIN") {
+        if (role === "ADMIN" || provinceoperator) {
           setTeams(allTeams);
         }
         // LEADER và MEMBER chỉ thấy đội của mình

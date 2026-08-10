@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useWeatherData } from "../hooks/useWeatherData";
 import { CloudFog, FilterIcon } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
@@ -9,26 +9,77 @@ import { useAreaOptions } from "../../areas/hooks/useAreaOption";
 import { Input } from "../../../components/ui/Input";
 import { WeatherDataTable } from "../component/WeatherDataTable";
 import { WeatherDataChart } from "../component/WeatherDataChart";
-
+import type { Weather_datas } from "../types/weatherdataType";
 
 export const WeatherDataPage = () => {
-    const [selectedArea, setSelectedArea] = useState(
-  () => localStorage.getItem("selectedArea") ?? ""
-);console.log("selectedArea:", selectedArea);
-    const { weatherdata, loading } = useWeatherData(selectedArea);
+  const [selectedArea, setSelectedArea] = useState(
+    () => localStorage.getItem("selectedArea") ?? ""
+  );
 
-
+  const {
+    weatherdata,
+    loading,
+    FilterByArea,
+    FilterByTime,
+    FilterByTimeAndArea,
+    error,
+  } = useWeatherData(selectedArea);
 
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
-  const areaOption = useAreaOptions();
-  const handleAreaChange = (value: string) => {
-  setSelectedArea(value);
-  localStorage.setItem("selectedArea", value);
-};
-  if (loading) return <div className="p-4">Loading...</div>;
+  // Lỗi validate ở phía client (khác với `error` trả về từ API trong hook)
+  const [formError, setFormError] = useState("");
 
+  // Dữ liệu thực sự hiển thị ra bảng/biểu đồ: mặc định là weatherdata theo khu vực,
+  // sau khi bấm "Bộ lọc" sẽ chuyển sang kết quả đã lọc.
+  const [displayData, setDisplayData] = useState<Weather_datas[]>([]);
+
+  const areaOption = useAreaOptions();
+
+  const handleAreaChange = (value: string) => {
+    setSelectedArea(value);
+    localStorage.setItem("selectedArea", value);
+  };
+
+  // Khi đổi khu vực (tức weatherdata load lại), reset về dữ liệu chưa lọc theo ngày
+  useEffect(() => {
+    setDisplayData(weatherdata);
+  }, [weatherdata]);
+
+  const handleFilter = async () => {
+    const hasArea = !!selectedArea;
+    const hasFrom = !!fromDate;
+    const hasTo = !!toDate;
+
+    // Nhập 1 trong 2 ngày mà thiếu ngày còn lại -> báo lỗi ngay, không cho lọc lơ lửng
+    if (hasFrom !== hasTo) {
+      setFormError("Vui lòng nhập đủ cả Từ ngày và Đến ngày!");
+      return;
+    }
+
+    const hasDateRange = hasFrom && hasTo;
+
+    if (!hasArea && !hasDateRange) {
+      setFormError("Vui lòng nhập đủ các điều kiện!");
+      return;
+    }
+
+    setFormError("");
+
+    if (hasArea && hasDateRange) {
+      const res = await FilterByTimeAndArea(fromDate, selectedArea, toDate);
+      setDisplayData(res ?? []);
+    } else if (hasDateRange) {
+      const res = await FilterByTime(fromDate, toDate);
+      setDisplayData(res ?? []);
+    } else if (hasArea) {
+      const res = await FilterByArea(selectedArea);
+      setDisplayData(res ?? []);
+    }
+  };
+
+  if (loading) return <div className="p-4">Loading...</div>;
 
   return (
     <>
@@ -42,8 +93,6 @@ export const WeatherDataPage = () => {
         </div>
 
         <div className="flex justify-end gap-1 lg:mr-3 mt-5 mr-2 text-xs lg:text-sm lg:gap-2">
-         
-
           <Button
             onClick={() => window.location.reload()}
             type="button"
@@ -52,14 +101,12 @@ export const WeatherDataPage = () => {
             <IoReload />
             Cập nhật tự động
           </Button>
-
         </div>
       </div>
 
       {/* Filter bar */}
       <div className="border border-[#E5E7EB] rounded-md bg-white mt-5 mx-3 sm:mx-5 p-4">
         <div className="grid grid-cols-3 lg:grid-cols-[180px_160px_160px_minmax(220px,1fr)_120px_120px] gap-3 items-end">
-
           {/* Khu vực */}
           <Combobox
             label="Khu vực"
@@ -98,27 +145,30 @@ export const WeatherDataPage = () => {
             />
           </div>
 
-          
           {/* Button bộ lọc */}
           <div className="flex flex-col gap-1">
             <label className="h-5 text-sm font-medium text-transparent">Button</label>
             <Button
               type="button"
+              onClick={handleFilter}
               className="h-9 w-full text-sm text-black bg-white border border-black rounded-md whitespace-nowrap flex items-center justify-center gap-1"
             >
               <FilterIcon size={16} />
               Bộ lọc
             </Button>
           </div>
-
         </div>
+
+        {(formError || error) && (
+          <p className="mt-2 text-xs text-red-600">{formError || error}</p>
+        )}
       </div>
 
       {/* Table */}
       <div className="mx-3 sm:mx-5 mt-4">
-        <WeatherDataTable data={weatherdata} />
+        <WeatherDataTable data={displayData} />
       </div>
-    <WeatherDataChart  weatherdata={weatherdata}/>
+      <WeatherDataChart weatherdata={displayData} />
     </>
   );
 };

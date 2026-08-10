@@ -301,7 +301,7 @@ export default function GroupDetailPage() {
               <div className="mt-2 space-y-0.5 text-sm text-gray-500">
                 <p>Đội quản lý: {group.teamName}</p>
                 <p>
-                  Nhóm trưởng: {group.leader.leaderName} 
+                  Nhóm trưởng: {group.leader?.leaderName ?? "Chưa có trưởng nhóm"}
                 </p>
               </div>
             </div>
@@ -350,7 +350,14 @@ export default function GroupDetailPage() {
               <InfoRow label="Y tế" value={group.hasMedical ? "Có" : "Không"} />
               <InfoRow label="Tìm kiếm cứu nạn" value={group.hasSearchRescue ? "Có" : "Không"} />
               <InfoRow label="Hậu cần" value={group.hasLogistics ? "Có" : "Không"} />
-              <InfoRow label="Trưởng nhóm" value={`${group.leader.leaderName} (${group.leader.phone})`} />
+              <InfoRow
+                label="Trưởng nhóm"
+                value={
+                  group.leader
+                    ? `${group.leader.leaderName} (${group.leader.phone})`
+                    : "Chưa có trưởng nhóm"
+                }
+              />
               <InfoRow label="Ghi chú" value={group.notes} />
             </div>
           </div>
@@ -372,7 +379,7 @@ export default function GroupDetailPage() {
                 </thead>
                 <tbody>
                   {group.members.map((m, idx) => {
-                    const isLeader = m.userId === group.leader.leaderId;
+                    const isLeader = m.userId === group.leader?.leaderId;
                     return (
                       <tr key={m.userId} className="border-b border-gray-50 last:border-0">
                         <td className="py-3 pl-4 text-gray-400">{idx + 1}</td>

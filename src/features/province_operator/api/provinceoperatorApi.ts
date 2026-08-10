@@ -97,5 +97,13 @@ async updateProvinceOperator(data:UpdateResCue):Promise<ProvinceOperatorDetail>{
   const res=await axiosClient.put(`${API_URL}`,data);
   return res.data.result;
 
+},
+
+//tìm kiếm điều phối cấp tỉnh
+async searchProvinceOperator(keyword:string):Promise<ProvinceOperator[]>{
+  const res=await axiosClient.get(`${API_URL}/search`,
+    {params:{keyword}}
+  );
+  return res.data.result?.content??[];
 }
 };

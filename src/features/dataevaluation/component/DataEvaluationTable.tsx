@@ -56,12 +56,17 @@ export const DataEvaluationTable = ({data}:Props) => {
        key: "dangerRatio" as keyof SnapShot,
        render: (item: SnapShot) => `${item.dangerRatio} `,
      },
-     {
-       title: "Thời gian nguy hiểm",
-       key: "dangerDurationMinutes" as keyof SnapShot,
-       render: (item: SnapShot) => `${item.dangerDurationMinutes}`,
-     },
-     {
+   {
+  title: "Thời gian nguy hiểm",
+  key: "dangerDurationMinutes" as keyof SnapShot,
+  render: (item: SnapShot) => {
+    const seconds = Math.round(
+      (item.dangerDurationMinutes ?? 0) * 60
+    );
+
+    return `${seconds} giây`;
+  },
+},  {
        title: "Tốc độ nước dâng ",
        key: "waterRiseRatePerMinute" as keyof SnapShot,
        render: (item: SnapShot) => `${item.waterRiseRatePerMinute}`,

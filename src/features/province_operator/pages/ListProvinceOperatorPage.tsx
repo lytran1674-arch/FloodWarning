@@ -8,12 +8,14 @@ import {
   Eye,
   Users,
   Save,
+  Search,
 } from "lucide-react";
 import { ImportProvinceOperatorModal } from "../components/ImportProvinceOperatorModal";
 import { useProvince } from "../hooks/useProvince";
 import { provinceService } from "../services/provinceService";
 import type {
   ProvinceOperatorDetail,
+  ProvinceOperatorItem, // ← thêm type này
   RescueTeamItem,
 } from "../types/provinceType";
 import { useNavigate } from "react-router-dom";
@@ -21,8 +23,7 @@ import { toast } from "react-toastify";
 import type { UpdateResCue } from "@/features/rescue/types/rescueType";
 import { areaApi } from "@/features/areas/api/areaApi";
 import type { Area } from "@/features/areas/types/areaType";
-// Chỉnh lại đường dẫn 2 import dưới cho khớp vị trí thật trong dự án của bạn
-
+import { Spin } from "antd";
 
 export default function ListProvinceOperatorPage() {
   const {
@@ -32,6 +33,9 @@ export default function ListProvinceOperatorPage() {
     reload,
     deleteProvinceOperator,
     updateProvinceOperator,
+    search,
+    loading: searchLoading,
+    searchProvinceOperator,
   } = useProvince();
 
   const [importOpen, setImportOpen] = useState(false);
@@ -49,20 +53,19 @@ export default function ListProvinceOperatorPage() {
   const [formData, setFormData] = useState<UpdateResCue | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Tên khu vực phụ trách hiện tại — chỉ để hiển thị ở chế độ xem.
-  // Ở chế độ sửa, dùng dropdown "provinces" bên dưới để chọn areaId mới.
+  // Tên khu vực phụ trách hiện tại — chỉ để hiển thị ở chế độ xem
   const [areaLabel, setAreaLabel] = useState("");
 
-  // Danh sách tỉnh/thành (level 1) để đổ vào dropdown "Khu vực phụ trách" khi sửa
+  // Danh sách tỉnh/thành (level 1)
   const [provinces, setProvinces] = useState<Area[]>([]);
   const [loadingProvinces, setLoadingProvinces] = useState(false);
+  const [keyword, setKeyword] = useState("");
 
   useEffect(() => {
     const loadProvinces = async () => {
       try {
         setLoadingProvinces(true);
         const all = await areaApi.getAll();
-        // Chỉ lấy khu vực cấp tỉnh/thành (level 1) — điều phối viên phụ trách theo tỉnh
         setProvinces(all.filter((a) => a.level === 1));
       } catch (err) {
         console.error(err);
@@ -71,9 +74,20 @@ export default function ListProvinceOperatorPage() {
         setLoadingProvinces(false);
       }
     };
-
     loadProvinces();
   }, []);
+
+  // Search debounce
+  useEffect(() => {
+    const value = keyword.trim();
+    if (!value) return;
+
+    const timer = setTimeout(() => {
+      searchProvinceOperator(value);
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [keyword, searchProvinceOperator]);
 
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) =>
@@ -90,9 +104,6 @@ export default function ListProvinceOperatorPage() {
       const teamData = await provinceService.getTeamsByProvinceOperator(id);
 
       setSelected(detail);
-
-      // Map dữ liệu chi tiết -> đúng shape UpdateResCue.
-      // GET trả gioitinh dạng boolean, nhưng payload update cần string "true"/"false".
       setFormData({
         id: detail.id,
         hoten: detail.hoten ?? "",
@@ -100,13 +111,10 @@ export default function ListProvinceOperatorPage() {
         ngaysinh: detail.ngaysinh ?? "",
         sodt: detail.sodt ?? "",
         email: detail.email ?? "",
-        ghichu: "", 
+        ghichu: "",
         areaId: detail.areaId ?? "",
       });
-
-      // Tên khu vực chỉ để hiển thị, không gửi lên API
-      setAreaLabel(detail.tenKhuVucPhuTrach?? "");
-
+      setAreaLabel(detail.tenKhuVucPhuTrach ?? "");
       setTeams(teamData);
       setDetailOpen(true);
     } catch (err) {
@@ -132,12 +140,13 @@ export default function ListProvinceOperatorPage() {
       toast.warning("Vui lòng nhập email.");
       return;
     }
+
     try {
       setIsSaving(true);
       await updateProvinceOperator(formData);
       toast.success("Cập nhật thành công");
       setIsEditing(false);
-   
+      reload();
     } catch (err) {
       console.error(err);
       toast.error("Cập nhật thất bại");
@@ -149,7 +158,6 @@ export default function ListProvinceOperatorPage() {
   const handleCancelEdit = () => {
     setIsEditing(false);
     if (selected) {
-      // hủy thay đổi, nạp lại từ dữ liệu gốc đã tải
       setFormData({
         id: selected.id,
         hoten: selected.hoten ?? "",
@@ -160,7 +168,6 @@ export default function ListProvinceOperatorPage() {
         ghichu: "",
         areaId: selected.areaId ?? "",
       });
-      // Nếu lỡ chọn nhầm tỉnh khác trong lúc sửa, khôi phục lại tên khu vực gốc
       setAreaLabel(selected.tenKhuVucPhuTrach ?? "");
     }
   };
@@ -186,15 +193,27 @@ export default function ListProvinceOperatorPage() {
     setAreaLabel("");
   };
 
+  const handleClearSearch = () => {
+    setKeyword("");
+  };
+
+  // ===== CÁCH 2: Chuẩn hóa kiểu ngay tại đây =====
+ // ===== Dữ liệu hiển thị (chuẩn hóa kiểu) =====
+const displayProvinceOperator: ProvinceOperatorItem[] =
+  keyword.trim().length > 0
+    ? ((search as unknown as ProvinceOperatorItem[]) ?? [])
+    : ((operators as unknown as ProvinceOperatorItem[]) ?? []);
+    
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-gray-500">Đang tải dữ liệu...</div>
+        <div className="flex items-center gap-3 text-gray-500">
+          <Spin size="small" />
+          <span>Đang tải dữ liệu...</span>
+        </div>
       </div>
     );
   }
-
-
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -258,14 +277,47 @@ export default function ListProvinceOperatorPage() {
         </div>
       </div>
 
-      <ImportProvinceOperatorModal
-        open={importOpen}
-        onClose={() => setImportOpen(false)}
-        onImported={() => {
-          setImportOpen(false);
-          reload();
-        }}
-      />
+      {/* Search */}
+      <div className="mb-6">
+        <div className="relative w-full max-w-[600px]">
+          <Search
+            size={19}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+          />
+          <input
+            type="text"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            placeholder="Tìm kiếm theo tên hoặc số điện thoại..."
+            className="w-full h-12 pl-11 pr-11 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+          />
+          {keyword && !searchLoading && (
+            <button
+              type="button"
+              onClick={handleClearSearch}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
+            >
+              <X size={16} />
+            </button>
+          )}
+          {searchLoading && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <Spin size="small" />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Search result info */}
+      {keyword.trim() && (
+        <div className="mb-4 text-sm text-slate-500">
+          Kết quả tìm kiếm cho{" "}
+          <span className="font-semibold text-slate-700">"{keyword}"</span>
+          {searchLoading
+            ? " ..."
+            : ` (${displayProvinceOperator.length} kết quả)`}
+        </div>
+      )}
 
       {/* Table */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
@@ -289,17 +341,19 @@ export default function ListProvinceOperatorPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {operators.length === 0 ? (
+              {displayProvinceOperator.length === 0 ? (
                 <tr>
                   <td
                     colSpan={deleteMode ? 5 : 4}
                     className="px-5 py-16 text-center text-gray-400"
                   >
-                    Chưa có dữ liệu điều hành cấp tỉnh
+                    {keyword.trim()
+                      ? "Không tìm thấy điều hành viên phù hợp"
+                      : "Chưa có dữ liệu điều hành cấp tỉnh"}
                   </td>
                 </tr>
               ) : (
-                operators.map((item, index) => (
+                displayProvinceOperator.map((item, index) => (
                   <tr
                     key={item.id}
                     className="hover:bg-gray-50/70 transition-colors"
@@ -349,6 +403,16 @@ export default function ListProvinceOperatorPage() {
         </div>
       </div>
 
+      {/* Import Modal */}
+      <ImportProvinceOperatorModal
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        onImported={() => {
+          setImportOpen(false);
+          reload();
+        }}
+      />
+
       {/* Modal xác nhận xóa */}
       {openDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
@@ -393,7 +457,7 @@ export default function ListProvinceOperatorPage() {
       {/* Modal Chi tiết / Chỉnh sửa */}
       {detailOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="mt-9 bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
               <div className="flex items-center gap-3">
@@ -410,29 +474,28 @@ export default function ListProvinceOperatorPage() {
                     <p className="text-sm text-gray-500">{selected.hoten}</p>
                   )}
                 </div>
-                
               </div>
-              
               <button
                 onClick={handleCloseDetail}
                 className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition"
               >
                 <X className="w-5 h-5" />
               </button>
-             
             </div>
- {error&&(
-                  <div className="text-red-500 lg:ml-7 ">{error}</div>
-                )}
+
+            {error && (
+              <div className="px-6 pt-3 text-red-500 text-sm">{error}</div>
+            )}
+
             {/* Body */}
             <div className="flex-1 overflow-y-auto p-6">
               {loadingDetail ? (
                 <div className="flex items-center justify-center py-20 text-gray-400">
+                  <Spin size="small" className="mr-2" />
                   Đang tải thông tin...
                 </div>
               ) : formData ? (
                 <div className="space-y-6">
-                  {/* Form thông tin */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FormField
                       label="Họ tên"
@@ -459,7 +522,7 @@ export default function ListProvinceOperatorPage() {
                       }
                     />
 
-                    {/* Giới tính — select riêng vì là true/false, không dùng FormField text */}
+                    {/* Giới tính */}
                     <div className="rounded-xl bg-gray-50 border border-gray-100 p-4">
                       <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">
                         Giới tính
@@ -468,7 +531,10 @@ export default function ListProvinceOperatorPage() {
                         <select
                           value={formData.gioitinh}
                           onChange={(e) =>
-                            setFormData({ ...formData, gioitinh: e.target.value })
+                            setFormData({
+                              ...formData,
+                              gioitinh: e.target.value,
+                            })
                           }
                           className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                         >
@@ -492,9 +558,7 @@ export default function ListProvinceOperatorPage() {
                       }
                     />
 
-                    {/* Khu vực phụ trách — chế độ xem: chỉ hiển thị tên.
-                        Chế độ sửa: dropdown chọn tỉnh, cập nhật formData.areaId (giá trị thật gửi API)
-                        và areaLabel (chỉ để hiển thị lại sau khi lưu). */}
+                    {/* Khu vực phụ trách */}
                     <div className="rounded-xl bg-gray-50 border border-gray-100 p-4">
                       <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">
                         Khu vực phụ trách
@@ -505,14 +569,18 @@ export default function ListProvinceOperatorPage() {
                           disabled={loadingProvinces}
                           onChange={(e) => {
                             const areaId = e.target.value;
-                            const picked = provinces.find((p) => p.id === areaId);
+                            const picked = provinces.find(
+                              (p) => p.id === areaId
+                            );
                             setFormData({ ...formData, areaId });
                             setAreaLabel(picked?.tenkhuvuc ?? "");
                           }}
                           className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                         >
                           <option value="">
-                            {loadingProvinces ? "Đang tải..." : "-- Chọn tỉnh/thành --"}
+                            {loadingProvinces
+                              ? "Đang tải..."
+                              : "-- Chọn tỉnh/thành --"}
                           </option>
                           {provinces.map((p) => (
                             <option key={p.id} value={p.id}>

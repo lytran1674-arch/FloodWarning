@@ -1,5 +1,5 @@
 
-import type { ProvinceOperatorDetail, ProvinceOperatorItem, RequestSupportMyTeam, RescueTeamItem } from '../types/provinceType';
+import type { ProvinceOperator, ProvinceOperatorDetail, ProvinceOperatorItem, RequestSupportMyTeam, RescueTeamItem } from '../types/provinceType';
 import { provinceoperatorApi } from '../api/provinceoperatorApi';
 import { provinceApi } from '../api/provinceApi';
 import type { PayLoadAddProvinceOperator, UpdateResCue } from '@/features/rescue/types/rescueType';
@@ -33,5 +33,10 @@ async deleteProvinceOperator(payload: { ids: string[] }): Promise<string> {
 async updateProvinceOperator(data:UpdateResCue):Promise<ProvinceOperatorDetail>{
  return await provinceoperatorApi.updateProvinceOperator(data);
 
+},
+
+//tìm kiếm điều phối cấp tỉnh
+async searchProvinceOperator(keyword:string):Promise<ProvinceOperator[]>{
+ return await provinceoperatorApi.searchProvinceOperator(keyword)
 }
 }

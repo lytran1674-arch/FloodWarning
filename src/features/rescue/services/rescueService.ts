@@ -1,6 +1,6 @@
 import { rescueApi } from "../api/rescureApi";
-import type { AddMemberToGroup, DetailResGroup, DisbandedGroup, ListMembers } from "../types/grouptype";
-import type { AvailableMember, CreateTeamRequest, InfoMemberTeam, PayLoaAddMemberTeam, ResCue, ResTeam, UpdateResCue } from "../types/rescueType";
+import type {  DetailResGroup, DisbandedGroup, ListMembers } from "../types/grouptype";
+import type { AvailableMember, CreateTeamRequest, DetailMember, InfoMemberTeam, PayLoaAddMemberTeam, ResCue, ResTeam, UpdateResCue } from "../types/rescueType";
 
 
 export const rescueService = {
@@ -81,5 +81,9 @@ export const rescueService = {
   // tìm kiếm thành viên lực lượng cứu hộ theo keyword,số điện thoại , họ tên ,email
   async SearchRescue(keyword:string):Promise<AvailableMember[]>{
     return await rescueApi.SearchRescue(keyword)
+  },
+  // chi tiết thành viên 
+  async detailMember(id:string):Promise<DetailMember>{
+    return await rescueApi.detailMember(id);
   }
 };

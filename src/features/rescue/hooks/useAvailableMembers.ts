@@ -38,5 +38,6 @@ export const useAvailableMembers = (teamId?: string) => {
     groups,
     loading,
     refresh: fetchData,
+    error
   };
 };

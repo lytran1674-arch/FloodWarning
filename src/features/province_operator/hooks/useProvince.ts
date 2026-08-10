@@ -14,6 +14,7 @@ export const useProvince = () => {
   useState<RequestSupportMyTeam[]>([]);
   const [deleteMessage, setDeleteMessage] = useState<string>();
   const [update,setUpdate]=useState<ProvinceOperatorDetail>();
+  const [search,setSearch]=useState<ProvinceOperator[]>([])
 
 /************THÊM ĐIỀU PHỐI CẤP TỈNH*******************/
 const addProvinceOperator=useCallback(async(payload:PayLoadAddProvinceOperator)=>{
@@ -65,6 +66,32 @@ const updateProvinceOperator=useCallback(async(data:UpdateResCue)=>{
     setLoading(false)
   }
 },[])
+/************SEARCH ĐIỀU PHỐI CẤP TỈNH*******************/
+const searchProvinceOperator = useCallback(async (keyword: string) => {
+  try {
+    setLoading(true);
+    setError("");
+
+    const res = await provinceService.searchProvinceOperator(keyword);
+
+    setSearch(res);
+
+    return res;
+  } catch (err: any) {
+    console.error(err);
+
+    const message =
+      err.response?.data?.message ||
+      "Không thể tìm kiếm thành viên.";
+
+    setError(message);
+
+    throw err;
+  } finally {
+    setLoading(false);
+  }
+}, []);
+
 
   const getProvinceOperators = async () => {
     try {
@@ -119,6 +146,8 @@ const getListRequestSupportMyTeam=async()=>{
     deleteMessage,
     deleteProvinceOperator,
     update,
-    updateProvinceOperator
+    updateProvinceOperator,
+    search,
+    searchProvinceOperator
   };
 };
