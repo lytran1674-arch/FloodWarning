@@ -56,20 +56,10 @@ export const useDataEvalution = (areaId:string) => {
       setData(result);
 
 
-    }catch(error:any){
-
-
-      if(error.response?.data?.code===1020){
-
-        setData(null);
-        setError("");
-
-      }else{
-
-        console.error(error);
-        setError("Không tải được dữ liệu");
-
-      }
+    }catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message)
+      throw err;
 
 
     }finally{

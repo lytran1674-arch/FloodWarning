@@ -27,11 +27,10 @@ export const useAssignmentGroupSupport = () => {
     setAssignResult(res);
     toast.success("Phân công đội thành công");
     return true;
-  } catch (error) {
-    console.error(error);
-    setError("Lỗi không thể phân công đội");
-    toast.error("Lỗi không thể phân công đội");
-    return false;
+  }catch (err:any) {
+      const message: string = err.response?.data?.message??"Lỗi không thể phân công đội";
+      setError(message)
+      throw err;
   } finally {
     setLoading(false);
   }

@@ -20,8 +20,10 @@ export const useIotDevice = () => {
       setLoading(true);
       const data = await DeviceService.getDevices();
       setIotDevice(data);
-    } catch (error) {
-      console.log(error);
+    } catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message)
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -35,9 +37,10 @@ export const useIotDevice = () => {
     setDetailIot(res);
     return res;
 
-  }catch(error){
-  console.error(error);
-  setError("Không thể hiển thị chi tiết");
+  }catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message)
+      throw err;
   }finally{
   setLoading(false);
   }
@@ -49,10 +52,10 @@ export const useIotDevice = () => {
       const res= await DeviceService.updateIotDevice(deviceId,payload);
       setUpdateIoT(res);
       return res;
-    }catch(error){
-    console.error(error);
-    setError("Cập nhật không thành công");
-    throw error;
+    }catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message)
+      throw err;
     }finally{
       setLoading(false);
     }
@@ -71,8 +74,10 @@ export const useIotDevice = () => {
     await DeviceService.patchApprove(id, adminId);
     toast.success("Phê duyệt thiết bị thành công");
     fetchIotDevice(); 
-  } catch (error: any) {
-    toast.error(error.response?.data?.message || "Phê duyệt thiết bị thất bại");
+  } catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message)
+      throw err;
   }
   }
   
@@ -83,8 +88,10 @@ const handleReject = async (id: string) => {
     await DeviceService.patchReject(id);
     toast.success("Từ chối thiết bị thành công");
     fetchIotDevice();
-  } catch (error: any) {
-    toast.error(error.response?.data?.message || "Từ chối thiết bị thất bại");
+  } catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message)
+      throw err;
   }
 };
 

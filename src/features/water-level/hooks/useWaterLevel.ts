@@ -46,9 +46,11 @@ useEffect(()=>{
     await loadData();
 
     toast.success("Tổng hợp mực nước thành công");
-  } catch (err) {
-    console.error(err);
-    toast.error("Không thể tổng hợp dữ liệu");
+  }catch (err: any) {
+       
+        const message = err?.response?.data?.message
+        setError(message)
+        throw err
   }
 };
 

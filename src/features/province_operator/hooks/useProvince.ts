@@ -101,9 +101,10 @@ const searchProvinceOperator = useCallback(async (keyword: string) => {
         await provinceoperatorApi.getListProvinceOperator();
 
       setOperators(res.result.content);
-    } catch (err) {
-      console.error(err);
-      setError("Không thể tải danh sách điều hành cấp tỉnh");
+    } catch (err:any) {
+      const message: string = err.response?.data?.message??"Không thể tải danh sách điều hành cấp tỉnh";
+      setError(message)
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -118,8 +119,10 @@ const getListRequestSupportMyTeam=async()=>{
     setLoading(true);
     const res:RequestSupportMyTeam[]=await provinceService.getListRequestSupportMyTeam()
     setrequestsupport(res)
-  }catch(err){
-    console.error(err)
+  }catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message)
+      throw err;
   }finally{
     setLoading(false);
   }

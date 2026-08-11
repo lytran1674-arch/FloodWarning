@@ -38,6 +38,7 @@ export const DeviceTable = ({
   const [formData, setFormData] = useState({
     ten_thietbi: "",
     nguong_canh_bao: "",
+    device_height: "",
   });
 
   const { page, setPage, totalPages, paginated } = usePagination(safeData, 5);
@@ -48,6 +49,10 @@ export const DeviceTable = ({
       setFormData({
         ten_thietbi: detailIot.ten_thietbi ?? "",
         nguong_canh_bao: detailIot.nguong_canh_bao?.toString() ?? "",
+        // Prefill từ detailIot nếu BE đã trả field này trong response chi tiết.
+        // Hiện tại BE chưa trả nên sẽ luôn ra rỗng (không lỗi) — tự hoạt động đúng
+        // ngay khi BE bổ sung field mà không cần sửa lại đoạn này.
+        device_height: detailIot.device_height?.toString() ?? "",
       });
       setFormError("");
     }
@@ -76,39 +81,46 @@ export const DeviceTable = ({
     }
   };
 
- const handleSave = async () => {
-  if (!detailIot) return;
+  const handleSave = async () => {
+    if (!detailIot) return;
 
-  if (!formData.ten_thietbi.trim()) {
-    setFormError("Tên thiết bị không được để trống");
-    return;
-  }
+    if (!formData.ten_thietbi.trim()) {
+      setFormError("Tên thiết bị không được để trống");
+      return;
+    }
 
-  const nguongValue = Number(formData.nguong_canh_bao);
-  if (isNaN(nguongValue) || nguongValue <= 0) {
-    setFormError("Ngưỡng cảnh báo phải là số dương");
-    return;
-  }
+    const nguongValue = Number(formData.nguong_canh_bao);
+    if (isNaN(nguongValue) || nguongValue <= 0) {
+      setFormError("Ngưỡng cảnh báo phải là số dương");
+      return;
+    }
 
-  setSaving(true);
-  setFormError("");
-  try {
-    const updated = await updateIoTDevice(detailIot.id, {
-      tenThietBi: formData.ten_thietbi.trim(),
-      nguongCanhBao: nguongValue,
-      lat: detailIot.lat,
-      lon: detailIot.lon,
-    });
-    setIsEditMode(false);
-    setOpen(false);
-    onUpdate?.(updated);
-  } catch (error) {
-    console.error(error);
-    setFormError("Cập nhật thất bại, vui lòng thử lại");
-  } finally {
-    setSaving(false);
-  }
-};
+    const heightValue = Number(formData.device_height);
+    if (isNaN(heightValue) || heightValue <= 0) {
+      setFormError("Chiều cao lắp đặt phải là số dương");
+      return;
+    }
+
+    setSaving(true);
+    setFormError("");
+    try {
+      const updated = await updateIoTDevice(detailIot.id, {
+        tenThietBi: formData.ten_thietbi.trim(),
+        nguongCanhBao: nguongValue,
+        deviceHeight: heightValue,
+        lat: detailIot.lat,
+        lon: detailIot.lon,
+      });
+      setIsEditMode(false);
+      setOpen(false);
+      onUpdate?.(updated);
+    } catch (error) {
+      console.error(error);
+      setFormError("Cập nhật thất bại, vui lòng thử lại");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleCancelEdit = () => {
     setIsEditMode(false);
@@ -556,6 +568,32 @@ export const DeviceTable = ({
                           </p>
                           <p className="mt-0.5 text-lg sm:text-xl font-bold text-blue-600">
                             {detailIot.nguong_canh_bao} m
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {isEditMode ? (
+                      <EditableItem
+                        label="Chiều cao lắp đặt (cm)"
+                        value={formData.device_height}
+                        onChange={(v) =>
+                          setFormData((f) => ({ ...f, device_height: v }))
+                        }
+                        type="number"
+                      />
+                    ) : (
+                      // BE hiện tại có thể chưa trả field này ở API chi tiết —
+                      // nếu vậy sẽ hiện "--", tự hết khi BE bổ sung field.
+                      <div className="flex items-center justify-between border-b py-2">
+                        <div>
+                          <p className="text-xs text-slate-500">
+                            Chiều cao lắp đặt
+                          </p>
+                          <p className="mt-0.5 text-lg sm:text-xl font-bold text-blue-600">
+                            {detailIot.device_height != null
+                              ? `${detailIot.device_height} cm`
+                              : "--"}
                           </p>
                         </div>
                       </div>

@@ -50,7 +50,7 @@
 
 // src/features/province_operator/hooks/useCandidateTeams.ts
 
-import { toast } from "react-toastify";
+
 import { provinceApi } from "../api/provinceApi";
 import { useCallback, useState } from "react";
 import type { CandidateTeam } from "../types/provinceType";
@@ -58,7 +58,7 @@ import type { CandidateTeam } from "../types/provinceType";
 export function useCandidateTeams() {
   const [teamsByItem, setTeamsByItem] = useState<Record<string, CandidateTeam[]>>({});
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
-
+  const [error,setError]=useState("")
   // Gọi trực tiếp mỗi khi user mở 1 item -> lưu kết quả đúng theo itemId của lần gọi đó,
   // không dựa vào state "đang chọn item nào" để tránh ghi nhầm key khi user đổi item nhanh.
   const fetchCandidateTeams = useCallback(async (itemId: string): Promise<boolean> => {
@@ -67,14 +67,14 @@ export function useCandidateTeams() {
       const result = await provinceApi.getCandidateTeams(itemId);
       setTeamsByItem((prev) => ({ ...prev, [itemId]: result }));
       return true;
-    } catch (err: any) {
-      console.error("❌ API error:", err);
-      toast.error(err?.response?.data?.message || "Không tải được danh sách đội");
-      return false;
+    }catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message)
+      throw err;
     } finally {
       setLoadingItemId((current) => (current === itemId ? null : current));
     }
   }, []);
 
-  return { teamsByItem, loadingItemId, fetchCandidateTeams };
+  return { teamsByItem, loadingItemId, fetchCandidateTeams,error };
 }

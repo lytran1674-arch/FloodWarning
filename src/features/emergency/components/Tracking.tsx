@@ -15,8 +15,9 @@ export const Tracking = () => {
 
   return (
     <div className="w-full max-w-sm lg:max-w-md rounded-xl border border-gray-200 bg-white shadow-sm p-4 space-y-4">
-      {/* Header */}
-      <div className="flex items-start gap-3">
+      {/* Header: ẩn trên mobile theo yêu cầu (chỉ giữ ô nhập + nút),
+          hiển thị lại từ lg trở lên */}
+      <div className="hidden lg:flex items-start gap-3">
         <div className="rounded-lg bg-blue-100 p-2">
           <Search className="h-5 w-5 text-blue-600" />
         </div>
@@ -59,8 +60,8 @@ export const Tracking = () => {
         </div>
       )}
 
-      {/* Note */}
-      <div className="flex items-start gap-2 rounded-lg bg-blue-50 p-2">
+      {/* Note: ẩn trên mobile theo yêu cầu, hiển thị lại từ lg trở lên */}
+      <div className="hidden lg:flex items-start gap-2 rounded-lg bg-blue-50 p-2">
         <Info className="mt-0.5 h-4 w-4 text-blue-600 flex-shrink-0" />
         <p className="text-xs leading-5 text-blue-700">
           Mã Tracking (SOS) được cung cấp sau khi bạn gọi đến tổng đài Hotline.

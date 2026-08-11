@@ -1,4 +1,4 @@
-  import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
   import { ShieldAlert, Users, Navigation, Clock3 } from "lucide-react";
 
   import type { AssignmentGroup } from "@/features/grouprescue/types/groupType";
@@ -47,7 +47,7 @@ import { useNavigate } from "react-router-dom";
     const [assigmentList, setassigmentList] = useState<AssignmentGroup[]>([]);
     const [loading, setLoading] = useState(true);
      const [failingAssignmentId, setFailingAssignmentId] = useState<string | null>(null);
-
+    const [error,setError]=useState("")
     const navigate=useNavigate();
 
    const handleOnClick = (assignmentId: string) => {
@@ -59,8 +59,10 @@ import { useNavigate } from "react-router-dom";
         const data = await groupService.getAssignmentgroup();
         console.log("ASSIGNMENTS:", data);
         setassigmentList(data ?? []);
-      } catch (error) {
-        console.error("FETCH ASSIGNMENTS ERROR:", error);
+      } catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message)
+      throw err;
       } finally {
         setLoading(false);
       }
@@ -97,6 +99,17 @@ import { useNavigate } from "react-router-dom";
         {loading ? (
           <div className="bg-white rounded-2xl border p-10 text-center text-slate-500">
             Đang tải nhiệm vụ...
+          </div>
+        ) : error ? (
+          <div className="bg-white rounded-2xl border border-red-200 p-10 text-center">
+            <ShieldAlert className="mx-auto text-red-300" size={48} />
+            <p className="mt-4 text-red-600 font-medium">{error}</p>
+            <button
+              onClick={fetchAssignments}
+              className="mt-4 px-4 py-2 rounded-xl bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100"
+            >
+              Thử lại
+            </button>
           </div>
         ) : assigmentList.length === 0 ? (
           <div className="bg-white rounded-2xl border p-10 text-center">

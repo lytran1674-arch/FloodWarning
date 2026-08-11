@@ -10,14 +10,17 @@ export const useFloodRiskData = () => {
   const [floodRiskData, setFloodRiskData] = useState<FloodRiskData[]>([])
   const [loading, setLoading] = useState(false)
   const [data,setData]=useState<FloodRiskData|null>(null);
+  const [error,setError]=useState("")
    // const [areaOptions, setAreaOptions] = useState<Option[]>([]);
  const fetchFloodRiskData = useCallback(async () => {
     try {
       setLoading(true)
       const list = await FloodRiskDataApi.getAll()
       setFloodRiskData(list)
-    } catch (error) {
-      console.log(error)
+    } catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message)
+      throw err;
     } finally {
       setLoading(false)
     }
@@ -30,9 +33,10 @@ export const useFloodRiskData = () => {
       // API trả về mảng (list-by-area) -> lấy bản ghi mới nhất (đầu mảng)
       setData(res?.[0] ?? null);
       return true;
-    }catch(error){
-      console.error(error)
-      return false;
+    }catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message)
+      throw err;
     }finally{
       setLoading(false);
     }
@@ -42,5 +46,5 @@ export const useFloodRiskData = () => {
     fetchFloodRiskData();
   }, [])
 
-  return { floodRiskData, loading, fetchFloodRiskData ,data,getFloodDataByAreaId}
+  return { error,floodRiskData, loading, fetchFloodRiskData ,data,getFloodDataByAreaId}
 }

@@ -16,10 +16,10 @@ export const useCallTask = () => {
       const res = await calltaskService.ResultCall();
       setResult(res);
       return true;
-    } catch (error) {
-      console.error(error);
-      setError("Không thể lấy dữ liệu");
-      return false;
+    }catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message)
+      throw err;
     } finally {
       setLoading(false);
     }

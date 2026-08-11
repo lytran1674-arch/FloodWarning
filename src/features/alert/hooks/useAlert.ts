@@ -14,9 +14,11 @@ export const useMyAlerts = (userId: string) => {
       setError("")
       const result = await alertService.getMyAlertById(userId)
       setAlerts(result)
-    } catch (err) {
-      console.error(err)
-      setError("Không thể tải danh sách cảnh báo")
+    }
+     catch (err:any) {
+      const message: string = err.response?.data?.message??"Không thể tải danh sách cảnh báo";
+      setError(message)
+      throw err;
     } finally {
       setLoading(false)
     }

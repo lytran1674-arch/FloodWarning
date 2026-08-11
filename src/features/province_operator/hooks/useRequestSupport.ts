@@ -13,8 +13,10 @@ export const useRequestSupport = () => {
       setLoading(true);
       const res: RequestSupportMyTeam[] = await provinceService.getListRequestSupportMyTeam();
       setrequestsupport(res);
-    } catch (err) {
-      console.error(err);
+    } catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message)
+      throw err;
     } finally {
       setLoading(false);
     }

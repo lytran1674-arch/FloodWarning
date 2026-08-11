@@ -63,7 +63,7 @@ export function CallHotlineButton() {
   const isBusy = locLoading || isRequesting;
 
   return (
-    <div className="w-full max-w-sm mx-auto bg-white/90 backdrop-blur-sm rounded-xl shadow-md border border-slate-200/80 p-3 space-y-2.5 transition">
+    <div className="w-full max-w-sm mx-auto rounded-xl p-4 space-y-2.5 transition">
       {!isLoggedIn && (
         <div className="relative">
           <input
@@ -74,11 +74,11 @@ export function CallHotlineButton() {
               setPhoneError(null);
             }}
             placeholder="Số điện thoại của bạn"
-            className="w-full border rounded-lg px-3 py-2 text-sm outline-none border-slate-200 focus:border-red-400 focus:ring-2 focus:ring-red-100/70 transition bg-white/70"
+            className="w-full border rounded-lg px-4 py-3 text-sm outline-none border-slate-200 focus:border-red-400 focus:ring-2 focus:ring-red-100/70 transition bg-white/70"
           />
           {phoneError && (
-            <p className="mt-1 flex items-center gap-1 text-xs text-red-500">
-              <TriangleAlert className="w-3 h-3" />
+            <p className=" flex items-center gap-1 text-xs text-red-500">
+              <TriangleAlert className="w-3 h-3 lg:p-" />
               {phoneError}
             </p>
           )}
@@ -90,7 +90,7 @@ export function CallHotlineButton() {
         onClick={handleCall}
         disabled={isBusy}
         className={`
-          w-full rounded-lg py-2.5 text-sm font-semibold text-white
+          w-full rounded-lg lg:px-10 lg:py-3 p-2 text-sm font-semibold text-white
           flex items-center justify-center gap-2
           transition-all duration-200
           ${isBusy

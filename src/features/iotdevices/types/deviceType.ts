@@ -8,8 +8,8 @@ export interface Device {
   nguong_canh_bao: number | null;
   lat: number;
   lon: number;
+   device_height?: number | null; 
   trang_thai: string;
-  deviceHeight:number
   createdAt: string;
   updatedAt: string;
 }
@@ -39,9 +39,9 @@ export interface DeviceCounts{
 }
 
 export interface UpdateDevicePayload {
-  tenThietBi: string;
-  nguongCanhBao: number;
+  tenThietBi?: string;
+  nguongCanhBao?: number;
   lat?: number;
   lon?: number;
-  deviceHeight?: number;
+  deviceHeight: number | null;
 }

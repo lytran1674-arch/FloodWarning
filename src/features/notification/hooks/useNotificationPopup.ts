@@ -20,6 +20,7 @@ export function useNotificationPopup() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const seenIds = useRef<Set<string>>(new Set());
   const unsubRef = useRef<(() => void) | null>(null);
+  const [error,setError]=useState("")
   const navigate=useNavigate()
 
   const current = queue[0] ?? null;
@@ -32,8 +33,10 @@ export function useNotificationPopup() {
         newOnes.forEach((n) => seenIds.current.add(n.id));
         setQueue((prev) => [...prev, ...newOnes]);
       }
-    } catch (err) {
-      console.error("Lỗi lấy notification popup:", err);
+    } catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message)
+      throw err;
     }
   }, []);
 
@@ -91,8 +94,10 @@ export function useNotificationPopup() {
     if (!current) return;
     try {
       await notificationApi.closePopup(current.id);
-    } catch (err) {
-      console.error("Lỗi đóng popup:", err);
+    } catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message)
+      throw err;
     } finally {
       setQueue((prev) => prev.slice(1));
     }
@@ -182,5 +187,6 @@ return {
     claiming,
     claimError,
     audioRef,
+    error
   };
 }

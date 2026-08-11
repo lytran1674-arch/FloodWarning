@@ -17,9 +17,10 @@ export const UseAccount = () => {
       console.log("ACCOUNT:", res);
 
       setAccount(res);
-    } catch (error) {
-      console.error(error);
-      setError("Lỗi tải thông tin");
+    } catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message)
+      throw err;
     } finally {
       setLoading(false);
     }

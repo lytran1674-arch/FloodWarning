@@ -4,7 +4,7 @@
 // PUT  /sos-request/{id}  (Image 4)
 
 import { useLocation, useParams, useNavigate } from "react-router-dom"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { toast } from "react-toastify"
 import {
@@ -29,7 +29,11 @@ import ConditionSelector from "../../../components/ui/ConditionSelector"
 import { Input } from "../../../components/ui/Input"
 import { Label } from "../../../components/ui/Label"
 import { usesosrequestanonymous } from "../hooks/usesosrequestanonymous"
+import { useSoS } from "@/features/sosrequest/hooks/useSoS"
 import type { SoSRequest } from "@/features/sosrequest/types/sosType"
+
+const DEVICE_ID_KEY = "deviceId"
+const ANONYMOUS_SODT_KEY = "sos_anonymous_sodt"
 
 // Shape của response từ BE (Image 1, 2, 3)
 interface SoSResponseData {
@@ -85,9 +89,19 @@ export const UpdateSOSAnonymous = () => {
   const { state } = useLocation()
   const navigate = useNavigate()
   const { loading,updateSoSAnonymous } = usesosrequestanonymous()
+  // Dùng để tự lấy lại yêu cầu SOS cũ qua API công khai (không cần đăng nhập)
+  // khi location.state bị mất (F5, mở link trực tiếp, mở tab mới...)
+  const { listAnonymousSosRequest } = useSoS()
 
   // Lấy data SOS cũ từ navigate state (BE đã trả về đủ trong response alreadyExists=true)
-  const sosData: SoSResponseData | undefined = state?.sosData
+  const stateSosData: SoSResponseData | undefined = state?.sosData
+
+  // sosData giờ là state thật (không chỉ đọc 1 lần từ location.state), để có thể
+  // cập nhật lại sau khi fetch fallback từ API xong
+  const [sosData, setSosData] = useState<SoSResponseData | undefined>(stateSosData)
+  const [fetchingOldData, setFetchingOldData] = useState(false)
+  const [fetchFailed, setFetchFailed] = useState(false)
+  const fetchedOnceRef = useRef(false)
 
   // Pre-fill từ sosData
   const [count, setCount] = useState(sosData?.victimCount ?? 1)
@@ -98,6 +112,57 @@ export const UpdateSOSAnonymous = () => {
   const [desc, setDesc] = useState(sosData?.mota ?? "")
   const [manualLat, setManualLat] = useState(sosData?.lat?.toString() ?? "")
   const [manualLon, setManualLon] = useState(sosData?.lon?.toString() ?? "")
+
+  // ======================================================
+  // FALLBACK: nếu không có location.state (F5 lại trang, mở link
+  // trực tiếp, mở tab mới...) thì tự gọi API public
+  // POST /sos-request/my-active-anonymous (sodt + clientDeviceId
+  // lưu trong localStorage từ lúc gửi SOS) để lấy lại danh sách yêu
+  // cầu đang hoạt động của thiết bị này, rồi tìm đúng bản ghi theo id
+  // trên URL để điền lại toàn bộ field.
+  // ======================================================
+  useEffect(() => {
+    if (stateSosData || fetchedOnceRef.current || !id) return
+    fetchedOnceRef.current = true
+
+    const savedPhone = localStorage.getItem(ANONYMOUS_SODT_KEY)
+    const savedDeviceId = localStorage.getItem(DEVICE_ID_KEY)
+
+    if (!savedPhone || !savedDeviceId) {
+      setFetchFailed(true)
+      toast.warning("Không tìm thấy dữ liệu cũ trên thiết bị này, vui lòng nhập lại")
+      return
+    }
+
+    ;(async () => {
+      setFetchingOldData(true)
+      try {
+        const list = await listAnonymousSosRequest(savedPhone, savedDeviceId)
+        const found = list.find(item => item.id === id)
+
+        if (!found) {
+          setFetchFailed(true)
+          toast.warning("Không tải được dữ liệu cũ, vui lòng nhập lại")
+          return
+        }
+
+        const data = found as unknown as SoSResponseData
+        setSosData(data)
+        setCount(data.victimCount ?? 1)
+        setSelected(conditionsFromData(data))
+        setPhone(data.sodt ?? "")
+        setDesc(data.mota ?? "")
+        setManualLat(data.lat?.toString() ?? "")
+        setManualLon(data.lon?.toString() ?? "")
+      } catch (err) {
+        console.error("Không lấy được dữ liệu SOS cũ:", err)
+        setFetchFailed(true)
+        toast.warning("Không tải được dữ liệu cũ, vui lòng nhập lại")
+      } finally {
+        setFetchingOldData(false)
+      }
+    })()
+  }, [stateSosData, id, listAnonymousSosRequest])
 
   const {
     lat: gpsLat,
@@ -185,6 +250,23 @@ export const UpdateSOSAnonymous = () => {
           </p>
         </div>
       </div>
+
+      {/* ── Banner đang khôi phục dữ liệu cũ (fallback khi mất state) ── */}
+      {fetchingOldData && (
+        <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-2xl p-3 mb-4 text-sm text-blue-700">
+          <Loader className="w-4 h-4 animate-spin shrink-0" />
+          Đang khôi phục dữ liệu yêu cầu cũ...
+        </div>
+      )}
+      {fetchFailed && (
+        <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-2xl p-4 mb-4">
+          <AlertCircle className="text-red-500 w-5 h-5 mt-0.5 shrink-0" />
+          <p className="text-red-700 text-xs">
+            Không tìm lại được dữ liệu cũ trên thiết bị này. Vui lòng nhập lại
+            đầy đủ thông tin bên dưới rồi nhấn "Cập nhật yêu cầu SOS".
+          </p>
+        </div>
+      )}
 
       {/* ── Trạng thái + nút xem tiến trình ── */}
       <div className="flex items-center justify-between mb-5 gap-3">

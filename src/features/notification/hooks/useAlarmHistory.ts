@@ -14,9 +14,10 @@ export function useAlarmHistory() {
     try {
       const data = await notificationApi.getAlarms();
       setAlarms(data);
-    } catch (err) {
-      console.error("Lỗi lấy lịch sử alarm:", err);
-      setError("Không thể tải lịch sử cảnh báo. Vui lòng thử lại.");
+    } catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message)
+      throw err;
     } finally {
       setLoading(false);
     }

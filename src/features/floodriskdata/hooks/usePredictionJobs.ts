@@ -18,9 +18,10 @@ export const usePredictionJobs = () => {
 
       const res = await FloodriskdataService.getPredictionJobs();
       setPredictionJobs(res);
-    } catch (err) {
-      console.error(err);
-      setError("Không tải được danh sách Prediction Jobs");
+    } catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message)
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -32,9 +33,10 @@ export const usePredictionJobs = () => {
 
       const res = await FloodriskdataService.getPredictionJobDetail(id);
       setDetail(res);
-    } catch (err) {
-      console.error(err);
-      setError("Không tải được chi tiết Job");
+    } catch (err:any) {
+      const message: string = err.response?.data?.message;
+      setError(message)
+      throw err;
     } finally {
       setLoading(false);
     }

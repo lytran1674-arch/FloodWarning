@@ -14,10 +14,10 @@ import { groupService } from '../services/groupService';
             const res=await groupService.CandidateGroupSupport(supportRequestItemId);
             setCandidate(res);
             return true
-        }catch(error){
-            console.error(error);
-            setError("Lỗi không thể lấy đươc nhóm phù hợp");
-            return false;
+        }catch (err:any) {
+      const message: string = err.response?.data?.message??"Có lỗi xảy ra";
+      setError(message)
+      throw err;
         }finally{
             setLoading(false)
         }
