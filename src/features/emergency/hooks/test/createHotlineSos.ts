@@ -25,8 +25,8 @@ const createSos = async (
   try {
     const result = await emergencyApi.createHotlineSos(payload)
 
-    // ✅ Thêm 2 dòng log này
-    console.log("[DEBUG] API result:", JSON.stringify(result, null, 2))
+  
+    console.log("[DEBUG] API result:", JSON.stringify(result))
     console.log("[DEBUG] initialCallTask:", result?.initialCallTask)
 
     return result

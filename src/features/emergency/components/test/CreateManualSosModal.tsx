@@ -171,7 +171,7 @@ export function CreateManualSosModal({
       trapped:     !!values.trapped,
       vulnerable:  !!values.vulnerable,
       mota:        values.mota ?? "",
-      diachi:      values.diachi?.trim() ?? "",
+      rawAddressText:      values.diachi?.trim() ?? "",
     })
 
     if (result) {

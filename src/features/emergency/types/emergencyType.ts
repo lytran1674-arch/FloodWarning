@@ -154,7 +154,7 @@ interface SosHotlineBasePayload {
   injured:      boolean
   trapped:      boolean
   vulnerable:   boolean
-  diachi?:      string
+  rawAddressText?:      string
   mota:         string
 }
 
@@ -212,6 +212,7 @@ export interface DetailHotlineCall {
   callerPhoneNumber:   string
   status:              HotlineCallStatus
   createdAt:           string
+  rawAddressText:string
 }
 
 export interface StatusHotLineSoS {

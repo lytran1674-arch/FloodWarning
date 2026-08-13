@@ -10,7 +10,7 @@ import { emergencyApi } from "../../api/emergencyApi";
 const { TextArea } = Input;
 
 interface CreateSosFromCallDrawerProps {
-  /** callEventId của cuộc gọi đang được chọn để tạo SOS, null = đóng drawer. */
+  
   callEventId: string | null;
   onClose: () => void;
   onCreated: (result: SosHotlineCreateResult) => void;
@@ -25,7 +25,7 @@ export function CreateSosFromCallDrawer({
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [form] = Form.useForm();
   const { createSos, isSubmitting, error } = useCreateHotlineSos();
-
+const [hasSubmitted, setHasSubmitted] = useState(false);
   useEffect(() => {
     if (!callEventId) {
       setDetail(null);
@@ -52,29 +52,31 @@ export function CreateSosFromCallDrawer({
     };
   }, [callEventId]);
 
-  const handleSubmit = async () => {
-    if (!callEventId) return;
-    const values = await form.validateFields();
+ const handleSubmit = async () => {
+  if (!callEventId || hasSubmitted) return;
+  setHasSubmitted(true);
 
-    const result = await createSos({
-      callEventId,
-      victimCount: values.victimCount,
-      injured: !!values.injured,
-      trapped: !!values.trapped,
-      vulnerable: !!values.vulnerable,
-      mota: values.mota ?? "",
-      
-    });
-   
+  const values = await form.validateFields();
 
-    if (result) {
+  const result = await createSos({
+    callEventId,
+    victimCount: values.victimCount,
+    injured: !!values.injured,
+    trapped: !!values.trapped,
+    vulnerable: !!values.vulnerable,
+    mota: values.mota ?? "",
+  });
+
+  
+  if(result){
       toast.success(`Đã tạo SOS (độ ưu tiên: ${result.sos.priority}).`);
       form.resetFields();
       onCreated(result);
-       console.log("callenventId:",callEventId)
-    }
     
-  };
+  } else {
+    setHasSubmitted(false); 
+  }
+};
 
   return (
     <Drawer
@@ -99,6 +101,9 @@ export function CreateSosFromCallDrawer({
             <Descriptions.Item label="Vị trí">
               {detail.callerLat.toFixed(5)}, {detail.callerLon.toFixed(5)}
             </Descriptions.Item>
+             {/* <Descriptions.Item label="Địa chỉ">
+              {detail.rawAddressText}
+            </Descriptions.Item> */}
             <Descriptions.Item label="Đội phụ trách">
               {detail.teamName}
             </Descriptions.Item>

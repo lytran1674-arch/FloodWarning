@@ -456,12 +456,14 @@ export const CallTaskDialer = ({
     }
     setFormError("")
 
-    const endedAt = new Date().toISOString()
-    const res = await UpdateCallTask(callTask.callTaskId, {
-      callResult: selectedResult,
-      startedAt:  startedAt ?? endedAt,
-      endedAt,
-    })
+    const endedAt = new Date();
+const fallbackStartedAt = new Date(endedAt.getTime() - 1000); // trừ 1 giây
+const res = await UpdateCallTask(callTask.callTaskId, {
+  callResult: selectedResult,
+  startedAt: startedAt ?? fallbackStartedAt.toISOString(),
+  endedAt: endedAt.toISOString(),
+})
+    
 
     if (!res) return // lỗi mạng — giữ nguyên form
 
