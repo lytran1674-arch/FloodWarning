@@ -1,7 +1,7 @@
 
 
 import type { DetailResGroup, DisbandedGroup, ListMembers, PayloadUpdateResGroup } from "../types/grouptype";
-import type { AvailableMember, CreateTeamRequest,    DetailMember,    InfoMemberTeam,    PayLoaAddMemberTeam,    PayLoadAddProvinceOperator,    ResCue, ResGroup, ResTeam, UpdateResCue } from "../types/rescueType";
+import type { AvailableMember, CreateTeamRequest,    DetailMember,    InfoMemberTeam,    PayLoaAddMemberTeam,    ResCue, ResGroup, ResTeam, UpdateResCue } from "../types/rescueType";
 import { axiosClient } from "@/api/axiosClient";
 
 

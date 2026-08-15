@@ -1,4 +1,4 @@
-import { ArrowLeft, User, Mail, Phone, Calendar, MapPin, Shield, Check, Lock } from "lucide-react"
+import { ArrowLeft, User,  Shield } from "lucide-react"
 import { useEffect, useState } from "react"
 import TeamWork from "../../../../public/image/Group-amico.png"
 import { Input } from "@/components/ui/Input"

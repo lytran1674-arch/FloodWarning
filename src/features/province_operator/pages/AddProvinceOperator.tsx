@@ -1,4 +1,4 @@
-import { ArrowLeft, User, Shield,   } from "lucide-react"
+import { ArrowLeft, User   } from "lucide-react"
 import {  useState } from "react"
 import TeamWork from "../../../../public/image/Team work-rafiki.png"
 import { Input } from "@/components/ui/Input"
@@ -18,8 +18,8 @@ export const AddProvinceOperator = () => {
   const [sodt, setSodt] = useState("")
   const [gioitinh, setGioitinh] = useState(false) // true = Nam, false = Nữ
   const [ngaysinh, setNgaysinh] = useState("")
-  const [diachi, setDiachi] = useState("")
-  const {add,addProvinceOperator}=useProvince();
+
+  const {addProvinceOperator}=useProvince();
   
   const [submitting, setSubmitting] = useState(false)
     const {

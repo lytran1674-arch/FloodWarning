@@ -1,4 +1,4 @@
-import { axiosClient } from "@/api/axiosClient";
+
 import type { AiFloodPredictions, AIIoT, Overview, SumRequestSoS } from "../type/thongkeType";
 import type { JobType } from "@/features/floodriskdata/types/floodriskType";
 import { ThongKeApi } from "../api/thongkeApi";

@@ -1,4 +1,4 @@
-import {  Routes, Route, Router } from "react-router-dom"
+import {  Routes, Route } from "react-router-dom"
 import { MainLayout } from "../layouts/MainLayout"
 import { Area } from "../features/areas/pages/Area"
 

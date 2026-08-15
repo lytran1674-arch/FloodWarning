@@ -50,7 +50,7 @@ export const LoginForm: React.FC = () => {
 
     // Nhận diện: có "@" thì coi là email, ngược lại coi là số điện thoại
     const isEmailFormat = /\S+@\S+\.\S+/.test(value)
-    const emailValue = isEmailFormat ? value : ""
+    
     const sodtValue   = isEmailFormat ? "" : value
 
     try {

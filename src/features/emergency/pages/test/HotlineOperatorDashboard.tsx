@@ -38,7 +38,7 @@ const handleCreatedFromCall = (result: SosHotlineCreateResult) => {
 }
 
 // Luồng "tạo thủ công" — CHƯA có màn gọi cứu hộ, chỉ đóng modal + refresh danh sách
-const handleCreatedManual = (result: SosHotlineCreateResult) => {
+const handleCreatedManual = () => {
   setManualModalOpen(false)
   setRefreshKey(k => k + 1)
   // TODO: khi có luồng gọi cứu hộ cho SOS thủ công, đổi thành setActiveResult(result)

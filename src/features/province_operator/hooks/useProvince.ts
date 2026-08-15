@@ -56,6 +56,7 @@ const updateProvinceOperator=useCallback(async(data:UpdateResCue)=>{
   try{
     setLoading(true);
     const res=await provinceService.updateProvinceOperator(data);
+    setUpdate(res)
     return res;
 
   }catch(err:any){
